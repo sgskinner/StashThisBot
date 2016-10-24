@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ GNU GENERAL PUBLIC LICENSE
+  ~ Version 3, 29 June 2007
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ ArchiveThisBot - Summon this bot to archive Reddit URLs in archive.is
+  ~ Copyright (C) 2016  S.G. Skinner
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="archiveThisBot" parent="archiveThisBot-parentBean"/>
+    <bean id="archiveThisBot-parentBean" abstract="true" class="org.sgs.atbot.ArchiveThisBot">
+        <property name="archiveIsService" ref="archiveIsService"/>
+        <property name="redditService" ref="redditService"/>
+    </bean>
+
+    <bean id="archiveIsService" parent="archiveIsService-parentBean"/>
+    <bean id="archiveIsService-parentBean" class="org.sgs.atbot.service.impl.ArchiveIsServiceImpl">
+        <!--TODO: Lookup API and figure out if there's any pre-exising libs -->
+    </bean>
+
+    <bean id="redditService" parent="redditService-parentBean"/>
+    <bean id="redditService-parentBean" class="org.sgs.atbot.service.impl.RedditServiceImpl">
+        <!--TODO: Inject JRAW -->
+    </bean>
+
+</beans>

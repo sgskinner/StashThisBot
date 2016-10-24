@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" strict="true">
     <Properties>
+        <!-- Set logging level for all ArchiveThisBot packages, overrides root logger -->
         <Property name="sgs.logging.level" value="debug"/>
     </Properties>
     <Appenders>
@@ -22,6 +23,7 @@
             <AppenderRef ref="logfile" />
         </Logger>
         <Root>
+            <!-- OFF, FATAL, ERROR, WARN, INFO, DEBUG, TRACE, ALL -->
             <AppenderRef ref="console" level="info"/>
             <AppenderRef ref="logfile" level="info"/>
         </Root>
