@@ -21,8 +21,17 @@
 
 package org.sgs.archivethisbot;
 
-/**
- * Created by u00 on 10/23/16.
- */
+import org.junit.Test;
+import org.sgs.atbot.ArchiveThisBot;
+
+import junit.framework.Assert;
+
 public class ArchiveIsServiceTest {
+
+    @Test
+    public void testAppInit() {
+        ArchiveThisBot app = new ArchiveThisBot();
+        Assert.assertTrue("App could not initialize.", app != null);
+    }
+
 }

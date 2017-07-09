@@ -22,5 +22,5 @@
 package org.sgs.atbot.service;
 
 
-public interface RedditService {
+public interface RedditService extends AtbService {
 }

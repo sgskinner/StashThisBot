@@ -21,8 +21,7 @@
 
 package org.sgs.atbot.service;
 
-/**
- * Created by u00 on 10/23/16.
- */
-public interface ArchiveIsService extends AtbService {
+
+public interface AtbService {
+    // Marker interface
 }
