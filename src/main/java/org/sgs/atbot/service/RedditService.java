@@ -23,4 +23,6 @@ package org.sgs.atbot.service;
 
 
 public interface RedditService extends AtbService {
+    void performAuth();
+    boolean isAuthenticated();
 }

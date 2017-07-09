@@ -35,4 +35,11 @@ public class AppBootstrapTest {
         Assert.assertTrue(true);
     }
 
+
+    public void testOauth() {
+        ArchiveThisBot archiveThisBot = new ArchiveThisBot();
+        archiveThisBot.performAuth();
+        Assert.assertTrue(archiveThisBot.isAuthenticated());
+    }
+
 }

@@ -25,4 +25,18 @@ import org.sgs.atbot.service.RedditService;
 
 
 public class RedditServiceImpl implements RedditService {
+
+
+
+
+    @Override
+    public void performAuth() {
+
+    }
+
+
+    @Override
+    public boolean isAuthenticated() {
+        return false;
+    }
 }

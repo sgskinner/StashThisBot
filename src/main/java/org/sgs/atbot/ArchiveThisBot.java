@@ -34,22 +34,35 @@ public class ArchiveThisBot {
     private ArchiveIsService archiveIsService;
 
 
-
     protected RedditService getRedditService() {
         return redditService;
     }
+
 
     public void setRedditService(RedditService redditService) {
         this.redditService = redditService;
     }
 
+
     protected ArchiveIsService getArchiveIsService() {
         return archiveIsService;
     }
 
+
     public void setArchiveIsService(ArchiveIsService archiveIsService) {
         this.archiveIsService = archiveIsService;
     }
+
+
+    public void performAuth() {
+        getRedditService().performAuth();
+    }
+
+
+    public boolean isAuthenticated() {
+        return getRedditService().isAuthenticated();
+    }
+
 
     public static void main(String... sgs) {
         LOG.debug("Starting main loop.");
