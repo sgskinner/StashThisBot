@@ -24,8 +24,6 @@ package org.sgs.archivethisbot;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sgs.atbot.ArchiveThisBot;
-import org.sgs.atbot.service.RedditService;
-import org.sgs.atbot.spring.SpringContext;
 
 
 public class AppBootstrapTest {
@@ -37,9 +35,4 @@ public class AppBootstrapTest {
         Assert.assertTrue(true);
     }
 
-    @Test
-    public void testSpringContext() {
-        RedditService service = SpringContext.getService(RedditService.class);
-        Assert.assertTrue(service != null);
-    }
 }
