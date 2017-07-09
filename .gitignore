@@ -41,4 +41,6 @@ sftp-config.json
 # Ignore maven build dirs
 **/target/
 
+# Credentials added in scrubbed state, now ignore to prevent accidental checkin
+src/main/resources/credentials.json
 
