@@ -24,14 +24,14 @@ package org.sgs.atbot;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.sgs.atbot.service.ArchiveIsService;
+import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.service.RedditService;
 
 public class ArchiveThisBot {
     private static final Logger LOG = LogManager.getLogger(ArchiveThisBot.class);
 
     private RedditService redditService;
-    private ArchiveIsService archiveIsService;
+    private ArchiveService archiveIsService;
 
 
     protected RedditService getRedditService() {
@@ -44,12 +44,12 @@ public class ArchiveThisBot {
     }
 
 
-    protected ArchiveIsService getArchiveIsService() {
+    protected ArchiveService getArchiveService() {
         return archiveIsService;
     }
 
 
-    public void setArchiveIsService(ArchiveIsService archiveIsService) {
+    public void setArchiveIsService(ArchiveService archiveIsService) {
         this.archiveIsService = archiveIsService;
     }
 

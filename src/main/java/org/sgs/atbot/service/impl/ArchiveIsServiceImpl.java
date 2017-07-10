@@ -21,8 +21,8 @@
 
 package org.sgs.atbot.service.impl;
 
-import org.sgs.atbot.service.ArchiveIsService;
+import org.sgs.atbot.service.ArchiveService;
 
 
-public class ArchiveIsServiceImpl implements ArchiveIsService {
+public class ArchiveIsServiceImpl implements ArchiveService {
 }

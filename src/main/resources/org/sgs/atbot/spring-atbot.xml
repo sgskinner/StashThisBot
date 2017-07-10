@@ -27,12 +27,12 @@
 
     <bean id="archiveThisBot" parent="archiveThisBot-parentBean"/>
     <bean id="archiveThisBot-parentBean" abstract="true" class="org.sgs.atbot.ArchiveThisBot">
-        <property name="archiveIsService" ref="archiveIsService"/>
+        <property name="archiveIsService" ref="archiveService"/>
         <property name="redditService" ref="redditService"/>
     </bean>
 
-    <bean id="archiveIsService" parent="archiveIsService-parentBean"/>
-    <bean id="archiveIsService-parentBean" class="org.sgs.atbot.service.impl.ArchiveIsServiceImpl" abstract="true">
+    <bean id="archiveService" parent="archiveService-parentBean"/>
+    <bean id="archiveService-parentBean" class="org.sgs.atbot.service.impl.ArchiveIsServiceImpl" abstract="true">
         <!--TODO: Lookup API and figure out if there's any pre-exising libs -->
     </bean>
 
@@ -41,7 +41,12 @@
         <!--TODO: Inject JRAW -->
     </bean>
 
-    <bean id="userAgentProps" class="org.sgs.atbot.http.UserAgentProps">
+    <bean id="authService" parent="authService-parentBean"/>
+    <bean id="authService-parentBean" class="org.sgs.atbot.service.impl.OauthServiceImpl" abstract="true">
+        <property name="userAgent" ref="userAgent"/>
+    </bean>
+
+    <bean id="userAgent" class="net.dean.jraw.http.UserAgent" factory-method="of">
         <constructor-arg name="platform" value="desktop"/>
         <constructor-arg name="appId" value="org.sgs.atbot"/>
         <constructor-arg name="version" value="0.1.1"/>

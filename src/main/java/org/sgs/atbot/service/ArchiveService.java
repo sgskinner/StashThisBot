@@ -16,44 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * ArchiveThisBot - Summon this bot to archive Reddit URLs in archive.is
- * Copyright (C) 2017  S.G. Skinner
+ * Copyright (C) 2016  S.G. Skinner
  */
 
-package org.sgs.atbot.http;
+package org.sgs.atbot.service;
 
-public class UserAgentProps {
-
-    private final String platform;
-    private final String appId;
-    private final String version;
-    private final String redditUsername;
-
-
-    public UserAgentProps(String platform, String appId, String version, String redditUsername) {
-        this.platform = platform;
-        this.appId = appId;
-        this.version = version;
-        this.redditUsername = redditUsername;
-    }
-
-
-    public String getPlatform() {
-        return platform;
-    }
-
-
-    public String getAppId() {
-        return appId;
-    }
-
-
-    public String getVersion() {
-        return version;
-    }
-
-
-    public String getRedditUsername() {
-        return redditUsername;
-    }
-
+/**
+ * Created by u00 on 10/23/16.
+ */
+public interface ArchiveService extends AtbService {
 }

@@ -24,8 +24,9 @@ package org.sgs.archivethisbot;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sgs.atbot.ArchiveThisBot;
-import org.sgs.atbot.http.UserAgentProps;
 import org.sgs.atbot.spring.SpringContext;
+
+import net.dean.jraw.http.UserAgent;
 
 
 public class AppBootstrapTest {
@@ -45,15 +46,10 @@ public class AppBootstrapTest {
     }
 
     @Test
-    public void testUserAgentProps() {
-        UserAgentProps agentProps = SpringContext.getBean(UserAgentProps.class);
-        Assert.assertNotNull("Could not get bean from context!", agentProps);
-        Assert.assertNotNull("AppId not properly set by Spring!", agentProps.getAppId());
-        Assert.assertNotNull("Platform not properly set by Spring!", agentProps.getPlatform());
-        Assert.assertNotNull("Username not properly set by Spring!", agentProps.getRedditUsername());
-        Assert.assertNotNull("Version not properly set by Spring!", agentProps.getVersion());
+    public void testUserAgent() {
+        UserAgent userAgent = SpringContext.getBean(UserAgent.class);
+        Assert.assertNotNull("Could not get bean from context!", userAgent);
+        Assert.assertEquals("Val not properly set by Spring!", "desktop:org.sgs.atbot:0.1.1 (by /u/ArchiveThisBot)", userAgent.toString());
     }
-
-
 
 }

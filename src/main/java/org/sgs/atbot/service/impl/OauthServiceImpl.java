@@ -16,13 +16,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * ArchiveThisBot - Summon this bot to archive Reddit URLs in archive.is
- * Copyright (C) 2016  S.G. Skinner
+ * Copyright (C) 2017  S.G. Skinner
  */
 
-package org.sgs.atbot.service;
+package org.sgs.atbot.service.impl;
 
-/**
- * Created by u00 on 10/23/16.
- */
-public interface ArchiveIsService extends AtbService {
+import org.sgs.atbot.service.AuthService;
+
+import net.dean.jraw.http.UserAgent;
+
+public class OauthServiceImpl implements AuthService {
+
+    private UserAgent userAgent;
+
+
+    @Override
+    public boolean performAuthentication() {
+        return false;
+    }
+
+
+    @Override
+    public boolean isAuthenticated() {
+        return false;
+    }
+
+
+    public void setUserAgent(UserAgent userAgent) {
+        this.userAgent = userAgent;
+    }
+
+
+    private UserAgent getUserAgent() {
+        return userAgent;
+    }
+
 }
