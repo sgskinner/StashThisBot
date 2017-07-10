@@ -41,4 +41,11 @@
         <!--TODO: Inject JRAW -->
     </bean>
 
+    <bean id="userAgentProps" class="org.sgs.atbot.http.UserAgentProps">
+        <constructor-arg name="platform" value="desktop"/>
+        <constructor-arg name="appId" value="org.sgs.atbot"/>
+        <constructor-arg name="version" value="0.1.1"/>
+        <constructor-arg name="redditUsername" value="ArchiveThisBot"/>
+    </bean>
+
 </beans>

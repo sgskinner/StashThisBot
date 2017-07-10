@@ -24,22 +24,36 @@ package org.sgs.archivethisbot;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sgs.atbot.ArchiveThisBot;
+import org.sgs.atbot.http.UserAgentProps;
+import org.sgs.atbot.spring.SpringContext;
 
 
 public class AppBootstrapTest {
 
     @Test
     public void testApp() {
-        // Spring config smoke test; if new'ing up blows up, we fail, otherwise pass
-        new ArchiveThisBot();
-        Assert.assertTrue(true);
+        // Spring config smoke test; if pulling the bean from the context blows up, we fail; otherwise pass
+        ArchiveThisBot bot = SpringContext.getBean(ArchiveThisBot.class);
+        Assert.assertNotNull("Could not instantiate bot!", bot);
     }
 
-
+    @Test
     public void testOauth() {
-        ArchiveThisBot archiveThisBot = new ArchiveThisBot();
-        archiveThisBot.performAuth();
-        Assert.assertTrue(archiveThisBot.isAuthenticated());
+        ArchiveThisBot bot = SpringContext.getBean(ArchiveThisBot.class);
+        bot.performAuth();
+        Assert.assertTrue("Authentication has failed!", bot.isAuthenticated());
     }
+
+    @Test
+    public void testUserAgentProps() {
+        UserAgentProps agentProps = SpringContext.getBean(UserAgentProps.class);
+        Assert.assertNotNull("Could not get bean from context!", agentProps);
+        Assert.assertNotNull("AppId not properly set by Spring!", agentProps.getAppId());
+        Assert.assertNotNull("Platform not properly set by Spring!", agentProps.getPlatform());
+        Assert.assertNotNull("Username not properly set by Spring!", agentProps.getRedditUsername());
+        Assert.assertNotNull("Version not properly set by Spring!", agentProps.getVersion());
+    }
+
+
 
 }

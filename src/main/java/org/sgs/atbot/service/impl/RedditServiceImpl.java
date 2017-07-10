@@ -21,22 +21,42 @@
 
 package org.sgs.atbot.service.impl;
 
+import org.sgs.atbot.http.UserAgentProps;
 import org.sgs.atbot.service.RedditService;
+import org.sgs.atbot.spring.SpringContext;
+
+import net.dean.jraw.http.UserAgent;
 
 
 public class RedditServiceImpl implements RedditService {
 
+    private UserAgent userAgent;
 
+
+    public RedditServiceImpl() {
+        //
+    }
 
 
     @Override
     public void performAuth() {
-
+        //TODO: implement
     }
 
 
     @Override
     public boolean isAuthenticated() {
+        //TODO: implement
         return false;
     }
+
+
+    private UserAgent getUserAgent() {
+        if (userAgent == null) {
+            UserAgentProps agentProps = SpringContext.getBean(UserAgentProps.class);
+            this.userAgent = UserAgent.of(agentProps.getPlatform(), agentProps.getAppId(), agentProps.getVersion(), agentProps.getRedditUsername());
+        }
+        return userAgent;
+    }
+
 }
