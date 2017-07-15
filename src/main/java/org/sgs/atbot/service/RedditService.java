@@ -22,7 +22,13 @@
 package org.sgs.atbot.service;
 
 
+import net.dean.jraw.models.Listing;
+import net.dean.jraw.models.Submission;
+
 public interface RedditService extends AtbService {
+    Listing<Submission> getSubredditSubmissions(String subredditName);
+
     void performAuth();
+
     boolean isAuthenticated();
 }

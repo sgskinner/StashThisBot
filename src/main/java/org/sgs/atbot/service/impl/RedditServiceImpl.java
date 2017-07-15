@@ -25,6 +25,9 @@ import org.sgs.atbot.service.AuthService;
 import org.sgs.atbot.service.RedditService;
 
 import net.dean.jraw.RedditClient;
+import net.dean.jraw.models.Listing;
+import net.dean.jraw.models.Submission;
+import net.dean.jraw.paginators.SubredditPaginator;
 
 
 public class RedditServiceImpl implements RedditService {
@@ -35,6 +38,14 @@ public class RedditServiceImpl implements RedditService {
 
     public RedditServiceImpl() {
         //
+    }
+
+
+    @Override
+    public Listing<Submission> getSubredditSubmissions(String subredditName) {
+        SubredditPaginator paginator = new SubredditPaginator(getRedditClient());
+        paginator.setSubreddit(subredditName);
+        return paginator.next();
     }
 
 

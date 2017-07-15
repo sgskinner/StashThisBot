@@ -21,8 +21,13 @@
 
 package org.sgs.atbot.service;
 
+import java.util.List;
+
+import org.sgs.atbot.url.ArchivedUrl;
+
 /**
  * Created by u00 on 10/23/16.
  */
 public interface ArchiveService extends AtbService {
+    List<ArchivedUrl> archiveUrls(List<String> extractedUrls);
 }

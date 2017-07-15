@@ -21,8 +21,16 @@
 
 package org.sgs.atbot.service.impl;
 
+import java.util.List;
+
 import org.sgs.atbot.service.ArchiveService;
+import org.sgs.atbot.url.ArchivedUrl;
 
 
 public class ArchiveIsServiceImpl implements ArchiveService {
+    @Override
+    public List<ArchivedUrl> archiveUrls(List<String> extractedUrls) {
+        //TODO: implement me
+        return null;
+    }
 }
