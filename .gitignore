@@ -42,5 +42,5 @@ sftp-config.json
 **/target/
 
 # Credentials added in scrubbed state, now ignore to prevent accidental checkin
-#**/security.properties
+**/security.properties
 
