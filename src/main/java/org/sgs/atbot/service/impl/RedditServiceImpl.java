@@ -24,13 +24,13 @@ package org.sgs.atbot.service.impl;
 import org.sgs.atbot.service.AuthService;
 import org.sgs.atbot.service.RedditService;
 
-import net.dean.jraw.http.UserAgent;
+import net.dean.jraw.RedditClient;
 
 
 public class RedditServiceImpl implements RedditService {
 
-    private UserAgent userAgent;
     private AuthService authService;
+    private RedditClient redditClient;
 
 
     public RedditServiceImpl() {
@@ -40,14 +40,33 @@ public class RedditServiceImpl implements RedditService {
 
     @Override
     public void performAuth() {
-        //TODO: implement
+        getAuthService().authenticate(getRedditClient());
     }
 
 
     @Override
     public boolean isAuthenticated() {
-        //TODO: implement
-        return false;
+        return getAuthService().isAuthenticated(getRedditClient());
+    }
+
+
+    public void setRedditClient(RedditClient redditClient) {
+        this.redditClient = redditClient;
+    }
+
+
+    private RedditClient getRedditClient() {
+        return redditClient;
+    }
+
+
+    public AuthService getAuthService() {
+        return authService;
+    }
+
+
+    public void setAuthService(AuthService authService) {
+        this.authService = authService;
     }
 
 }

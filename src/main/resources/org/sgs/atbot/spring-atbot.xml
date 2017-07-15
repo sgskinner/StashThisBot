@@ -22,8 +22,13 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd">
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder location="classpath:org/sgs/atbot/security.properties" />
 
     <bean id="archiveThisBot" parent="archiveThisBot-parentBean"/>
     <bean id="archiveThisBot-parentBean" abstract="true" class="org.sgs.atbot.ArchiveThisBot">
@@ -38,12 +43,17 @@
 
     <bean id="redditService" parent="redditService-parentBean"/>
     <bean id="redditService-parentBean" class="org.sgs.atbot.service.impl.RedditServiceImpl" abstract="true">
-        <!--TODO: Inject JRAW -->
+        <property name="redditClient" ref="redditClient"/>
+        <property name="authService" ref="authService"/>
     </bean>
 
     <bean id="authService" parent="authService-parentBean"/>
     <bean id="authService-parentBean" class="org.sgs.atbot.service.impl.OauthServiceImpl" abstract="true">
-        <property name="userAgent" ref="userAgent"/>
+        <property name="credentials" ref="credentials"/>
+    </bean>
+
+    <bean id="redditClient" class="net.dean.jraw.RedditClient">
+        <constructor-arg name="userAgent" ref="userAgent"/>
     </bean>
 
     <bean id="userAgent" class="net.dean.jraw.http.UserAgent" factory-method="of">
@@ -51,6 +61,15 @@
         <constructor-arg name="appId" value="org.sgs.atbot"/>
         <constructor-arg name="version" value="0.1.1"/>
         <constructor-arg name="redditUsername" value="ArchiveThisBot"/>
+    </bean>
+
+    <bean id="credentials" class="net.dean.jraw.http.oauth.Credentials">
+        <constructor-arg name="authenticationMethod" value="SCRIPT"/>
+        <constructor-arg name="username" value="${reddit.username}"/>
+        <constructor-arg name="password" value="${reddit.password}"/>
+        <constructor-arg name="clientId" value="${reddit.clientId}"/>
+        <constructor-arg name="clientSecret" value="${reddit.clientSecret}"/>
+        <constructor-arg name="redirectUrl" value="${reddit.redirectUrl}"/>
     </bean>
 
 </beans>

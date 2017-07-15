@@ -29,7 +29,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 public final class SpringContext {
-    private static String springConfigFilename = "spring-atbot.xml";
+    private static String springConfigFilename = "org/sgs/atbot/spring-atbot.xml";
     private static ApplicationContext context  = new ClassPathXmlApplicationContext(new String[]{springConfigFilename});
     private static Map<Class<?>, Object> classToBeanMap = new HashMap<>();
 

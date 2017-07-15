@@ -19,12 +19,11 @@
  * Copyright (C) 2016  S.G. Skinner
  */
 
-package org.sgs.archivethisbot;
+package org.sgs.atbot;
 
 import org.junit.Test;
-import org.sgs.atbot.ArchiveThisBot;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class ArchiveIsServiceTest {
 

@@ -19,11 +19,10 @@
  * Copyright (C) 2016  S.G. Skinner
  */
 
-package org.sgs.archivethisbot;
+package org.sgs.atbot;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.sgs.atbot.ArchiveThisBot;
 import org.sgs.atbot.spring.SpringContext;
 
 import net.dean.jraw.http.UserAgent;

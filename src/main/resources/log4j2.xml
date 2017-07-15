@@ -18,7 +18,7 @@
     <Loggers>
         <Logger name="org.springframework.beans.factory.xml" level="error" additivity="false"/>
         <Logger name="org.apache.commons.beanutils" level="error" additivity="false"/>
-        <Logger name="org.sgs.archivethisbot" level="${sgs.logging.level}" additivity="false">
+        <Logger name="org.sgs.atbot" level="${sgs.logging.level}" additivity="false">
             <AppenderRef ref="console" />
             <AppenderRef ref="logfile" />
         </Logger>

@@ -21,7 +21,9 @@
 
 package org.sgs.atbot.service;
 
+import net.dean.jraw.RedditClient;
+
 public interface AuthService {
-    boolean performAuthentication();
-    boolean isAuthenticated();
+    boolean authenticate(RedditClient redditClient);
+    boolean isAuthenticated(RedditClient redditClient);
 }

@@ -23,32 +23,44 @@ package org.sgs.atbot.service.impl;
 
 import org.sgs.atbot.service.AuthService;
 
-import net.dean.jraw.http.UserAgent;
+import net.dean.jraw.RedditClient;
+import net.dean.jraw.http.oauth.Credentials;
+import net.dean.jraw.http.oauth.OAuthData;
+import net.dean.jraw.http.oauth.OAuthException;
 
 public class OauthServiceImpl implements AuthService {
 
-    private UserAgent userAgent;
+    private Credentials credentials;
 
 
     @Override
-    public boolean performAuthentication() {
-        return false;
+    public boolean authenticate(RedditClient redditClient) {
+        OAuthData oAuthData;
+        try {
+            oAuthData = redditClient.getOAuthHelper().easyAuth(getCredentials());
+        } catch (OAuthException e) {
+            throw new RuntimeException(e);
+        }
+
+        redditClient.authenticate(oAuthData);
+
+        return isAuthenticated(redditClient);
     }
 
 
     @Override
-    public boolean isAuthenticated() {
-        return false;
+    public boolean isAuthenticated(RedditClient redditClient) {
+        return redditClient.isAuthenticated();
     }
 
 
-    public void setUserAgent(UserAgent userAgent) {
-        this.userAgent = userAgent;
+    public void setCredentials(Credentials credentials) {
+        this.credentials = credentials;
     }
 
 
-    private UserAgent getUserAgent() {
-        return userAgent;
+    private Credentials getCredentials() {
+        return credentials;
     }
 
 }
