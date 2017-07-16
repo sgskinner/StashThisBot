@@ -21,16 +21,26 @@
 
 package org.sgs.atbot.service.impl;
 
+import java.util.Calendar;
 import java.util.List;
 
 import org.sgs.atbot.service.ArchiveService;
+import org.sgs.atbot.url.ArchiveResonse;
 import org.sgs.atbot.url.ArchivedUrl;
+
+import net.dean.jraw.models.CommentNode;
 
 
 public class ArchiveIsServiceImpl implements ArchiveService {
+
     @Override
-    public List<ArchivedUrl> archiveUrls(List<String> extractedUrls) {
-        //TODO: implement me
-        return null;
+    public ArchiveResonse archiveUrls(CommentNode parentCommentNode, CommentNode summoningNode, List<String> extractedUrls) {
+        ArchiveResonse request = new ArchiveResonse(parentCommentNode, summoningNode, extractedUrls);
+        for (ArchivedUrl archivedUrl : request.getUrlsToArchive()) {
+            //TODO: implement archive service here
+        }
+        request.setIsArchived(true);
+        request.setArchivedDate(Calendar.getInstance().getTime());
+        return request;
     }
 }

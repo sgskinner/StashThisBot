@@ -23,6 +23,7 @@ package org.sgs.atbot.service.impl;
 
 import org.sgs.atbot.service.AuthService;
 import org.sgs.atbot.service.RedditService;
+import org.sgs.atbot.url.ArchiveResonse;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.models.Listing;
@@ -58,6 +59,12 @@ public class RedditServiceImpl implements RedditService {
     @Override
     public boolean isAuthenticated() {
         return getAuthService().isAuthenticated(getRedditClient());
+    }
+
+
+    @Override
+    public void postArchiveResponse(ArchiveResonse archiveResonse) {
+        //TODO: Add logic to reply to summonerCommentNode with list of archived links
     }
 
 

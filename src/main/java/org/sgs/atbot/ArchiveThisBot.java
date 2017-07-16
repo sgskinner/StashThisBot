@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.service.RedditService;
 import org.sgs.atbot.spring.SpringContext;
-import org.sgs.atbot.url.ArchivedUrl;
+import org.sgs.atbot.url.ArchiveResonse;
 import org.sgs.atbot.url.UrlMatcher;
 import org.springframework.util.StopWatch;
 
@@ -109,13 +109,15 @@ public class ArchiveThisBot {
     }
 
 
-    private void processSummons(CommentNode commentNode) {
+    private void processSummons(CommentNode summoningCommentNode) {
         // Pull all urls that we can find in the parent comment
-        Comment parentComment = commentNode.getParent().getComment();
+        CommentNode parentCommentNode = summoningCommentNode.getParent();
+        Comment parentComment = parentCommentNode.getComment();
         String body = parentComment.getBody();
         List<String> extractedUrls = UrlMatcher.extractUrls(body);
         if (extractedUrls.size() > 0) {
-            List<ArchivedUrl> archivedUrls = getArchiveService().archiveUrls(extractedUrls);
+            ArchiveResonse archivedResponse = getArchiveService().archiveUrls(parentCommentNode, summoningCommentNode, extractedUrls);
+            getRedditService().postArchiveResponse(archivedResponse);
         }
     }
 
