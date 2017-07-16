@@ -33,6 +33,7 @@ import net.dean.jraw.RedditClient;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.SubredditPaginator;
+import net.dean.jraw.paginators.TimePeriod;
 
 
 public class RedditServiceImpl implements RedditService {
@@ -41,10 +42,11 @@ public class RedditServiceImpl implements RedditService {
     private AuthService authService;
     private RedditClient redditClient;
     private List subredditList;
+    private boolean isFirstRun;
 
 
     public RedditServiceImpl() {
-        //
+        this.isFirstRun = true;
     }
 
 
@@ -53,8 +55,12 @@ public class RedditServiceImpl implements RedditService {
         SubredditPaginator paginator = new SubredditPaginator(getRedditClient());
         paginator.setSubreddit(subredditName);
 
-        //TODO: Make this service time-aware so that we only poll for what we actually need
-        //paginator.setTimePeriod(TimePeriod.DAY);
+        TimePeriod timePeriod = TimePeriod.HOUR;
+        if (isFirstRun) {
+            timePeriod = TimePeriod.WEEK;
+            isFirstRun = false;
+        }
+        paginator.setTimePeriod(timePeriod);
 
         return paginator.next();
     }
