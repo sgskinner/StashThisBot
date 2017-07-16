@@ -22,7 +22,7 @@
 package org.sgs.atbot.service;
 
 
-import org.sgs.atbot.url.ArchiveResonse;
+import org.sgs.atbot.url.ArchiveResult;
 
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
@@ -30,9 +30,11 @@ import net.dean.jraw.models.Submission;
 public interface RedditService extends AtbService {
     Listing<Submission> getSubredditSubmissions(String subredditName);
 
+    Submission getFullSubmissionData(Submission submission);
+
     void performAuth();
 
     boolean isAuthenticated();
 
-    void postArchiveResponse(ArchiveResonse archiveResonse);
+    void postArchiveResult(ArchiveResult archiveResult);
 }

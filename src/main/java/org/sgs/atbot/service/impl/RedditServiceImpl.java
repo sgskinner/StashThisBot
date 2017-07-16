@@ -21,9 +21,13 @@
 
 package org.sgs.atbot.service.impl;
 
+import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.service.AuthService;
 import org.sgs.atbot.service.RedditService;
-import org.sgs.atbot.url.ArchiveResonse;
+import org.sgs.atbot.url.ArchiveResult;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.models.Listing;
@@ -32,9 +36,11 @@ import net.dean.jraw.paginators.SubredditPaginator;
 
 
 public class RedditServiceImpl implements RedditService {
+    private static final Logger LOG = LogManager.getLogger(RedditServiceImpl.class);
 
     private AuthService authService;
     private RedditClient redditClient;
+    private List subredditList;
 
 
     public RedditServiceImpl() {
@@ -46,7 +52,28 @@ public class RedditServiceImpl implements RedditService {
     public Listing<Submission> getSubredditSubmissions(String subredditName) {
         SubredditPaginator paginator = new SubredditPaginator(getRedditClient());
         paginator.setSubreddit(subredditName);
+
+        //TODO: Make this service time-aware so that we only poll for what we actually need
+        //paginator.setTimePeriod(TimePeriod.DAY);
+
         return paginator.next();
+    }
+
+
+    /*
+     * Necessary due to reddit api: the Paginator only returns the root submission, and
+     * doesn't set any of the comment data. This requires an explicit call to the RedditClient
+     * with the Submission's id, as detailed by the JRAW maintainers:
+     * https://web.archive.org/web/20170716202732/https://github.com/thatJavaNerd/JRAW/issues/29
+     */
+    @Override
+    public Submission getFullSubmissionData(Submission submission) {
+        if (submission == null || submission.getCommentCount() < 1) {
+            LOG.info("No comments to fetch for submission: " + (submission == null ? null : submission.getShortURL()));
+            return null;
+        }
+
+        return getRedditClient().getSubmission(submission.getId());
     }
 
 
@@ -63,7 +90,7 @@ public class RedditServiceImpl implements RedditService {
 
 
     @Override
-    public void postArchiveResponse(ArchiveResonse archiveResonse) {
+    public void postArchiveResult(ArchiveResult archiveResult) {
         //TODO: Add logic to reply to summonerCommentNode with list of archived links
     }
 
@@ -87,4 +114,13 @@ public class RedditServiceImpl implements RedditService {
         this.authService = authService;
     }
 
+
+    public void setSubredditList(List subredditList) {
+        this.subredditList = subredditList;
+    }
+
+
+    public List getSubredditList() {
+        return subredditList;
+    }
 }

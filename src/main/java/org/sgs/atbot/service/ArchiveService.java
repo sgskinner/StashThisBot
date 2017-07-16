@@ -23,7 +23,7 @@ package org.sgs.atbot.service;
 
 import java.util.List;
 
-import org.sgs.atbot.url.ArchiveResonse;
+import org.sgs.atbot.url.ArchiveResult;
 
 import net.dean.jraw.models.CommentNode;
 
@@ -31,5 +31,5 @@ import net.dean.jraw.models.CommentNode;
  * Created by u00 on 10/23/16.
  */
 public interface ArchiveService extends AtbService {
-    ArchiveResonse archiveUrls(CommentNode parentCommentNode, CommentNode summoningNode, List<String> extractedUrls);
+    ArchiveResult archiveUrls(CommentNode parentCommentNode, CommentNode summoningNode, List<String> extractedUrls);
 }

@@ -45,6 +45,11 @@
     <bean id="redditService-parentBean" class="org.sgs.atbot.service.impl.RedditServiceImpl" abstract="true">
         <property name="redditClient" ref="redditClient"/>
         <property name="authService" ref="authService"/>
+        <property name="subredditList">
+            <list>
+                <value>ArchiveThisBotSandbox</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="authService" parent="authService-parentBean"/>

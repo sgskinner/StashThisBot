@@ -25,7 +25,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.sgs.atbot.service.ArchiveService;
-import org.sgs.atbot.url.ArchiveResonse;
+import org.sgs.atbot.url.ArchiveResult;
 import org.sgs.atbot.url.ArchivedUrl;
 
 import net.dean.jraw.models.CommentNode;
@@ -34,13 +34,14 @@ import net.dean.jraw.models.CommentNode;
 public class ArchiveIsServiceImpl implements ArchiveService {
 
     @Override
-    public ArchiveResonse archiveUrls(CommentNode parentCommentNode, CommentNode summoningNode, List<String> extractedUrls) {
-        ArchiveResonse request = new ArchiveResonse(parentCommentNode, summoningNode, extractedUrls);
+    public ArchiveResult archiveUrls(CommentNode parentCommentNode, CommentNode summoningNode, List<String> extractedUrls) {
+        ArchiveResult request = new ArchiveResult(parentCommentNode, summoningNode, extractedUrls);
         for (ArchivedUrl archivedUrl : request.getUrlsToArchive()) {
             //TODO: implement archive service here
+            archivedUrl.setArchivedUrl("sgs: MOCKED; " + Calendar.getInstance().getTimeInMillis());
+            request.setArchivedDate(Calendar.getInstance().getTime());
         }
-        request.setIsArchived(true);
-        request.setArchivedDate(Calendar.getInstance().getTime());
+
         return request;
     }
 }

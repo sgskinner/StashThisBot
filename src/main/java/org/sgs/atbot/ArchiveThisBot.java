@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.service.RedditService;
 import org.sgs.atbot.spring.SpringContext;
-import org.sgs.atbot.url.ArchiveResonse;
+import org.sgs.atbot.url.ArchiveResult;
 import org.sgs.atbot.url.UrlMatcher;
 import org.springframework.util.StopWatch;
 
@@ -40,13 +40,15 @@ import net.dean.jraw.models.Submission;
 
 public class ArchiveThisBot {
     private static final Logger LOG = LogManager.getLogger(ArchiveThisBot.class);
+    private static final long SLEEP_INTERVAL = 10*1000; // 10 seconds in millis
+    private static final long OAUTH_REFRESH_INTERVAL = 50*60*1000; // 50 minutes in millis
 
     private RedditService redditService;
     private ArchiveService archiveIsService;
     private List<String> subredditList;
 
 
-    public void run() {
+    private void run() {
 
         // OAuth token is set to expire in 1 hour from authenticating, so we need to watch for refreshing
         StopWatch stopWatch = new StopWatch();
@@ -62,29 +64,45 @@ public class ArchiveThisBot {
             for (String subredditName : getSubredditList()) {
                 Listing<Submission> submissions = getRedditService().getSubredditSubmissions(subredditName);
                 for (Submission submission : submissions) {
+                    if (submission == null || submission.getCommentCount() < 1 || submission.getId() == null) {
+                        // GIGO, move on
+                        LOG.warn("Bad submission, skipping: " + submission);
+                        continue;
+                    }
+                    submission = getRedditService().getFullSubmissionData(submission);
                     CommentNode commentNode = submission.getComments();
-                    recurseThroughComments(commentNode);
+                    recurseThroughComments(commentNode, submission);
                 }
             }
 
             // OAuth token needs refreshing every 60 minutes, so we're going to refresh every 50
-            if(stopWatch.getTotalTimeMillis() > (50*60*1000)) {
-                performAuth();
-                stopWatch.stop();
+            if(stopWatch.getTotalTimeMillis() > OAUTH_REFRESH_INTERVAL) {
+                stopWatch = new StopWatch();
                 stopWatch.start();
+                performAuth();
             }
 
+            try {
+                Thread.sleep(SLEEP_INTERVAL);
+            } catch (InterruptedException e) {
+                LOG.warn("Unexpectedly woken from sleep!: " + e.getMessage());
+            }
 
         } while (isAuthenticated());
     }
 
 
-    private void recurseThroughComments(CommentNode commentNode) {
+    private void recurseThroughComments(CommentNode commentNode, Submission submission) {
+
+        if (commentNode == null) {
+            LOG.warn("No comments found for submission!: " + submission.getShortURL());
+            return;
+        }
 
         // Depth-first traversal, might want to also try breadth-first and assess which is better
         if (commentNode.getChildren().size() > 0) {
             for (CommentNode childNode : commentNode.getChildren()) {
-                recurseThroughComments(childNode);
+                recurseThroughComments(childNode, submission);
             }
         }
 
@@ -100,7 +118,9 @@ public class ArchiveThisBot {
         Comment comment = commentNode.getComment();
         String body = comment.getBody();
         if (org.apache.commons.lang3.StringUtils.isNotBlank(body)) {
+            //TODO: Add matcher so that we can report the actual match
             if (body.contains("!ArchiveThis") || body.contains("!Archive This") || body.contains("Archive This!") || body.contains("Archive This!")) {
+                LOG.debug("Found summon hit(Comment#getId()): " + comment.getId());
                 return true;
             }
         }
@@ -110,19 +130,20 @@ public class ArchiveThisBot {
 
 
     private void processSummons(CommentNode summoningCommentNode) {
+        LOG.debug("Processing summons: " + summoningCommentNode.getComment().getId());
         // Pull all urls that we can find in the parent comment
         CommentNode parentCommentNode = summoningCommentNode.getParent();
         Comment parentComment = parentCommentNode.getComment();
         String body = parentComment.getBody();
         List<String> extractedUrls = UrlMatcher.extractUrls(body);
         if (extractedUrls.size() > 0) {
-            ArchiveResonse archivedResponse = getArchiveService().archiveUrls(parentCommentNode, summoningCommentNode, extractedUrls);
-            getRedditService().postArchiveResponse(archivedResponse);
+            ArchiveResult archivedResult = getArchiveService().archiveUrls(parentCommentNode, summoningCommentNode, extractedUrls);
+            getRedditService().postArchiveResult(archivedResult);
         }
     }
 
 
-    protected RedditService getRedditService() {
+    private RedditService getRedditService() {
         return redditService;
     }
 
@@ -132,7 +153,7 @@ public class ArchiveThisBot {
     }
 
 
-    protected ArchiveService getArchiveService() {
+    private ArchiveService getArchiveService() {
         return archiveIsService;
     }
 
@@ -142,17 +163,17 @@ public class ArchiveThisBot {
     }
 
 
-    public void performAuth() {
+    protected void performAuth() {
         getRedditService().performAuth();
     }
 
 
-    public boolean isAuthenticated() {
+    protected boolean isAuthenticated() {
         return getRedditService().isAuthenticated();
     }
 
 
-    public List<String> getSubredditList() {
+    private List<String> getSubredditList() {
         return subredditList;
     }
 

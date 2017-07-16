@@ -1,6 +1,5 @@
 package org.sgs.atbot.url;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,16 +25,16 @@ public class ArchivedUrl {
     }
 
 
+    public String getOriginalUrl() {
+        return originalUrl;
+    }
+
+
     public boolean isArchived() {
         return StringUtils.isNotBlank(getArchivedUrl()) && getLastArchived() != null;
     }
 
-
-    public void setLastArchivedToNow() {
-        this .lastArchived = Calendar.getInstance().getTime();
-    }
-
-
+    
     public void setLastArchived(Date date) {
         this.lastArchived = date;
     }
