@@ -4,13 +4,13 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class ArchivedUrl {
+public class AtbotUrl {
     private final String originalUrl;
     private String archivedUrl;
     private Date lastArchived;
 
 
-    public ArchivedUrl(String originalUrl) {
+    public AtbotUrl(String originalUrl) {
         this.originalUrl = originalUrl;
     }
 

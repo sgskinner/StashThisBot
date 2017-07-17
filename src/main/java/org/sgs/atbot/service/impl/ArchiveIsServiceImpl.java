@@ -26,7 +26,7 @@ import java.util.List;
 
 import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.url.ArchiveResult;
-import org.sgs.atbot.url.ArchivedUrl;
+import org.sgs.atbot.url.AtbotUrl;
 
 import net.dean.jraw.models.CommentNode;
 
@@ -36,9 +36,9 @@ public class ArchiveIsServiceImpl implements ArchiveService {
     @Override
     public ArchiveResult archiveUrls(CommentNode parentCommentNode, CommentNode summoningNode, List<String> extractedUrls) {
         ArchiveResult request = new ArchiveResult(parentCommentNode, summoningNode, extractedUrls);
-        for (ArchivedUrl archivedUrl : request.getUrlsToArchive()) {
+        for (AtbotUrl atbotUrl : request.getUrlsToArchive()) {
             //TODO: implement archive service here
-            archivedUrl.setArchivedUrl("sgs: MOCKED; " + Calendar.getInstance().getTimeInMillis());
+            atbotUrl.setArchivedUrl("sgs: MOCKED; " + Calendar.getInstance().getTimeInMillis());
             request.setArchivedDate(Calendar.getInstance().getTime());
         }
 

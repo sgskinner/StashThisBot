@@ -42,9 +42,7 @@
     </bean>
 
     <bean id="archiveService" parent="archiveService-parentBean"/>
-    <bean id="archiveService-parentBean" class="org.sgs.atbot.service.impl.ArchiveIsServiceImpl" abstract="true">
-        <!--TODO: Lookup API and figure out if there's any pre-exising libs -->
-    </bean>
+    <bean id="archiveService-parentBean" class="org.sgs.atbot.service.impl.WaybackMachineArchiveServiceImpl" abstract="true"/>
 
     <bean id="redditService" parent="redditService-parentBean"/>
     <bean id="redditService-parentBean" class="org.sgs.atbot.service.impl.RedditServiceImpl" abstract="true">

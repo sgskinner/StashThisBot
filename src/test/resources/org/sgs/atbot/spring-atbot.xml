@@ -34,22 +34,20 @@
     <bean id="archiveThisBot-parentBean" abstract="true" class="org.sgs.atbot.ArchiveThisBot">
         <property name="archiveIsService" ref="archiveService"/>
         <property name="redditService" ref="redditService"/>
-    </bean>
-
-    <bean id="archiveService" parent="archiveService-parentBean"/>
-    <bean id="archiveService-parentBean" class="org.sgs.atbot.service.impl.ArchiveIsServiceImpl" abstract="true">
-        <!--TODO: Lookup API and figure out if there's any pre-exising libs -->
-    </bean>
-
-    <bean id="redditService" parent="redditService-parentBean"/>
-    <bean id="redditService-parentBean" class="org.sgs.atbot.service.impl.RedditServiceImpl" abstract="true">
-        <property name="redditClient" ref="redditClient"/>
-        <property name="authService" ref="authService"/>
         <property name="subredditList">
             <list>
                 <value>ArchiveThisBotSandbox</value>
             </list>
         </property>
+    </bean>
+
+    <bean id="archiveService" parent="archiveService-parentBean"/>
+    <bean id="archiveService-parentBean" class="org.sgs.atbot.service.impl.WaybackMachineArchiveServiceImpl" abstract="true"/>
+
+    <bean id="redditService" parent="redditService-parentBean"/>
+    <bean id="redditService-parentBean" class="org.sgs.atbot.service.impl.RedditServiceImpl" abstract="true">
+        <property name="redditClient" ref="redditClient"/>
+        <property name="authService" ref="authService"/>
     </bean>
 
     <bean id="authService" parent="authService-parentBean"/>

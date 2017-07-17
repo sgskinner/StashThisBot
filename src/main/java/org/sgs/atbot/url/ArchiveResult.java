@@ -10,7 +10,7 @@ import net.dean.jraw.models.CommentNode;
 public class ArchiveResult {
     private final CommentNode parentCommentNode;
     private final CommentNode summoningCommentNode;
-    private final List<ArchivedUrl> urlsToArchive;
+    private final List<AtbotUrl> urlsToArchive;
     private Date requestDate;
     private Date archivedDate;
 
@@ -22,7 +22,7 @@ public class ArchiveResult {
 
         this.urlsToArchive = new ArrayList<>();
         for (String url : urlsToArchive) {
-            this.urlsToArchive.add(new ArchivedUrl(url));
+            this.urlsToArchive.add(new AtbotUrl(url));
         }
     }
 
@@ -37,7 +37,7 @@ public class ArchiveResult {
     }
 
 
-    public List<ArchivedUrl> getUrlsToArchive() {
+    public List<AtbotUrl> getUrlsToArchive() {
         return urlsToArchive;
     }
 
@@ -70,9 +70,9 @@ public class ArchiveResult {
         sb.append(System.lineSeparator());
         sb.append("    summoningCommentId: " + (getSummoningCommentNode() == null ? null : (getSummoningCommentNode().getComment() == null ? null : getSummoningCommentNode().getComment().getId())));
         sb.append(System.lineSeparator());
-        for (ArchivedUrl archivedUrl : urlsToArchive) {
-            sb.append("    originalUrl: " + archivedUrl.getOriginalUrl());
-            sb.append("    archivedUrl: " + archivedUrl.getArchivedUrl());
+        for (AtbotUrl atbotUrl : urlsToArchive) {
+            sb.append("    originalUrl: " + atbotUrl.getOriginalUrl());
+            sb.append("    archivedUrl: " + atbotUrl.getArchivedUrl());
             sb.append(System.lineSeparator());
         }
         sb.append("requestDate: " + getRequestDate());
