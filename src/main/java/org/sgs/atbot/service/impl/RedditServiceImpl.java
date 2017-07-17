@@ -29,7 +29,9 @@ import org.sgs.atbot.service.AuthService;
 import org.sgs.atbot.service.RedditService;
 import org.sgs.atbot.url.ArchiveResult;
 
+import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
+import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.SubredditPaginator;
@@ -97,7 +99,13 @@ public class RedditServiceImpl implements RedditService {
 
     @Override
     public void postArchiveResult(ArchiveResult archiveResult) {
-        //TODO: Add logic to reply to summonerCommentNode with list of archived links
+        AccountManager accountManager = new AccountManager(redditClient);
+        try {
+            accountManager.reply(archiveResult.getSummoningCommentNode().getComment(), archiveResult.getUrlsToArchive().get(0).getArchivedUrl());
+        } catch (ApiException e) {
+            LOG.warn("Reddit API barfed on posting a reply to comment with ID: " + archiveResult.getSummoningCommentNode().getComment());
+        }
+
     }
 
 
