@@ -52,7 +52,7 @@ public class AtbotUrl {
         sb.append(System.lineSeparator());
         sb.append("    originalUrl: " + getOriginalUrl());
         sb.append(System.lineSeparator());
-        sb.append("    archivedUrl: " + getOriginalUrl());
+        sb.append("    archivedUrl: " + getArchivedUrl());
         sb.append(System.lineSeparator());
         sb.append("    lastArchived: " + getLastArchived());
         sb.append(System.lineSeparator());
