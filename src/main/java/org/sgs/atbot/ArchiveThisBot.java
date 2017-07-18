@@ -117,6 +117,7 @@ public class ArchiveThisBot {
     private boolean isCommentSummoning(CommentNode commentNode) {
         Comment comment = commentNode.getComment();
         String body = comment.getBody();
+
         if (org.apache.commons.lang3.StringUtils.isNotBlank(body)) {
             //TODO: Add matcher so that we can report the actual match
             if (body.contains("!ArchiveThis") || body.contains("!Archive This") || body.contains("Archive This!") || body.contains("Archive This!")) {
@@ -131,10 +132,12 @@ public class ArchiveThisBot {
 
     private void processSummons(CommentNode summoningCommentNode) {
         LOG.debug("Processing summons: " + summoningCommentNode.getComment().getId());
+
         // Pull all urls that we can find in the parent comment
         CommentNode parentCommentNode = summoningCommentNode.getParent();
         Comment parentComment = parentCommentNode.getComment();
         String body = parentComment.getBody();
+
         List<String> extractedUrls = UrlMatcher.extractUrls(body);
         if (extractedUrls.size() > 0) {
             ArchiveResult archivedResult = getArchiveService().archiveUrls(parentCommentNode, summoningCommentNode, extractedUrls);

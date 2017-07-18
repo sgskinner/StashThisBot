@@ -43,4 +43,21 @@ public class AtbotUrl {
     public Date getLastArchived() {
         return lastArchived;
     }
+
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("AtbotUrl[");
+        sb.append(System.lineSeparator());
+        sb.append("    originalUrl: " + getOriginalUrl());
+        sb.append(System.lineSeparator());
+        sb.append("    archivedUrl: " + getOriginalUrl());
+        sb.append(System.lineSeparator());
+        sb.append("    lastArchived: " + getLastArchived());
+        sb.append(System.lineSeparator());
+        sb.append("    isArchived: " + isArchived() + "]");
+
+        return sb.toString();
+    }
 }
