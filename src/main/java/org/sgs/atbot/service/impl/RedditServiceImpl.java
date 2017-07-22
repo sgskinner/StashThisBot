@@ -99,12 +99,22 @@ public class RedditServiceImpl implements RedditService {
 
     @Override
     public void postArchiveResult(ArchiveResult archiveResult) {
+
         AccountManager accountManager = new AccountManager(redditClient);
         try {
+            // TODO: need to aggregate *all* archived links, i.e., ArchiveResult->ArchivedUrl is a 1->n relationship
             accountManager.reply(archiveResult.getSummoningCommentNode().getComment(), archiveResult.getUrlsToArchive().get(0).getArchivedUrl());
         } catch (ApiException e) {
             LOG.warn("Reddit API barfed on posting a reply to comment with ID: " + archiveResult.getSummoningCommentNode().getComment());
+            return;
         }
+
+        saveArchiveResult(archiveResult);
+
+    }
+
+
+    private void saveArchiveResult(ArchiveResult archiveResult) {
 
     }
 

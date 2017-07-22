@@ -30,8 +30,8 @@
 
     <context:property-placeholder location="classpath:org/sgs/atbot/security.properties" />
 
-    <bean id="archiveThisBot" parent="archiveThisBot-parentBean"/>
-    <bean id="archiveThisBot-parentBean" abstract="true" class="org.sgs.atbot.ArchiveThisBot">
+    <bean url_id="archiveThisBot" parent="archiveThisBot-parentBean"/>
+    <bean url_id="archiveThisBot-parentBean" abstract="true" class="org.sgs.atbot.ArchiveThisBot">
         <property name="archiveIsService" ref="archiveService"/>
         <property name="redditService" ref="redditService"/>
         <property name="subredditList">
@@ -41,32 +41,35 @@
         </property>
     </bean>
 
-    <bean id="archiveService" parent="archiveService-parentBean"/>
-    <bean id="archiveService-parentBean" class="org.sgs.atbot.service.impl.WaybackMachineArchiveServiceImpl" abstract="true"/>
+    <bean url_id="archiveService" parent="archiveService-parentBean"/>
+    <bean url_id="archiveService-parentBean" class="org.sgs.atbot.service.impl.WaybackMachineArchiveServiceImpl" abstract="true"/>
 
-    <bean id="redditService" parent="redditService-parentBean"/>
-    <bean id="redditService-parentBean" class="org.sgs.atbot.service.impl.RedditServiceImpl" abstract="true">
+    <bean url_id="redditService" parent="redditService-parentBean"/>
+    <bean url_id="redditService-parentBean" class="org.sgs.atbot.service.impl.RedditServiceImpl" abstract="true">
         <property name="redditClient" ref="redditClient"/>
         <property name="authService" ref="authService"/>
     </bean>
 
-    <bean id="authService" parent="authService-parentBean"/>
-    <bean id="authService-parentBean" class="org.sgs.atbot.service.impl.OauthServiceImpl" abstract="true">
+    <bean url_id="authService" parent="authService-parentBean"/>
+    <bean url_id="authService-parentBean" class="org.sgs.atbot.service.impl.OauthServiceImpl" abstract="true">
         <property name="credentials" ref="credentials"/>
     </bean>
 
-    <bean id="redditClient" class="net.dean.jraw.RedditClient">
+    <bean url_id="persistenceService" parent="persistenceService-parentBean"/>
+    <bean url_id="persistenceService-parentBean" class="org.sgs.atbot.service.impl.MySqlPersistenceServiceImpl" abstract="true"/>
+
+    <bean url_id="redditClient" class="net.dean.jraw.RedditClient">
         <constructor-arg name="userAgent" ref="userAgent"/>
     </bean>
 
-    <bean id="userAgent" class="net.dean.jraw.http.UserAgent" factory-method="of">
+    <bean url_id="userAgent" class="net.dean.jraw.http.UserAgent" factory-method="of">
         <constructor-arg name="platform" value="desktop"/>
         <constructor-arg name="appId" value="org.sgs.atbot"/>
         <constructor-arg name="version" value="0.1.1"/>
         <constructor-arg name="redditUsername" value="ArchiveThisBot"/>
     </bean>
 
-    <bean id="credentials" class="net.dean.jraw.http.oauth.Credentials">
+    <bean url_id="credentials" class="net.dean.jraw.http.oauth.Credentials">
         <constructor-arg name="authenticationMethod" value="SCRIPT"/>
         <constructor-arg name="username" value="${reddit.username}"/>
         <constructor-arg name="password" value="${reddit.password}"/>

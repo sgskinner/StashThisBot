@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.service.ArchiveService;
+import org.sgs.atbot.service.PersistenceService;
 import org.sgs.atbot.service.RedditService;
 import org.sgs.atbot.spring.SpringContext;
 import org.sgs.atbot.url.ArchiveResult;
@@ -46,6 +47,7 @@ public class ArchiveThisBot {
     private RedditService redditService;
     private ArchiveService archiveIsService;
     private List<String> subredditList;
+    private PersistenceService persistenceService;
 
 
     private void run() {
@@ -107,10 +109,20 @@ public class ArchiveThisBot {
         }
 
         // If we're here, we're a leaf node, so do summons search here
-        if (isCommentSummoning(commentNode)) {
+        if (isCommentSummoning(commentNode) && !isAlreadyServiced(commentNode) && !isUserBlacklisted(commentNode.getComment().getAuthor())) {
             processSummons(commentNode);
         }
 
+    }
+
+
+    private boolean isUserBlacklisted(String author) {
+        return getPersistenceService().isUserBlacklisted(author);
+    }
+
+
+    private boolean isAlreadyServiced(CommentNode commentNode) {
+        return getPersistenceService().isAlreadyServiced(commentNode);
     }
 
 
@@ -121,7 +133,7 @@ public class ArchiveThisBot {
         if (org.apache.commons.lang3.StringUtils.isNotBlank(body)) {
             //TODO: Add matcher so that we can report the actual match
             if (body.contains("!ArchiveThis") || body.contains("!Archive This") || body.contains("Archive This!") || body.contains("Archive This!")) {
-                LOG.debug("Found summon hit(Comment#getId()): " + comment.getId());
+                LOG.debug("Found summon hit(Comment#getUrl_id()): " + comment.getId());
                 return true;
             }
         }
@@ -183,6 +195,16 @@ public class ArchiveThisBot {
 
     public void setSubredditList(List<String> subredditList) {
         this.subredditList = subredditList;
+    }
+
+
+    public PersistenceService getPersistenceService() {
+        return persistenceService;
+    }
+
+
+    public void setPersistenceService(PersistenceService persistenceService) {
+        this.persistenceService = persistenceService;
     }
 
 

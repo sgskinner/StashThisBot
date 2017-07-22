@@ -7,7 +7,9 @@ import java.util.List;
 
 import net.dean.jraw.models.CommentNode;
 
+
 public class ArchiveResult {
+
     private final CommentNode parentCommentNode;
     private final CommentNode summoningCommentNode;
     private final List<AtbotUrl> urlsToArchive;
