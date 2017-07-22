@@ -1,5 +1,6 @@
 package org.sgs.atbot;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -19,7 +20,7 @@ import org.sgs.atbot.url.AtbotUrl;
 public class ArchiveResultBo {
 
 
-    private Long resultId;
+    private BigInteger resultId;
     private String submissionUrl;
     private String parentCommentAuthor;
     private String parentCommentId;
@@ -28,6 +29,10 @@ public class ArchiveResultBo {
     private String summoningCommentId;
     private String summoningCommentUrl;
     private List<AtbotUrl> archivedUrls;
+
+    public ArchiveResultBo() {
+        // Necessary for ORM
+    }
 
     public ArchiveResultBo(ArchiveResult archiveResult) {
         this.parentCommentAuthor = archiveResult.getParentCommentNode().getComment().getAuthor();
@@ -43,12 +48,12 @@ public class ArchiveResultBo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="result_id")
-    public Long getResultId() {
+    public BigInteger getResultId() {
         return resultId;
     }
 
 
-    public void setResutlId(Long resultId) {
+    public void setResultId(BigInteger resultId) {
         this.resultId = resultId;
     }
 
@@ -128,7 +133,7 @@ public class ArchiveResultBo {
     }
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "archive_result_t")
+    @OneToMany(fetch = FetchType.LAZY)
     public List<AtbotUrl> getArchivedUrls() {
         return archivedUrls;
     }

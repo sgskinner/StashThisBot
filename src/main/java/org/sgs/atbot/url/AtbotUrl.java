@@ -1,29 +1,34 @@
 package org.sgs.atbot.url;
 
+import java.math.BigInteger;
 import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
 
 @Entity
 @Table(name = "atbot_url_t")
 public class AtbotUrl {
-    private Long urlId;
-    private Long archivedResultId;
-    private final String originalUrl;
+    private BigInteger urlId;
+    private BigInteger archivedResultId;
+    private String originalUrl;
     private String archivedUrl;
     private Date lastArchived;
+
+
+    public AtbotUrl() {
+        // Necessary for ORM
+    }
 
 
     public AtbotUrl(String originalUrl) {
@@ -34,24 +39,28 @@ public class AtbotUrl {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="url_id")
-    public Long getId() {
+    public BigInteger getUrlId() {
         return urlId;
     }
 
 
-    public void setId(Long id) {
+    public void setUrlId(BigInteger id) {
         this.urlId = id;
     }
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "result_id")
-    public Long getArchivedResultId() {
+    public BigInteger getArchivedResultId() {
         return archivedResultId;
     }
 
 
-    public void setArchivedResultId(Long archivedResultId) {
+    public void setArchiveResultId (BigInteger archivedResultId) {
+        this.archivedResultId = archivedResultId;
+    }
+
+
+    public void setArchivedResultId(BigInteger archivedResultId) {
         this.archivedResultId = archivedResultId;
     }
 
@@ -66,18 +75,25 @@ public class AtbotUrl {
         this.archivedUrl = archivedUrl;
     }
 
-    @Temporal(TemporalType.DATE)
+
     @Column(name="original_url")
     public String getOriginalUrl() {
         return originalUrl;
     }
 
 
+    public void setOriginalUrl(String originalUrl) {
+        this.originalUrl = originalUrl;
+    }
+
+
+    @Transient
     public boolean isArchived() {
         return StringUtils.isNotBlank(getArchivedUrl()) && getLastArchived() != null;
     }
 
 
+    @Temporal(TemporalType.DATE)
     @Column(name="last_archived")
     public Date getLastArchived() {
         return lastArchived;

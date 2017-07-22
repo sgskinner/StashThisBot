@@ -44,7 +44,6 @@
         <commons-lang.version>3.6</commons-lang.version>
         <http-client.version>4.5.3</http-client.version>
         <hibernate-core.version>5.2.10.Final</hibernate-core.version>
-        <hibernate-anno>5.0.1.Final</hibernate-anno>
         <mysql.version>5.1.42</mysql.version>
     </properties>
 
@@ -118,11 +117,6 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-annotations</artifactId>
             <version>3.5.6-Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.common</groupId>
-            <artifactId>hibernate-commons-annotations</artifactId>
-            <version>${hibernate-anno}</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
