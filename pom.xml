@@ -43,7 +43,9 @@
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <commons-lang.version>3.6</commons-lang.version>
         <http-client.version>4.5.3</http-client.version>
-        <hibernate.version>5.2.10.Final</hibernate.version>
+        <hibernate-core.version>5.2.10.Final</hibernate-core.version>
+        <hibernate-anno>5.0.1.Final</hibernate-anno>
+        <mysql.version>5.1.42</mysql.version>
     </properties>
 
     <build>
@@ -107,11 +109,10 @@
             <artifactId>httpclient</artifactId>
             <version>${http-client.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>${hibernate.version}</version>
+            <version>${hibernate-core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -121,9 +122,13 @@
         <dependency>
             <groupId>org.hibernate.common</groupId>
             <artifactId>hibernate-commons-annotations</artifactId>
-            <version>5.0.1.Final</version>
+            <version>${hibernate-anno}</version>
         </dependency>
-
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
