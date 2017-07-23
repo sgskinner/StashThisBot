@@ -6,15 +6,17 @@ CREATE TABLE archive_result_t (
   result_id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   submission_url           TEXT            NOT NULL,
   parent_comment_author    TEXT            NOT NULL,
-  parent_comment_id        TEXT            NOT NULL,
+  parent_comment_id        VARCHAR(255)    NOT NULL,
   parent_comment_url       TEXT            NOT NULL,
   summoning_comment_author TEXT            NOT NULL,
-  summoning_comment_id     TEXT            NOT NULL,
+  summoning_comment_id     VARCHAR(255)    NOT NULL,
   summoning_comment_url    TEXT            NOT NULL,
   request_date             DATETIME        NOT NULL,
   serviced_date            DATETIME        NOT NULL,
   PRIMARY KEY (result_id)
 );
+CREATE UNIQUE INDEX p_cmt_id_idx ON archive_result_t (parent_comment_id);
+
 
 CREATE TABLE atbot_url_t (
   url_id        BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -27,9 +29,11 @@ CREATE TABLE atbot_url_t (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
+CREATE INDEX rslt_id_idx ON atbot_url_t (result_id);
 
 CREATE USER atbot@localhost
   IDENTIFIED BY 'password';
+
 
 GRANT SELECT, INSERT, UPDATE, DELETE, DROP, ALTER, CREATE TEMPORARY TABLES ON atbot.* TO atbot@localhost;
 

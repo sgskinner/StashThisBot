@@ -5,6 +5,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -28,6 +29,10 @@ import org.sgs.atbot.url.AtbotUrl;
 import org.springframework.util.Assert;
 
 public class PersistenceServiceTest {
+    private static final String[] TEST_SUMMONER_USERNAMES = {"test-summoner-0", "test-summoner-1", "test-summoner-2", "test-summoner-3", "test-summoner-4"};
+    private static final String[] TEST_PARENT_USERNAMES = {"test-parent-0", "test-parent-1", "test-parent-2", "test-parent-3", "test-parent-4"};
+
+
     private static SessionFactory sessionFactory;
     private static Session session;
     private static Transaction transaction;
@@ -60,15 +65,15 @@ public class PersistenceServiceTest {
 
         ArchiveResultBo archiveResultBo = new ArchiveResultBo();
         archiveResultBo.setSubmissionUrl(generateMockUrl());
-        archiveResultBo.setParentCommentAuthor("op1");
-        archiveResultBo.setParentCommentId(stringGenerator.generate(6));
+        archiveResultBo.setParentCommentAuthor(getRandomParentUsername());
+        archiveResultBo.setParentCommentId(stringGenerator.generate(getRandomInt(5, 9)));
         archiveResultBo.setParentCommentUrl(generateMockUrl());
-        archiveResultBo.setSummoningCommentAuthor("summoner1");
-        archiveResultBo.setSummoningCommentId(stringGenerator.generate(6));
+        archiveResultBo.setSummoningCommentAuthor(getRandomSummonerUsername());
+        archiveResultBo.setSummoningCommentId(stringGenerator.generate(getRandomInt(5, 9)));
         archiveResultBo.setSummoningCommentUrl(generateMockUrl());
         archiveResultBo.setRequestDate(Calendar.getInstance().getTime());
         archiveResultBo.setServicedDate(Calendar.getInstance().getTime());
-        archiveResultBo.setArchivedUrls(generateAtbotUrlList(3));
+        archiveResultBo.setArchivedUrls(generateAtbotUrlList(getRandomInt(1, 5)));
 
         return archiveResultBo;
     }
@@ -96,16 +101,31 @@ public class PersistenceServiceTest {
 
     private String generateMockUrl() {
         StringBuilder sb = new StringBuilder("http://www.");
-        sb.append(generateRandomString(14));
+        sb.append(generateRandomString(getRandomInt(5, 14)));
         sb.append(".com/");
-        sb.append(generateRandomString(8));
-        sb.append(".do");
+        sb.append(generateRandomString(getRandomInt(6, 10)));
+        sb.append(".html");
         return sb.toString();
     }
 
 
     private String generateRandomString(int length) {
         return stringGenerator.generate(length);
+    }
+
+
+    private int getRandomInt(int min, int max) {
+        return ThreadLocalRandom.current().nextInt(min, max);
+    }
+
+
+    private String getRandomSummonerUsername() {
+        return TEST_SUMMONER_USERNAMES[getRandomInt(0, TEST_SUMMONER_USERNAMES.length)];
+    }
+
+
+    private String getRandomParentUsername() {
+        return TEST_PARENT_USERNAMES[getRandomInt(0, TEST_SUMMONER_USERNAMES.length)];
     }
 
 

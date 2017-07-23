@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" strict="true">
-    <Properties>
-        <!-- Set logging level for all ArchiveThisBot packages, overrides root logger -->
-        <Property name="sgs.logging.level" value="debug"/>
-    </Properties>
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d [%p] %C: %m%n"/>
@@ -19,12 +15,10 @@
         <Logger name="org.springframework.beans.factory.xml" level="error" additivity="false"/>
         <Logger name="org.apache.commons.beanutils" level="error" additivity="false"/>
         <Logger name="org.sgs.atbot" level="${sgs.logging.level}" additivity="false">
-            <AppenderRef ref="console" />
             <AppenderRef ref="logfile" />
         </Logger>
         <Root>
             <!-- OFF, FATAL, ERROR, WARN, INFO, DEBUG, TRACE, ALL -->
-            <AppenderRef ref="console" level="info"/>
             <AppenderRef ref="logfile" level="info"/>
         </Root>
     </Loggers>
