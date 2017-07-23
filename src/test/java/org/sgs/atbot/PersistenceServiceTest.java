@@ -70,7 +70,7 @@ public class PersistenceServiceTest {
 
     @After
     public void testTearDown() {
-        if (transaction != null && !transaction.getRollbackOnly()) {
+        if (transaction != null) {
             if (transaction.getRollbackOnly()) {
                 transaction.rollback();
             } else {
