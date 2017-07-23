@@ -28,10 +28,31 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
+
 public final class SpringContext {
     private static String springConfigFilename = "org/sgs/atbot/spring-atbot.xml";
     private static ApplicationContext context  = new ClassPathXmlApplicationContext(new String[]{springConfigFilename});
     private static Map<Class<?>, Object> classToBeanMap = new HashMap<>();
+
+
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getBeanById(String beanId) {
+
+        context.getBeanDefinitionNames();
+
+        Object bean = context.getBean(beanId);
+
+
+
+        if (bean == null) {
+            return null;
+        }
+
+        classToBeanMap.put(bean.getClass(), bean);
+
+        return (T) bean;
+    }
 
 
     @SuppressWarnings("unchecked")

@@ -1,5 +1,6 @@
 package org.sgs.atbot.url;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,7 +9,8 @@ import java.util.List;
 import net.dean.jraw.models.CommentNode;
 
 
-public class ArchiveResult {
+public class ArchiveResult implements Serializable {
+    private static final long serialVersionUID = 6147585354318050782L;
 
     private final CommentNode parentCommentNode;
     private final CommentNode summoningCommentNode;

@@ -3,7 +3,6 @@ package org.sgs.atbot;
 import java.math.BigInteger;
 import java.util.List;
 
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -11,10 +10,12 @@ import javax.persistence.criteria.Root;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sgs.atbot.dao.ArchiveResultDao;
+import org.sgs.atbot.dao.impl.ArchiveResultBoDaoImpl;
+import org.sgs.atbot.spring.SpringContext;
 import org.sgs.atbot.url.AtbotUrl;
 import org.springframework.util.Assert;
 
@@ -22,6 +23,15 @@ public class PersistenceServiceTest {
     private SessionFactory sessionFactory;
     private Session session;
     private Transaction transaction;
+
+
+    @Test
+    public void testArchiveResultDao () {
+        ArchiveResultDao dao = SpringContext.getBean(ArchiveResultBoDaoImpl.class);
+        List<ArchiveResultBo> results = dao.findByParenCommentId("dk9pnws");
+
+        Assert.notNull(results);
+    }
 
     @Test
     public void testFetchOfAtbotUrl() {
@@ -62,7 +72,7 @@ public class PersistenceServiceTest {
 
     @Before
     public void testInit() {
-        sessionFactory = new Configuration().configure().buildSessionFactory();
+        sessionFactory = SpringContext.getBeanById("sessionFactory");
         session = sessionFactory.openSession();
         transaction = session.beginTransaction();
     }
