@@ -25,21 +25,21 @@ public class ArchiveResultBoDaoImpl implements ArchiveResultDao {
     @Transactional
     @Override
     public void save(ArchiveResultBo archiveResultBo) {
-        getSessionFactory().getCurrentSession().save(archiveResultBo);
+        getSession().save(archiveResultBo);
     }
 
 
     @Transactional
     @Override
     public void update(ArchiveResultBo archiveResultBo) {
-        getSessionFactory().getCurrentSession().update(archiveResultBo);
+        getSession().update(archiveResultBo);
     }
 
 
     @Transactional
     @Override
     public void delete(ArchiveResultBo archiveResultBo) {
-        getSessionFactory().getCurrentSession().delete(archiveResultBo);
+        getSession().delete(archiveResultBo);
     }
 
 

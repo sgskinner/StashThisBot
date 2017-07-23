@@ -56,11 +56,14 @@
     </bean>
 
     <bean id="persistenceService" parent="persistenceService-parentBean"/>
-    <bean id="persistenceService-parentBean" class="org.sgs.atbot.service.impl.MySqlPersistenceServiceImpl" abstract="true"/>
+    <bean id="persistenceService-parentBean" class="org.sgs.atbot.service.impl.MySqlPersistenceServiceImpl" abstract="true">
+        <property name="archiveResultDao" ref="archiveResultDao"/>
+    </bean>
 
     <bean id="redditClient" class="net.dean.jraw.RedditClient">
         <constructor-arg name="userAgent" ref="userAgent"/>
     </bean>
+
 
     <bean id="archiveResultDao" class="org.sgs.atbot.dao.impl.ArchiveResultBoDaoImpl">
         <property name="sessionFactory" ref="sessionFactory"/>
