@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -165,7 +166,7 @@ public class ArchiveResultBo {
     }
 
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "result_id")
     public List<AtbotUrl> getArchivedUrls() {
         return archivedUrls;
@@ -174,6 +175,9 @@ public class ArchiveResultBo {
 
     public void setArchivedUrls(List<AtbotUrl> archivedUrls) {
         this.archivedUrls = archivedUrls;
+        for (AtbotUrl atbotUrl : archivedUrls) {
+            atbotUrl.setArchiveResultBo(this);
+        }
     }
 
 }

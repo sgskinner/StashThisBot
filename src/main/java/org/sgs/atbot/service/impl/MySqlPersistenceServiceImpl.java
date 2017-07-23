@@ -1,5 +1,7 @@
 package org.sgs.atbot.service.impl;
 
+import java.util.List;
+
 import org.sgs.atbot.ArchiveResultBo;
 import org.sgs.atbot.dao.ArchiveResultDao;
 import org.sgs.atbot.service.PersistenceService;
@@ -16,6 +18,12 @@ public class MySqlPersistenceServiceImpl implements PersistenceService {
     public void persistArchiveResult(ArchiveResult archiveResult) {
         ArchiveResultBo archiveResultBo = new ArchiveResultBo(archiveResult);
         persistArchiveResultBo(archiveResultBo);
+    }
+
+
+    @Override
+    public List<ArchiveResultBo> findByParenCommentId(String parentCommentId) {
+        return getArchiveResultDao().findByParenCommentId(parentCommentId);
     }
 
 

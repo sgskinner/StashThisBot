@@ -8,18 +8,21 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sgs.atbot.ArchiveResultBo;
 
 @Entity
 @Table(name = "atbot_url_t")
 public class AtbotUrl {
     private BigInteger urlId;
-    private BigInteger resultId;
+    private ArchiveResultBo archiveResultBo;
     private String originalUrl;
     private String archivedUrl;
     private Date lastArchived;
@@ -37,7 +40,7 @@ public class AtbotUrl {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="url_id")
+    @Column(name = "url_id")
     public BigInteger getUrlId() {
         return urlId;
     }
@@ -48,18 +51,19 @@ public class AtbotUrl {
     }
 
 
-    @Column(name = "result_id")
-    public BigInteger getResultId() {
-        return resultId;
+    @ManyToOne
+    @JoinColumn(name = "result_id")
+    public ArchiveResultBo getArchiveResultBo() {
+        return archiveResultBo;
     }
 
 
-    public void setResultId (BigInteger resultId) {
-        this.resultId = resultId;
+    public void setArchiveResultBo(ArchiveResultBo archiveResultBo) {
+        this.archiveResultBo = archiveResultBo;
     }
 
 
-    @Column(name="archived_url")
+    @Column(name = "archived_url")
     public String getArchivedUrl() {
         return archivedUrl;
     }
@@ -70,7 +74,7 @@ public class AtbotUrl {
     }
 
 
-    @Column(name="original_url")
+    @Column(name = "original_url")
     public String getOriginalUrl() {
         return originalUrl;
     }
@@ -88,7 +92,7 @@ public class AtbotUrl {
 
 
     @Temporal(TemporalType.DATE)
-    @Column(name="last_archived")
+    @Column(name = "last_archived")
     public Date getLastArchived() {
         return lastArchived;
     }

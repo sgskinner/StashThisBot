@@ -39,6 +39,20 @@ public class PersistenceServiceTest {
         ArchiveResultBo archiveResultBo = generateDummyArchiveResultBo();
         PersistenceService persistenceService = SpringContext.getBean(PersistenceService.class);
         persistenceService.persistArchiveResultBo(archiveResultBo);
+
+        List<ArchiveResultBo> returnedBos = persistenceService.findByParenCommentId(archiveResultBo.getParentCommentId());
+        Assert.notNull(returnedBos);
+        Assert.isTrue(returnedBos.size() == 1);
+
+        ArchiveResultBo returnedBo = returnedBos.get(0);
+        Assert.notNull(returnedBo);
+
+        BigInteger id = returnedBo.getResultId();
+        Assert.notNull(id);
+        for (AtbotUrl atbotUrl : returnedBo.getArchivedUrls()) {
+            Assert.notNull(atbotUrl);
+            Assert.isTrue(atbotUrl.getUrlId() != null); // set by hibernate save
+        }
     }
 
 
