@@ -14,7 +14,7 @@ public class ArchiveResult {
     private final CommentNode summoningCommentNode;
     private final List<AtbotUrl> urlsToArchive;
     private Date requestDate;
-    private Date archivedDate;
+    private Date servicedDate;
 
 
     public ArchiveResult(CommentNode parentCommentNode, CommentNode summoningCommentNode, List<String> urlsToArchive) {
@@ -50,17 +50,17 @@ public class ArchiveResult {
 
 
     public boolean isArchived() {
-        return getArchivedDate() != null;
+        return getServicedDate() != null;
     }
 
 
-    public Date getArchivedDate() {
-        return archivedDate;
+    public Date getServicedDate() {
+        return servicedDate;
     }
 
 
-    public void setArchivedDate(Date archivedDate) {
-        this.archivedDate = archivedDate;
+    public void setServicedDate(Date servicedDate) {
+        this.servicedDate = servicedDate;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class ArchiveResult {
             sb.append(System.lineSeparator());
         }
         sb.append("requestDate: " + getRequestDate());
-        sb.append("archivedDate: " + getArchivedDate());
+        sb.append("servicedDate: " + getServicedDate());
         sb.append("isArchived: " + isArchived());
 
         return sb.toString();

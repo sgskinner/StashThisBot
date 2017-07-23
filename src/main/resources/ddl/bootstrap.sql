@@ -11,6 +11,8 @@ CREATE TABLE archive_result_t (
   summoning_comment_author TEXT            NOT NULL,
   summoning_comment_id     TEXT            NOT NULL,
   summoning_comment_url    TEXT            NOT NULL,
+  request_date             DATETIME        NOT NULL,
+  serviced_date            DATETIME        NOT NULL,
   PRIMARY KEY (result_id)
 );
 
@@ -19,7 +21,7 @@ CREATE TABLE atbot_url_t (
   result_id     BIGINT UNSIGNED NOT NULL,
   archived_url  TEXT            NOT NULL,
   original_url  TEXT            NOT NULL,
-  last_archived TEXT            NOT NULL,
+  last_archived DATETIME        NOT NULL,
   PRIMARY KEY (url_id),
   FOREIGN KEY (result_id) REFERENCES archive_result_t (result_id)
     ON DELETE CASCADE

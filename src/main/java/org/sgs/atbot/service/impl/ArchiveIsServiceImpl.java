@@ -39,7 +39,7 @@ public class ArchiveIsServiceImpl implements ArchiveService {
         for (AtbotUrl atbotUrl : request.getUrlsToArchive()) {
             //TODO: implement archive service here
             atbotUrl.setArchivedUrl("sgs: MOCKED; " + Calendar.getInstance().getTimeInMillis());
-            request.setArchivedDate(Calendar.getInstance().getTime());
+            request.setServicedDate(Calendar.getInstance().getTime());
         }
 
         return request;

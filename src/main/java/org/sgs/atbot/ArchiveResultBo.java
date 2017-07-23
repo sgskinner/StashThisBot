@@ -1,6 +1,7 @@
 package org.sgs.atbot;
 
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -28,11 +30,15 @@ public class ArchiveResultBo {
     private String summoningCommentAuthor;
     private String summoningCommentId;
     private String summoningCommentUrl;
+    private Date requestDate;
+    private Date servicedDate;
     private List<AtbotUrl> archivedUrls;
+
 
     public ArchiveResultBo() {
         // Necessary for ORM
     }
+
 
     public ArchiveResultBo(ArchiveResult archiveResult) {
         this.parentCommentAuthor = archiveResult.getParentCommentNode().getComment().getAuthor();
@@ -41,13 +47,15 @@ public class ArchiveResultBo {
         this.summoningCommentAuthor = archiveResult.getSummoningCommentNode().getComment().getAuthor();
         this.summoningCommentId = archiveResult.getSummoningCommentNode().getComment().getId();
         this.summoningCommentUrl = archiveResult.getSummoningCommentNode().getComment().getUrl();
+        this.requestDate = archiveResult.getRequestDate();
+        this.servicedDate = archiveResult.getServicedDate();
         this.archivedUrls = archiveResult.getUrlsToArchive();
     }
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="result_id")
+    @Column(name = "result_id")
     public BigInteger getResultId() {
         return resultId;
     }
@@ -58,7 +66,7 @@ public class ArchiveResultBo {
     }
 
 
-    @Column(name="submission_url")
+    @Column(name = "submission_url")
     public String getSubmissionUrl() {
         return submissionUrl;
     }
@@ -68,7 +76,8 @@ public class ArchiveResultBo {
         this.submissionUrl = submissionUrl;
     }
 
-    @Column(name="parent_comment_author")
+
+    @Column(name = "parent_comment_author")
     public String getParentCommentAuthor() {
         return parentCommentAuthor;
     }
@@ -78,7 +87,8 @@ public class ArchiveResultBo {
         this.parentCommentAuthor = parentCommentAuthor;
     }
 
-    @Column(name="parent_comment_id")
+
+    @Column(name = "parent_comment_id")
     public String getParentCommentId() {
         return parentCommentId;
     }
@@ -89,7 +99,7 @@ public class ArchiveResultBo {
     }
 
 
-    @Column(name="parent_comment_url")
+    @Column(name = "parent_comment_url")
     public String getParentCommentUrl() {
         return parentCommentUrl;
     }
@@ -100,7 +110,7 @@ public class ArchiveResultBo {
     }
 
 
-    @Column(name="summoning_comment_author")
+    @Column(name = "summoning_comment_author")
     public String getSummoningCommentAuthor() {
         return summoningCommentAuthor;
     }
@@ -111,7 +121,7 @@ public class ArchiveResultBo {
     }
 
 
-    @Column(name="summoning_comment_id")
+    @Column(name = "summoning_comment_id")
     public String getSummoningCommentId() {
         return summoningCommentId;
     }
@@ -122,7 +132,7 @@ public class ArchiveResultBo {
     }
 
 
-    @Column(name="summoning_comment_url")
+    @Column(name = "summoning_comment_url")
     public String getSummoningCommentUrl() {
         return summoningCommentUrl;
     }
@@ -133,7 +143,30 @@ public class ArchiveResultBo {
     }
 
 
+    @Column(name = "request_date")
+    public Date getRequestDate() {
+        return requestDate;
+    }
+
+
+    public void setRequestDate(Date requestDate) {
+        this.requestDate = requestDate;
+    }
+
+
+    @Column(name = "serviced_date")
+    public Date getServicedDate() {
+        return servicedDate;
+    }
+
+
+    public void setServicedDate(Date servicedDate) {
+        this.servicedDate = servicedDate;
+    }
+
+
     @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "result_id")
     public List<AtbotUrl> getArchivedUrls() {
         return archivedUrls;
     }

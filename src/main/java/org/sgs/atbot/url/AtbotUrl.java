@@ -8,7 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -20,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 @Table(name = "atbot_url_t")
 public class AtbotUrl {
     private BigInteger urlId;
-    private BigInteger archivedResultId;
+    private BigInteger resultId;
     private String originalUrl;
     private String archivedUrl;
     private Date lastArchived;
@@ -44,24 +43,19 @@ public class AtbotUrl {
     }
 
 
-    public void setUrlId(BigInteger id) {
-        this.urlId = id;
+    public void setUrlId(BigInteger urlId) {
+        this.urlId = urlId;
     }
 
 
-    @JoinColumn(name = "result_id")
-    public BigInteger getArchivedResultId() {
-        return archivedResultId;
+    @Column(name = "result_id")
+    public BigInteger getResultId() {
+        return resultId;
     }
 
 
-    public void setArchiveResultId (BigInteger archivedResultId) {
-        this.archivedResultId = archivedResultId;
-    }
-
-
-    public void setArchivedResultId(BigInteger archivedResultId) {
-        this.archivedResultId = archivedResultId;
+    public void setResultId (BigInteger resultId) {
+        this.resultId = resultId;
     }
 
 
