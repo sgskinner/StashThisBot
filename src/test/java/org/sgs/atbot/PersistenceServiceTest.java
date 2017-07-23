@@ -7,11 +7,12 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sgs.atbot.dao.ArchiveResultDao;
 import org.sgs.atbot.dao.impl.ArchiveResultBoDaoImpl;
@@ -20,18 +21,19 @@ import org.sgs.atbot.url.AtbotUrl;
 import org.springframework.util.Assert;
 
 public class PersistenceServiceTest {
-    private SessionFactory sessionFactory;
-    private Session session;
-    private Transaction transaction;
+    private static SessionFactory sessionFactory;
+    private static Session session;
+    private static Transaction transaction;
 
 
     @Test
-    public void testArchiveResultDao () {
+    public void testArchiveResultDao() {
         ArchiveResultDao dao = SpringContext.getBean(ArchiveResultBoDaoImpl.class);
         List<ArchiveResultBo> results = dao.findByParenCommentId("dk9pnws");
 
         Assert.notNull(results);
     }
+
 
     @Test
     public void testFetchOfAtbotUrl() {
@@ -70,16 +72,22 @@ public class PersistenceServiceTest {
     }
 
 
-    @Before
-    public void testInit() {
+    @BeforeClass
+    public static void testInit() {
         sessionFactory = SpringContext.getBeanById("sessionFactory");
-        session = sessionFactory.openSession();
+
+        try {
+            session = sessionFactory.getCurrentSession();
+        } catch (HibernateException e) {
+            session = sessionFactory.openSession();
+        }
+
         transaction = session.beginTransaction();
     }
 
 
-    @After
-    public void testTearDown() {
+    @AfterClass
+    public static void testTearDown() {
         if (transaction != null) {
             if (transaction.getRollbackOnly()) {
                 transaction.rollback();
@@ -94,6 +102,5 @@ public class PersistenceServiceTest {
             sessionFactory.close();
         }
     }
-
 
 }
