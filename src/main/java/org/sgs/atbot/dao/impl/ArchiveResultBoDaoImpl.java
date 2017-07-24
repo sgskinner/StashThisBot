@@ -35,7 +35,6 @@ public class ArchiveResultBoDaoImpl extends HibernateDaoSupport implements Archi
     @Override
     public void delete(ArchiveResultBo archiveResultBo) {
         getHibernateTemplate().delete(archiveResultBo);
-        getHibernateTemplate().flush();
     }
 
 

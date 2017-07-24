@@ -16,7 +16,8 @@ import org.sgs.atbot.dao.ArchiveResultDao;
 import org.sgs.atbot.service.PersistenceService;
 import org.sgs.atbot.spring.SpringContext;
 import org.sgs.atbot.url.AtbotUrl;
-import org.springframework.util.Assert;
+import org.junit.Assert;
+
 
 public class PersistenceServiceTest {
     private static final String[] TEST_SUMMONER_USERNAMES = {"test-summoner-0", "test-summoner-1", "test-summoner-2", "test-summoner-3", "test-summoner-4"};
@@ -29,11 +30,11 @@ public class PersistenceServiceTest {
     public void testArchiveResultIsServiced() {
         PersistenceService persistenceService = SpringContext.getBean(PersistenceService.class);
 
-        boolean exists = persistenceService.isAlreadyServiced("SVdBrk2");
-        Assert.isTrue(exists);
+        boolean exists = persistenceService.isAlreadyServiced("SVdBrk2");// in dummy data
+        Assert.assertTrue("ArchiveResultBo should exist in dummy data!", exists);
 
-        exists = persistenceService.isAlreadyServiced("lksdjfl;asdjkf");
-        Assert.isTrue(!exists);
+        exists = persistenceService.isAlreadyServiced("lksdjfl;asdjkf");// made up id, should fail
+        Assert.assertFalse("Made up ID should not pull valid record!", exists);
     }
 
 
@@ -44,21 +45,21 @@ public class PersistenceServiceTest {
         persistenceService.persistArchiveResultBo(archiveResultBo);
 
         List<ArchiveResultBo> returnedBos = persistenceService.findByParenCommentId(archiveResultBo.getParentCommentId());
-        Assert.notNull(returnedBos);
-        Assert.isTrue(returnedBos.size() == 1);
+        Assert.assertNotNull("Should get back at least empty list!", returnedBos);
+        Assert.assertTrue("Result list should be greater than zero!",returnedBos.size() == 1);
 
         ArchiveResultBo returnedBo = returnedBos.get(0);
-        Assert.notNull(returnedBo);
+        Assert.assertNotNull("Should get back one result that we just inserted!", returnedBo);
 
         BigInteger id = returnedBo.getResultId();
-        Assert.notNull(id);
+        Assert.assertNotNull(id);
         for (AtbotUrl atbotUrl : returnedBo.getArchivedUrls()) {
-            Assert.notNull(atbotUrl);
-            Assert.isTrue(atbotUrl.getUrlId() != null); // set by hibernate save
+            Assert.assertNotNull(atbotUrl);
+            Assert.assertTrue(atbotUrl.getUrlId() != null); // set by hibernate save
         }
 
         persistenceService.deleteArchiveResultBo(archiveResultBo);
-        Assert.isTrue(!persistenceService.archiveResultExistsByParentCommentId(archiveResultBo.getParentCommentId()));
+        Assert.assertTrue(!persistenceService.archiveResultExistsByParentCommentId(archiveResultBo.getParentCommentId()));
     }
 
 
@@ -135,11 +136,11 @@ public class PersistenceServiceTest {
         PersistenceService persistenceService = SpringContext.getBean(PersistenceService.class);
         List<ArchiveResultBo> results = persistenceService.findByParentCommentId("V1X0rS");// in dummy data file
 
-        Assert.notNull(results);
-        Assert.isTrue(results.size() == 1);
+        Assert.assertNotNull(results);
+        Assert.assertTrue(results.size() == 1);
 
         ArchiveResultBo archiveResultBo = results.get(0);
-        Assert.isTrue(archiveResultBo.getArchivedUrls().size() == 4);
+        Assert.assertTrue(archiveResultBo.getArchivedUrls().size() == 4);
 
     }
 
@@ -149,15 +150,15 @@ public class PersistenceServiceTest {
         ArchiveResultDao archiveResultDao = SpringContext.getBean(ArchiveResultDao.class);
         ArchiveResultBo archiveResultBo = archiveResultDao.findByResultId(new BigInteger("1"));
 
-        Assert.notNull(archiveResultBo);
-        Assert.notNull(archiveResultBo.getParentCommentAuthor());
-        Assert.notNull(archiveResultBo.getParentCommentId());
-        Assert.notNull(archiveResultBo.getParentCommentUrl());
-        Assert.notNull(archiveResultBo.getSubmissionUrl());
-        Assert.notNull(archiveResultBo.getSummoningCommentAuthor());
-        Assert.notNull(archiveResultBo.getSummoningCommentId());
-        Assert.notNull(archiveResultBo.getSummoningCommentUrl());
-        Assert.notNull(archiveResultBo.getResultId());
+        Assert.assertNotNull(archiveResultBo);
+        Assert.assertNotNull(archiveResultBo.getParentCommentAuthor());
+        Assert.assertNotNull(archiveResultBo.getParentCommentId());
+        Assert.assertNotNull(archiveResultBo.getParentCommentUrl());
+        Assert.assertNotNull(archiveResultBo.getSubmissionUrl());
+        Assert.assertNotNull(archiveResultBo.getSummoningCommentAuthor());
+        Assert.assertNotNull(archiveResultBo.getSummoningCommentId());
+        Assert.assertNotNull(archiveResultBo.getSummoningCommentUrl());
+        Assert.assertNotNull(archiveResultBo.getResultId());
 
     }
 
