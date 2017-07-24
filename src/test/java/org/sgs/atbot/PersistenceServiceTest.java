@@ -10,12 +10,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.text.CharacterPredicate;
 import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.resource.transaction.spi.TransactionStatus;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sgs.atbot.dao.ArchiveResultDao;
@@ -28,10 +22,6 @@ public class PersistenceServiceTest {
     private static final String[] TEST_SUMMONER_USERNAMES = {"test-summoner-0", "test-summoner-1", "test-summoner-2", "test-summoner-3", "test-summoner-4"};
     private static final String[] TEST_PARENT_USERNAMES = {"test-parent-0", "test-parent-1", "test-parent-2", "test-parent-3", "test-parent-4"};
 
-
-    private static SessionFactory sessionFactory;
-    private static Session session;
-    private static Transaction transaction;
     private static RandomStringGenerator stringGenerator;
 
 
@@ -176,34 +166,6 @@ public class PersistenceServiceTest {
     public static void testInit() {
         SecureRandom rand = new SecureRandom();
         stringGenerator = new RandomStringGenerator.Builder().usingRandom(rand::nextInt).withinRange(0, 'z').filteredBy(new AlphaNumericPredicate()).build();
-
-
-        sessionFactory = SpringContext.getBeanById("sessionFactory");
-        try {
-            session = sessionFactory.getCurrentSession();
-        } catch (HibernateException e) {
-            session = sessionFactory.openSession();
-        }
-
-        transaction = session.beginTransaction();
-    }
-
-
-    @AfterClass
-    public static void testTearDown() {
-        if (transaction != null) {
-            if (transaction.getStatus().isOneOf(TransactionStatus.MARKED_ROLLBACK)) {
-                transaction.rollback();
-            } else {
-                transaction.commit();
-            }
-        }
-        if (session != null) {
-            session.close();
-        }
-        if (sessionFactory != null) {
-            sessionFactory.close();
-        }
     }
 
 

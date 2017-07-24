@@ -68,7 +68,7 @@ public class MySqlPersistenceServiceImpl implements PersistenceService {
 
     @Transactional
     @Override
-    public boolean isUserBlacklisted(String author) {
+    public boolean isUserBlacklisted(String authorUsername) {
         //TODO: implement
         throw new NotImplementedException();
     }
