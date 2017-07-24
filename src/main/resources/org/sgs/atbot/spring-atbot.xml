@@ -22,11 +22,11 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <context:property-placeholder location="classpath:org/sgs/atbot/security.properties"/>
 
@@ -55,8 +55,7 @@
         <property name="credentials" ref="credentials"/>
     </bean>
 
-    <bean id="persistenceService" parent="persistenceService-parentBean"/>
-    <bean id="persistenceService-parentBean" class="org.sgs.atbot.service.impl.MySqlPersistenceServiceImpl" abstract="true">
+    <bean id="persistenceService" class="org.sgs.atbot.service.impl.MySqlPersistenceServiceImpl">
         <property name="archiveResultDao" ref="archiveResultDao"/>
     </bean>
 
@@ -64,9 +63,8 @@
         <constructor-arg name="userAgent" ref="userAgent"/>
     </bean>
 
-
     <bean id="archiveResultDao" class="org.sgs.atbot.dao.impl.ArchiveResultBoDaoImpl">
-        <property name="sessionFactory" ref="sessionFactory"/>
+        <constructor-arg ref="sessionFactory"/>
     </bean>
 
     <bean id="userAgent" class="net.dean.jraw.http.UserAgent" factory-method="of">
@@ -92,7 +90,7 @@
         <property name="password" value="${db.password}"/>
     </bean>
 
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="hibernateProperties">
             <props>
@@ -107,5 +105,16 @@
             </list>
         </property>
     </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="hibernateTemplate" class="org.springframework.orm.hibernate5.HibernateTemplate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <!-- Auto scan the components -->
+    <context:component-scan base-package="org.sgs.atbot"/>
 
 </beans>

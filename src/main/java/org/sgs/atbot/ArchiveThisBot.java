@@ -122,7 +122,7 @@ public class ArchiveThisBot {
 
 
     private boolean isAlreadyServiced(CommentNode summoningCommentNode) {
-        return getPersistenceService().isAlreadyServiced(summoningCommentNode);
+        return getPersistenceService().isAlreadyServiced(summoningCommentNode.getParent().getComment().getId());
     }
 
 

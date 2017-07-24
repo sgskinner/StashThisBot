@@ -7,10 +7,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
 import org.apache.commons.text.CharacterPredicate;
 import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
@@ -18,11 +14,11 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sgs.atbot.dao.ArchiveResultDao;
-import org.sgs.atbot.dao.impl.ArchiveResultBoDaoImpl;
 import org.sgs.atbot.service.PersistenceService;
 import org.sgs.atbot.spring.SpringContext;
 import org.sgs.atbot.url.AtbotUrl;
@@ -37,6 +33,18 @@ public class PersistenceServiceTest {
     private static Session session;
     private static Transaction transaction;
     private static RandomStringGenerator stringGenerator;
+
+
+    @Test
+    public void testArchiveResultIsServiced() {
+        PersistenceService persistenceService = SpringContext.getBean(PersistenceService.class);
+
+        boolean exists = persistenceService.isAlreadyServiced("SVdBrk2");
+        Assert.isTrue(exists);
+
+        exists = persistenceService.isAlreadyServiced("lksdjfl;asdjkf");
+        Assert.isTrue(!exists);
+    }
 
 
     @Test
@@ -58,6 +66,9 @@ public class PersistenceServiceTest {
             Assert.notNull(atbotUrl);
             Assert.isTrue(atbotUrl.getUrlId() != null); // set by hibernate save
         }
+
+        persistenceService.deleteArchiveResultBo(archiveResultBo);
+        Assert.isTrue(!persistenceService.archiveResultExistsByParentCommentId(archiveResultBo.getParentCommentId()));
     }
 
 
@@ -131,52 +142,33 @@ public class PersistenceServiceTest {
 
     @Test
     public void testArchiveResultDao() {
-        ArchiveResultDao dao = SpringContext.getBean(ArchiveResultBoDaoImpl.class);
-        List<ArchiveResultBo> results = dao.findByParenCommentId("dk9pnws");
+        PersistenceService persistenceService = SpringContext.getBean(PersistenceService.class);
+        List<ArchiveResultBo> results = persistenceService.findByParentCommentId("V1X0rS");// in dummy data file
 
         Assert.notNull(results);
         Assert.isTrue(results.size() == 1);
 
         ArchiveResultBo archiveResultBo = results.get(0);
-        Assert.isTrue(archiveResultBo.getArchivedUrls().size() == 2);
+        Assert.isTrue(archiveResultBo.getArchivedUrls().size() == 4);
 
-    }
-
-
-    @Test
-    public void testFetchOfAtbotUrl() {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<AtbotUrl> query = builder.createQuery(AtbotUrl.class);
-
-        Root<AtbotUrl> root = query.from(AtbotUrl.class);
-        query.select(root);
-
-        List<AtbotUrl> results = getSession().createQuery(query).list();
-
-        Assert.notNull(results);
-        Assert.isTrue(results.size() == 3);
     }
 
 
     @Test
     public void testFetchOfArchiveResult() {
-        ArchiveResultBo result = getSession().load(ArchiveResultBo.class, new BigInteger("1"));
+        ArchiveResultDao archiveResultDao = SpringContext.getBean(ArchiveResultDao.class);
+        ArchiveResultBo archiveResultBo = archiveResultDao.findByResultId(new BigInteger("1"));
 
-        Assert.notNull(result);
-        Assert.notNull(result.getParentCommentAuthor());
-        Assert.notNull(result.getParentCommentId());
-        Assert.notNull(result.getParentCommentUrl());
-        Assert.notNull(result.getSubmissionUrl());
-        Assert.notNull(result.getSummoningCommentAuthor());
-        Assert.notNull(result.getSummoningCommentId());
-        Assert.notNull(result.getSummoningCommentUrl());
-        Assert.notNull(result.getResultId());
+        Assert.notNull(archiveResultBo);
+        Assert.notNull(archiveResultBo.getParentCommentAuthor());
+        Assert.notNull(archiveResultBo.getParentCommentId());
+        Assert.notNull(archiveResultBo.getParentCommentUrl());
+        Assert.notNull(archiveResultBo.getSubmissionUrl());
+        Assert.notNull(archiveResultBo.getSummoningCommentAuthor());
+        Assert.notNull(archiveResultBo.getSummoningCommentId());
+        Assert.notNull(archiveResultBo.getSummoningCommentUrl());
+        Assert.notNull(archiveResultBo.getResultId());
 
-    }
-
-
-    private Session getSession() {
-        return session;
     }
 
 
@@ -200,7 +192,7 @@ public class PersistenceServiceTest {
     @AfterClass
     public static void testTearDown() {
         if (transaction != null) {
-            if (transaction.getRollbackOnly()) {
+            if (transaction.getStatus().isOneOf(TransactionStatus.MARKED_ROLLBACK)) {
                 transaction.rollback();
             } else {
                 transaction.commit();
@@ -213,7 +205,6 @@ public class PersistenceServiceTest {
             sessionFactory.close();
         }
     }
-
 
 
     static class AlphaNumericPredicate implements CharacterPredicate {

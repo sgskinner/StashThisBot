@@ -1,82 +1,62 @@
 package org.sgs.atbot.dao.impl;
 
+import java.math.BigInteger;
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.sgs.atbot.ArchiveResultBo;
 import org.sgs.atbot.dao.ArchiveResultDao;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 
-@Repository
-public class ArchiveResultBoDaoImpl implements ArchiveResultDao {
-
-    private SessionFactory sessionFactory;
+public class ArchiveResultBoDaoImpl extends HibernateDaoSupport implements ArchiveResultDao {
+    private static final String PARENT_COMMENT_ID_KEY = "parentCommentId";
 
 
-    @Transactional
+    public ArchiveResultBoDaoImpl(SessionFactory sessionfactory) {
+        setSessionFactory(sessionfactory);
+    }
+
+
     @Override
     public void save(ArchiveResultBo archiveResultBo) {
-        getSession().save(archiveResultBo);
+        getHibernateTemplate().save(archiveResultBo);
     }
 
 
-    @Transactional
     @Override
     public void update(ArchiveResultBo archiveResultBo) {
-        getSession().update(archiveResultBo);
+        getHibernateTemplate().update(archiveResultBo);
     }
 
 
-    @Transactional
     @Override
     public void delete(ArchiveResultBo archiveResultBo) {
-        getSession().delete(archiveResultBo);
+        getHibernateTemplate().delete(archiveResultBo);
+        getHibernateTemplate().flush();
     }
 
 
     @SuppressWarnings("unchecked")//findByCriteria()
-    @Transactional
     @Override
-    public List<ArchiveResultBo> findByParenCommentId(String parentCommentId) {
-        CriteriaBuilder criteriaBuilder = getSession().getCriteriaBuilder();
-        CriteriaQuery<ArchiveResultBo> query = criteriaBuilder.createQuery(ArchiveResultBo.class);
-        Root<ArchiveResultBo> root = query.from(ArchiveResultBo.class);
-        Predicate predicate = criteriaBuilder.equal(root.get("parentCommentId"), parentCommentId);
-        query.where(predicate);
-
-        return getSession().createQuery(query).list();
-    }
-
-
-    private Session getSession() {
-        Session session;
-        try {
-            session = getSessionFactory().getCurrentSession();
-        } catch(HibernateException e) {
-            session = getSessionFactory().openSession();
-        }
-
-        return session;
+    public List<ArchiveResultBo> findByParentCommentId(String parentCommentId) {
+        DetachedCriteria criteria = DetachedCriteria.forClass(ArchiveResultBo.class).add(Restrictions.eq(PARENT_COMMENT_ID_KEY, parentCommentId));
+        return (List<ArchiveResultBo>) getHibernateTemplate().findByCriteria(criteria);
     }
 
 
     @Override
-    public SessionFactory getSessionFactory() {
-        return sessionFactory;
+    public boolean archiveResultExistsByParentCommentId(String parentCommentId) {
+        List<ArchiveResultBo> archiveResultBos = findByParentCommentId(parentCommentId);
+        return archiveResultBos != null && archiveResultBos.size() > 0;
     }
 
 
     @Override
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    public ArchiveResultBo findByResultId(BigInteger resultId) {
+        return getHibernateTemplate().get(ArchiveResultBo.class, resultId);
     }
+
 }

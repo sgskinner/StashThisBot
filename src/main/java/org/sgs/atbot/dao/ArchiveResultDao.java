@@ -1,5 +1,6 @@
 package org.sgs.atbot.dao;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
@@ -16,5 +17,9 @@ public interface ArchiveResultDao {
 
     void delete(ArchiveResultBo archiveResultBo);
 
-    List<ArchiveResultBo> findByParenCommentId(String parentCommentId);
+    List<ArchiveResultBo> findByParentCommentId(String parentCommentId);
+
+    boolean archiveResultExistsByParentCommentId(String parentCommentId);
+
+    ArchiveResultBo findByResultId(BigInteger resultId);
 }

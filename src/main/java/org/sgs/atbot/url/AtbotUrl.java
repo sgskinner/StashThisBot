@@ -52,7 +52,7 @@ public class AtbotUrl {
 
 
     @ManyToOne
-    @JoinColumn(name = "result_id")
+    @JoinColumn(name = "result_id", nullable = false)
     public ArchiveResultBo getArchiveResultBo() {
         return archiveResultBo;
     }

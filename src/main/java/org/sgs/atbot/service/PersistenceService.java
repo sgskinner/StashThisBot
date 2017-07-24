@@ -6,8 +6,6 @@ import org.sgs.atbot.ArchiveResultBo;
 import org.sgs.atbot.dao.ArchiveResultDao;
 import org.sgs.atbot.url.ArchiveResult;
 
-import net.dean.jraw.models.CommentNode;
-
 public interface PersistenceService extends AtbService {
     void persistArchiveResultBo(ArchiveResultBo archiveResultBo);
 
@@ -15,9 +13,15 @@ public interface PersistenceService extends AtbService {
 
     List<ArchiveResultBo> findByParenCommentId(String parentCommentId);
 
-    boolean isAlreadyServiced(CommentNode summoningCommentNode);
+    boolean isAlreadyServiced(String parentCommentId);
 
     boolean isUserBlacklisted(String author);
 
     void setArchiveResultDao(ArchiveResultDao archiveResultDao);
+
+    void deleteArchiveResultBo(ArchiveResultBo archiveResultBo);
+
+    boolean archiveResultExistsByParentCommentId(String parentCommentId);
+
+    List<ArchiveResultBo> findByParentCommentId(String parentCommentId);
 }
