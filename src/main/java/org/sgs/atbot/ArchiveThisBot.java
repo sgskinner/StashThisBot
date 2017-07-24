@@ -24,6 +24,7 @@ package org.sgs.atbot;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.service.ArchiveService;
@@ -116,8 +117,8 @@ public class ArchiveThisBot {
     }
 
 
-    private boolean isUserBlacklisted(String author) {
-        return getPersistenceService().isUserBlacklisted(author);
+    private boolean isUserBlacklisted(String authorUsername) {
+        return getPersistenceService().isUserBlacklisted(authorUsername);
     }
 
 
@@ -130,10 +131,10 @@ public class ArchiveThisBot {
         Comment comment = commentNode.getComment();
         String body = comment.getBody();
 
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(body)) {
+        if (StringUtils.isNotBlank(body)) {
             //TODO: Add matcher so that we can report the actual match
             if (body.contains("!ArchiveThis") || body.contains("!Archive This") || body.contains("Archive This!") || body.contains("Archive This!")) {
-                LOG.debug("Found summon hit(Comment#getUrl_id()): " + comment.getId());
+                LOG.debug("Found summon hit(Comment#getId()): " + comment.getId());
                 return true;
             }
         }
