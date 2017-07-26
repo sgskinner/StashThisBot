@@ -27,7 +27,7 @@ import org.sgs.atbot.model.ArchiveResult;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 
-public interface RedditService extends AtbService {
+public interface RedditService {
     Listing<Submission> getSubredditSubmissions(String subredditName);
 
     Submission getFullSubmissionData(Submission submission);

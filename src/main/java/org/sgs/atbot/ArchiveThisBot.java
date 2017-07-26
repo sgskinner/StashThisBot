@@ -131,6 +131,10 @@ public class ArchiveThisBot {
 
 
     private boolean isUserBlacklisted(String authorUsername) {
+        if (StringUtils.isBlank(authorUsername)) {
+            return true;
+        }
+        // TODO: Implement this
         throw new NotImplementedException("TODO: Create blacklist objects and logic");
     }
 

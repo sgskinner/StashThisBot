@@ -27,9 +27,7 @@ import org.sgs.atbot.model.ArchiveResult;
 
 import net.dean.jraw.models.CommentNode;
 
-/**
- * Created by u00 on 10/23/16.
- */
-public interface ArchiveService extends AtbService {
+
+public interface ArchiveService {
     ArchiveResult archiveUrls(CommentNode parentCommentNode, CommentNode summoningNode, List<String> extractedUrls);
 }
