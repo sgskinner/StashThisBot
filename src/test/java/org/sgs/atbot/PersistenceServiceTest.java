@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.sgs.atbot.model.ArchiveResultBo;
 import org.sgs.atbot.model.AtbotUrl;
 import org.sgs.atbot.service.ArchiveResultBoService;
-import org.sgs.atbot.service.PersistenceService;
 import org.sgs.atbot.spring.SpringContext;
 
 
@@ -29,12 +28,12 @@ public class PersistenceServiceTest {
 
     @Test
     public void testArchiveResultIsServiced() {
-        PersistenceService persistenceService = SpringContext.getBean(PersistenceService.class);
+        ArchiveResultBoService service = SpringContext.getBean(ArchiveResultBoService.class);
 
-        boolean exists = persistenceService.isAlreadyServiced("SVdBrk2");// in dummy data
+        boolean exists = service.existsByParentCommentId("SVdBrk2");// in dummy data
         Assert.assertTrue("ArchiveResultBo should exist in dummy data!", exists);
 
-        exists = persistenceService.isAlreadyServiced("lksdjfl;asdjkf");// made up id, should fail
+        exists = service.existsByParentCommentId("lksdjfl;asdjkf");// made up id, should fail
         Assert.assertFalse("Made up ID should not pull valid record!", exists);
     }
 
@@ -42,10 +41,10 @@ public class PersistenceServiceTest {
     @Test
     public void testSaveArchiveResultBo() {
         ArchiveResultBo archiveResultBo = generateDummyArchiveResultBo();
-        PersistenceService persistenceService = SpringContext.getBean(PersistenceService.class);
-        persistenceService.persistArchiveResultBo(archiveResultBo);
+        ArchiveResultBoService service = SpringContext.getBean(ArchiveResultBoService.class);
+        service.save(archiveResultBo);
 
-        ArchiveResultBo returnedBo = persistenceService.findByParenCommentId(archiveResultBo.getParentCommentId());
+        ArchiveResultBo returnedBo = service.findByParentCommentId(archiveResultBo.getParentCommentId());
         Assert.assertNotNull("Should get back one result that we just inserted!", returnedBo);
 
         BigInteger id = returnedBo.getResultId();
@@ -55,8 +54,8 @@ public class PersistenceServiceTest {
             Assert.assertTrue(atbotUrl.getUrlId() != null); // set by hibernate save
         }
 
-        persistenceService.deleteArchiveResultBo(archiveResultBo);
-        Assert.assertTrue(!persistenceService.archiveResultExistsByParentCommentId(archiveResultBo.getParentCommentId()));
+        service.delete(archiveResultBo);
+        Assert.assertTrue(!service.existsByParentCommentId(archiveResultBo.getParentCommentId()));
     }
 
 
@@ -130,10 +129,9 @@ public class PersistenceServiceTest {
 
     @Test
     public void testArchiveResultDao() {
-        PersistenceService persistenceService = SpringContext.getBean(PersistenceService.class);
-        ArchiveResultBo archiveResultBo = persistenceService.findByParentCommentId("V1X0rS");// in dummy data file
+        ArchiveResultBoService service = SpringContext.getBean(ArchiveResultBoService.class);
+        ArchiveResultBo archiveResultBo = service.findByParentCommentId("V1X0rS");// in dummy data file
         Assert.assertTrue(archiveResultBo.getArchivedUrls().size() == 4);
-
     }
 
 

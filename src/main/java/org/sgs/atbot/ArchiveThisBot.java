@@ -24,14 +24,15 @@ package org.sgs.atbot;
 
 import java.util.List;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.sgs.atbot.model.ArchiveResult;
+import org.sgs.atbot.service.ArchiveResultBoService;
 import org.sgs.atbot.service.ArchiveService;
-import org.sgs.atbot.service.PersistenceService;
 import org.sgs.atbot.service.RedditService;
 import org.sgs.atbot.spring.SpringContext;
-import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.url.UrlMatcher;
 import org.springframework.util.StopWatch;
 
@@ -48,7 +49,10 @@ public class ArchiveThisBot {
     private RedditService redditService;
     private ArchiveService archiveIsService;
     private List<String> subredditList;
-    private PersistenceService persistenceService;
+
+
+
+    private ArchiveResultBoService archiveResultBoService;
 
 
     private void run() {
@@ -118,12 +122,12 @@ public class ArchiveThisBot {
 
 
     private boolean isUserBlacklisted(String authorUsername) {
-        return getPersistenceService().isUserBlacklisted(authorUsername);
+        throw new NotImplementedException("TODO: Create blacklist objects and logic");
     }
 
 
     private boolean isAlreadyServiced(CommentNode summoningCommentNode) {
-        return getPersistenceService().isAlreadyServiced(summoningCommentNode.getParent().getComment().getId());
+        return getArchiveResultBoService().existsByParentCommentId(summoningCommentNode.getParent().getComment().getId());
     }
 
 
@@ -198,14 +202,8 @@ public class ArchiveThisBot {
         this.subredditList = subredditList;
     }
 
-
-    public PersistenceService getPersistenceService() {
-        return persistenceService;
-    }
-
-
-    public void setPersistenceService(PersistenceService persistenceService) {
-        this.persistenceService = persistenceService;
+    public ArchiveResultBoService getArchiveResultBoService() {
+        return archiveResultBoService;
     }
 
 
