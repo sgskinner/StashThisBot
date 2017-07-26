@@ -28,6 +28,8 @@ import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.service.AuthService;
 import org.sgs.atbot.service.RedditService;
 import org.sgs.atbot.model.ArchiveResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
@@ -38,17 +40,22 @@ import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.TimePeriod;
 
 
+@Component
 public class RedditServiceImpl implements RedditService {
     private static final Logger LOG = LogManager.getLogger(RedditServiceImpl.class);
 
-    private AuthService authService;
-    private RedditClient redditClient;
-    private List subredditList;
+    private final AuthService authService;
+    private final RedditClient redditClient;
+    private final List subredditList;
     private boolean isFirstRun;
 
 
-    public RedditServiceImpl() {
-        this.isFirstRun = true;
+    @Autowired
+    public RedditServiceImpl(AuthService authService, RedditClient redditClient, List subredditList) {
+        this.authService = authService;
+        this.redditClient = redditClient;
+        this.subredditList = subredditList;
+        this.isFirstRun = false;
     }
 
 
@@ -119,11 +126,6 @@ public class RedditServiceImpl implements RedditService {
     }
 
 
-    public void setRedditClient(RedditClient redditClient) {
-        this.redditClient = redditClient;
-    }
-
-
     private RedditClient getRedditClient() {
         return redditClient;
     }
@@ -131,16 +133,6 @@ public class RedditServiceImpl implements RedditService {
 
     public AuthService getAuthService() {
         return authService;
-    }
-
-
-    public void setAuthService(AuthService authService) {
-        this.authService = authService;
-    }
-
-
-    public void setSubredditList(List subredditList) {
-        this.subredditList = subredditList;
     }
 
 

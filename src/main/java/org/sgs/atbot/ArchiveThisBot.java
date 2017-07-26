@@ -34,6 +34,8 @@ import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.service.RedditService;
 import org.sgs.atbot.spring.SpringContext;
 import org.sgs.atbot.url.UrlMatcher;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
 import net.dean.jraw.models.Comment;
@@ -41,18 +43,25 @@ import net.dean.jraw.models.CommentNode;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 
+@Component
 public class ArchiveThisBot {
     private static final Logger LOG = LogManager.getLogger(ArchiveThisBot.class);
-    private static final long SLEEP_INTERVAL = 10*1000; // 10 seconds in millis
-    private static final long OAUTH_REFRESH_INTERVAL = 50*60*1000; // 50 minutes in millis
+    private static final long SLEEP_INTERVAL = 10 * 1000; // 10 seconds in millis
+    private static final long OAUTH_REFRESH_INTERVAL = 50 * 60 * 1000; // 50 minutes in millis
 
-    private RedditService redditService;
-    private ArchiveService archiveIsService;
-    private List<String> subredditList;
+    private final RedditService redditService;
+    private final ArchiveService archiveIsService;
+    private final List<String> subredditList;
+    private final ArchiveResultBoService archiveResultBoService;
 
 
-
-    private ArchiveResultBoService archiveResultBoService;
+    @Autowired
+    public ArchiveThisBot(RedditService redditService, ArchiveService archiveIsService, List<String> subredditList, ArchiveResultBoService archiveResultBoService) {
+        this.redditService = redditService;
+        this.archiveIsService = archiveIsService;
+        this.subredditList = subredditList;
+        this.archiveResultBoService = archiveResultBoService;
+    }
 
 
     private void run() {
@@ -83,7 +92,7 @@ public class ArchiveThisBot {
             }
 
             // OAuth token needs refreshing every 60 minutes, so we're going to refresh every 50
-            if(stopWatch.getTotalTimeMillis() > OAUTH_REFRESH_INTERVAL) {
+            if (stopWatch.getTotalTimeMillis() > OAUTH_REFRESH_INTERVAL) {
                 stopWatch = new StopWatch();
                 stopWatch.start();
                 performAuth();
@@ -168,18 +177,8 @@ public class ArchiveThisBot {
     }
 
 
-    public void setRedditService(RedditService redditService) {
-        this.redditService = redditService;
-    }
-
-
     private ArchiveService getArchiveService() {
         return archiveIsService;
-    }
-
-
-    public void setArchiveIsService(ArchiveService archiveIsService) {
-        this.archiveIsService = archiveIsService;
     }
 
 
@@ -197,10 +196,6 @@ public class ArchiveThisBot {
         return subredditList;
     }
 
-
-    public void setSubredditList(List<String> subredditList) {
-        this.subredditList = subredditList;
-    }
 
     public ArchiveResultBoService getArchiveResultBoService() {
         return archiveResultBoService;

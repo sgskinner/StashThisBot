@@ -24,12 +24,13 @@ package org.sgs.atbot;
 import org.junit.Test;
 
 import org.junit.Assert;
+import org.sgs.atbot.spring.SpringContext;
 
 public class ArchiveIsServiceTest {
 
     @Test
     public void testAppInit() {
-        ArchiveThisBot app = new ArchiveThisBot();
+        ArchiveThisBot app = SpringContext.getBean(ArchiveThisBot.class);
         Assert.assertTrue("App could not initialize.", app != null);
     }
 

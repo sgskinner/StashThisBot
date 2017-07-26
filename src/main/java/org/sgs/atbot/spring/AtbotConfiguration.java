@@ -1,12 +1,19 @@
 package org.sgs.atbot.spring;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import javax.naming.NamingException;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import org.sgs.atbot.service.AuthService;
+import org.sgs.atbot.service.RedditService;
+import org.sgs.atbot.service.impl.OauthServiceImpl;
+import org.sgs.atbot.service.impl.RedditServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +27,9 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.AuthenticationMethod;
+import net.dean.jraw.http.UserAgent;
 import net.dean.jraw.http.oauth.Credentials;
 
 
@@ -85,6 +94,37 @@ public class AtbotConfiguration {
                 environment.getRequiredProperty("reddit.redirectUrl"));
     }
 
+
+    @Bean
+    public AuthService getAuthService() {
+        return new OauthServiceImpl(getCredentials());
+    }
+
+
+    @Bean
+    public UserAgent getUserAgent() {
+        return UserAgent.of("desktop", "org.sgs.atbot", "0.1.1", "ArchiveThisBot");
+    }
+
+
+    @Bean
+    public RedditClient getRedditClient() {
+        return new RedditClient(getUserAgent());
+    }
+
+
+    @Bean
+    public List<String> getSubredditList() {
+        List<String> subredditList = new ArrayList<>();
+        subredditList.addAll(Arrays.asList(environment.getRequiredProperty("subreddit.list").split(",")));
+        return subredditList;
+    }
+
+
+    @Bean
+    public RedditService getRedditService() {
+        return new RedditServiceImpl(getAuthService(), getRedditClient(), getSubredditList());
+    }
 
     private Properties jpaProperties() {
         Properties properties = new Properties();

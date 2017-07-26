@@ -51,17 +51,6 @@
     </bean>
 
 
-    <bean id="redditClient" class="net.dean.jraw.RedditClient">
-        <constructor-arg name="userAgent" ref="userAgent"/>
-    </bean>
-
-    <bean id="userAgent" class="net.dean.jraw.http.UserAgent" factory-method="of">
-        <constructor-arg name="platform" value="desktop"/>
-        <constructor-arg name="appId" value="org.sgs.atbot"/>
-        <constructor-arg name="version" value="0.1.1"/>
-        <constructor-arg name="redditUsername" value="ArchiveThisBot"/>
-    </bean>
-
     <bean id="credentials" class="net.dean.jraw.http.oauth.Credentials">
         <constructor-arg name="authenticationMethod" value="SCRIPT"/>
         <constructor-arg name="username" value="${reddit.username}"/>
