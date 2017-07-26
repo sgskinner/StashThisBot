@@ -100,8 +100,8 @@
         </property>
         <property name="annotatedClasses">
             <list>
-                <value>org.sgs.atbot.ArchiveResultBo</value>
-                <value>org.sgs.atbot.url.AtbotUrl</value>
+                <value>org.sgs.atbot.model.ArchiveResultBo</value>
+                <value>org.sgs.atbot.model.AtbotUrl</value>
             </list>
         </property>
     </bean>

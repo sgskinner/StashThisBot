@@ -31,7 +31,7 @@ import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.service.PersistenceService;
 import org.sgs.atbot.service.RedditService;
 import org.sgs.atbot.spring.SpringContext;
-import org.sgs.atbot.url.ArchiveResult;
+import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.url.UrlMatcher;
 import org.springframework.util.StopWatch;
 

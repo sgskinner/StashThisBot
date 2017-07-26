@@ -1,4 +1,4 @@
-package org.sgs.atbot.url;
+package org.sgs.atbot.model;
 
 import java.math.BigInteger;
 import java.util.Date;
@@ -16,7 +16,6 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sgs.atbot.ArchiveResultBo;
 
 @Entity
 @Table(name = "atbot_url_t")

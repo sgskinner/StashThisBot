@@ -27,7 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.service.AuthService;
 import org.sgs.atbot.service.RedditService;
-import org.sgs.atbot.url.ArchiveResult;
+import org.sgs.atbot.model.ArchiveResult;
 
 import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;

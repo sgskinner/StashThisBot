@@ -25,8 +25,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.sgs.atbot.service.ArchiveService;
-import org.sgs.atbot.url.ArchiveResult;
-import org.sgs.atbot.url.AtbotUrl;
+import org.sgs.atbot.model.ArchiveResult;
+import org.sgs.atbot.model.AtbotUrl;
 
 import net.dean.jraw.models.CommentNode;
 

@@ -1,4 +1,4 @@
-package org.sgs.atbot.url;
+package org.sgs.atbot.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;

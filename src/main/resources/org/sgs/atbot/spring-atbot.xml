@@ -22,11 +22,11 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+        http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:property-placeholder location="classpath:org/sgs/atbot/security.properties"/>
 
@@ -50,21 +50,9 @@
         <property name="authService" ref="authService"/>
     </bean>
 
-    <bean id="authService" parent="authService-parentBean"/>
-    <bean id="authService-parentBean" class="org.sgs.atbot.service.impl.OauthServiceImpl" abstract="true">
-        <property name="credentials" ref="credentials"/>
-    </bean>
-
-    <bean id="persistenceService" class="org.sgs.atbot.service.impl.MySqlPersistenceServiceImpl">
-        <property name="archiveResultDao" ref="archiveResultDao"/>
-    </bean>
 
     <bean id="redditClient" class="net.dean.jraw.RedditClient">
         <constructor-arg name="userAgent" ref="userAgent"/>
-    </bean>
-
-    <bean id="archiveResultDao" class="org.sgs.atbot.dao.impl.ArchiveResultBoDaoImpl">
-        <constructor-arg ref="sessionFactory"/>
     </bean>
 
     <bean id="userAgent" class="net.dean.jraw.http.UserAgent" factory-method="of">
@@ -100,8 +88,8 @@
         </property>
         <property name="annotatedClasses">
             <list>
-                <value>org.sgs.atbot.ArchiveResultBo</value>
-                <value>org.sgs.atbot.url.AtbotUrl</value>
+                <value>org.sgs.atbot.model.ArchiveResultBo</value>
+                <value>org.sgs.atbot.model.AtbotUrl</value>
             </list>
         </property>
     </bean>

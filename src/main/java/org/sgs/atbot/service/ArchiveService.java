@@ -23,7 +23,7 @@ package org.sgs.atbot.service;
 
 import java.util.List;
 
-import org.sgs.atbot.url.ArchiveResult;
+import org.sgs.atbot.model.ArchiveResult;
 
 import net.dean.jraw.models.CommentNode;
 

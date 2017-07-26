@@ -1,4 +1,4 @@
-package org.sgs.atbot;
+package org.sgs.atbot.model;
 
 import java.math.BigInteger;
 import java.util.Date;
@@ -12,9 +12,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import org.sgs.atbot.url.ArchiveResult;
-import org.sgs.atbot.url.AtbotUrl;
 
 @Entity
 @Table(name = "archive_result_t")

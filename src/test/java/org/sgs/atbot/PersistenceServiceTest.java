@@ -10,13 +10,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.text.CharacterPredicate;
 import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sgs.atbot.dao.ArchiveResultDao;
+import org.sgs.atbot.model.ArchiveResultBo;
+import org.sgs.atbot.model.AtbotUrl;
+import org.sgs.atbot.service.ArchiveResultBoService;
 import org.sgs.atbot.service.PersistenceService;
 import org.sgs.atbot.spring.SpringContext;
-import org.sgs.atbot.url.AtbotUrl;
-import org.junit.Assert;
 
 
 public class PersistenceServiceTest {
@@ -44,11 +45,7 @@ public class PersistenceServiceTest {
         PersistenceService persistenceService = SpringContext.getBean(PersistenceService.class);
         persistenceService.persistArchiveResultBo(archiveResultBo);
 
-        List<ArchiveResultBo> returnedBos = persistenceService.findByParenCommentId(archiveResultBo.getParentCommentId());
-        Assert.assertNotNull("Should get back at least empty list!", returnedBos);
-        Assert.assertTrue("Result list should be greater than zero!",returnedBos.size() == 1);
-
-        ArchiveResultBo returnedBo = returnedBos.get(0);
+        ArchiveResultBo returnedBo = persistenceService.findByParenCommentId(archiveResultBo.getParentCommentId());
         Assert.assertNotNull("Should get back one result that we just inserted!", returnedBo);
 
         BigInteger id = returnedBo.getResultId();
@@ -134,12 +131,7 @@ public class PersistenceServiceTest {
     @Test
     public void testArchiveResultDao() {
         PersistenceService persistenceService = SpringContext.getBean(PersistenceService.class);
-        List<ArchiveResultBo> results = persistenceService.findByParentCommentId("V1X0rS");// in dummy data file
-
-        Assert.assertNotNull(results);
-        Assert.assertTrue(results.size() == 1);
-
-        ArchiveResultBo archiveResultBo = results.get(0);
+        ArchiveResultBo archiveResultBo = persistenceService.findByParentCommentId("V1X0rS");// in dummy data file
         Assert.assertTrue(archiveResultBo.getArchivedUrls().size() == 4);
 
     }
@@ -147,8 +139,8 @@ public class PersistenceServiceTest {
 
     @Test
     public void testFetchOfArchiveResult() {
-        ArchiveResultDao archiveResultDao = SpringContext.getBean(ArchiveResultDao.class);
-        ArchiveResultBo archiveResultBo = archiveResultDao.findByResultId(new BigInteger("1"));
+        ArchiveResultBoService archiveResultDao = SpringContext.getBean(ArchiveResultBoService.class);
+        ArchiveResultBo archiveResultBo = archiveResultDao.findById(new BigInteger("1"));
 
         Assert.assertNotNull(archiveResultBo);
         Assert.assertNotNull(archiveResultBo.getParentCommentAuthor());

@@ -22,15 +22,24 @@
 package org.sgs.atbot.service.impl;
 
 import org.sgs.atbot.service.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
 
+@Component
 public class OauthServiceImpl implements AuthService {
 
-    private Credentials credentials;
+    private final Credentials credentials;
+
+
+    @Autowired
+    public OauthServiceImpl(Credentials credentials) {
+        this.credentials = credentials;
+    }
 
 
     @Override
@@ -51,11 +60,6 @@ public class OauthServiceImpl implements AuthService {
     @Override
     public boolean isAuthenticated(RedditClient redditClient) {
         return redditClient.isAuthenticated();
-    }
-
-
-    public void setCredentials(Credentials credentials) {
-        this.credentials = credentials;
     }
 
 

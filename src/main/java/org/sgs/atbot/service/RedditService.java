@@ -22,7 +22,7 @@
 package org.sgs.atbot.service;
 
 
-import org.sgs.atbot.url.ArchiveResult;
+import org.sgs.atbot.model.ArchiveResult;
 
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;

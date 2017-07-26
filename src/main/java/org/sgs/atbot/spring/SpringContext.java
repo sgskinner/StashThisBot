@@ -21,59 +21,23 @@
 
 package org.sgs.atbot.spring;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 
 public final class SpringContext {
-    private static String springConfigFilename = "org/sgs/atbot/spring-atbot.xml";
-    private static ApplicationContext context  = new ClassPathXmlApplicationContext(new String[]{springConfigFilename});
-    private static Map<Class<?>, Object> classToBeanMap = new HashMap<>();
-
+    private static ApplicationContext context = new AnnotationConfigApplicationContext(AtbotConfiguration.class);
 
 
     @SuppressWarnings("unchecked")
     public static <T> T getBeanById(String beanId) {
-
-        context.getBeanDefinitionNames();
-
-        Object bean = context.getBean(beanId);
-
-
-
-        if (bean == null) {
-            return null;
-        }
-
-        classToBeanMap.put(bean.getClass(), bean);
-
-        return (T) bean;
+        return (T) context.getBean(beanId);
     }
 
 
     @SuppressWarnings("unchecked")
     public static <T> T getBean(Class<T> clazz) {
-
-        if (clazz == null) {
-            throw new RuntimeException("Class can't be null!");
-        }
-
-        T bean;
-        if (classToBeanMap.containsKey(clazz)) {
-            bean = (T) classToBeanMap.get(clazz);
-        } else {
-            bean = context.getBean(clazz);
-            if (bean == null) {
-                throw new RuntimeException("Couldn't find bean for class: " + clazz.getName());
-            }
-            classToBeanMap.put(clazz, bean);
-        }
-
-        return bean;
+        return context.getBean(clazz);
     }
 
 }
