@@ -25,7 +25,7 @@ public abstract class AbstractDao<PK extends Serializable, T> {
 
 
     protected T getByKey(PK key) {
-        return (T) entityManager.find(persistentClass, key);
+        return entityManager.find(persistentClass, key);
     }
 
 

@@ -54,7 +54,7 @@ public class PersistenceServiceTest {
             Assert.assertTrue(atbotUrl.getUrlId() != null); // set by hibernate save
         }
 
-        service.delete(archiveResultBo);
+        service.delete(returnedBo);
         Assert.assertTrue(!service.existsByParentCommentId(archiveResultBo.getParentCommentId()));
     }
 

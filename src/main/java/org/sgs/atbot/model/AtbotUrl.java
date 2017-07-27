@@ -51,7 +51,7 @@ public class AtbotUrl {
     }
 
 
-    @ManyToOne
+    @ManyToOne(targetEntity = ArchiveResultBo.class)
     @JoinColumn(name = "result_id_fk", nullable = false)
     public ArchiveResultBo getArchiveResultBo() {
         return archiveResultBo;

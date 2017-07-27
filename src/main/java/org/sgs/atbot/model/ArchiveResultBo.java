@@ -12,14 +12,12 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "archive_result_t")
 public class ArchiveResultBo {
-
 
     private BigInteger resultId;
     private String submissionUrl;
@@ -48,7 +46,7 @@ public class ArchiveResultBo {
         this.summoningCommentUrl = archiveResult.getSummoningCommentNode().getComment().getUrl();
         this.requestDate = archiveResult.getRequestDate();
         this.servicedDate = archiveResult.getServicedDate();
-        this.archivedUrls = archiveResult.getUrlsToArchive();
+        addAtbotUrls(archiveResult.getUrlsToArchive());// need to register parent for one-to-many ORM
     }
 
 
@@ -176,11 +174,11 @@ public class ArchiveResultBo {
             archivedUrls = new ArrayList<>();
         }
         atbotUrl.setArchiveResultBo(this);
+        archivedUrls.add(atbotUrl);
     }
 
 
-    @OneToMany(cascade = CascadeType.ALL, targetEntity = AtbotUrl.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "result_id_fk", referencedColumnName = "result_id")
+    @OneToMany(targetEntity = AtbotUrl.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "archiveResultBo")
     public List<AtbotUrl> getArchivedUrls() {
         return archivedUrls;
     }

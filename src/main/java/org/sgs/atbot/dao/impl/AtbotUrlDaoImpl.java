@@ -9,7 +9,7 @@ import org.sgs.atbot.model.AtbotUrl;
 import org.springframework.stereotype.Repository;
 
 
-@Repository("atbotUrlDao")
+@Repository
 public class AtbotUrlDaoImpl extends AbstractDao<BigInteger, AtbotUrl> implements AtbotUrlDao {
     private static final String SELECT_ALL_ATBOT_URL_QUERY = "SELECT a FROM AtbotUrl a";
 
