@@ -10,7 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("archiveResultBoService")
+
+@Service
 @Transactional
 public class ArchiveResultBoServiceImpl implements ArchiveResultBoService {
 
@@ -63,4 +64,5 @@ public class ArchiveResultBoServiceImpl implements ArchiveResultBoService {
     public boolean existsByParentCommentId(String parentCommentId) {
         return this.findByParentCommentId(parentCommentId) != null;
     }
+
 }

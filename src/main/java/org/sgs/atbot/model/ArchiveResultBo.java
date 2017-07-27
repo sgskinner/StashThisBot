@@ -1,15 +1,18 @@
 package org.sgs.atbot.model;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -161,7 +164,23 @@ public class ArchiveResultBo {
     }
 
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "archiveResultBo")
+    public void addAtbotUrls(List<AtbotUrl> atbotUrls) {
+        for (AtbotUrl atbotUrl : atbotUrls) {
+            addAtbotUrl(atbotUrl);
+        }
+    }
+
+
+    public void addAtbotUrl(AtbotUrl atbotUrl) {
+        if (archivedUrls == null) {
+            archivedUrls = new ArrayList<>();
+        }
+        atbotUrl.setArchiveResultBo(this);
+    }
+
+
+    @OneToMany(cascade = CascadeType.ALL, targetEntity = AtbotUrl.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "result_id_fk", referencedColumnName = "result_id")
     public List<AtbotUrl> getArchivedUrls() {
         return archivedUrls;
     }
@@ -169,9 +188,6 @@ public class ArchiveResultBo {
 
     public void setArchivedUrls(List<AtbotUrl> archivedUrls) {
         this.archivedUrls = archivedUrls;
-        for (AtbotUrl atbotUrl : archivedUrls) {
-            atbotUrl.setArchiveResultBo(this);
-        }
     }
 
 }

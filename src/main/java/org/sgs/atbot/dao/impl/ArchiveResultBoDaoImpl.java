@@ -1,8 +1,8 @@
 package org.sgs.atbot.dao.impl;
 
 import java.math.BigInteger;
+import java.util.List;
 
-import org.hibernate.Hibernate;
 import org.sgs.atbot.dao.AbstractDao;
 import org.sgs.atbot.dao.ArchiveResultBoDao;
 import org.sgs.atbot.model.ArchiveResultBo;
@@ -17,9 +17,7 @@ public class ArchiveResultBoDaoImpl extends AbstractDao<BigInteger, ArchiveResul
 
     @Override
     public ArchiveResultBo findById(BigInteger id) {
-        ArchiveResultBo archiveResultBo = getByKey(id);
-        Hibernate.initialize(archiveResultBo);
-        return archiveResultBo;
+        return getByKey(id);
     }
 
 
@@ -37,6 +35,7 @@ public class ArchiveResultBoDaoImpl extends AbstractDao<BigInteger, ArchiveResul
 
     @Override
     public void delete(ArchiveResultBo archiveResultBo) {
+        archiveResultBo = getEntityManager().contains(archiveResultBo) ? archiveResultBo : getEntityManager().merge(archiveResultBo);
         super.delete(archiveResultBo);
     }
 
@@ -44,12 +43,16 @@ public class ArchiveResultBoDaoImpl extends AbstractDao<BigInteger, ArchiveResul
     @SuppressWarnings("unchecked")//getSingleResult()
     @Override
     public ArchiveResultBo findByParentCommentId(String parentCommentId) {
-        ArchiveResultBo archiveResultBo = (ArchiveResultBo) getEntityManager()
+        List<ArchiveResultBo> archiveResultBoList = (List<ArchiveResultBo>) getEntityManager()
                 .createQuery(SELECT_BY_PARENT_ID)
                 .setParameter(PARENT_COMMENT_ID_KEY, parentCommentId)
-                .getSingleResult();
-        Hibernate.initialize(archiveResultBo);
-        return archiveResultBo;
+                .getResultList();
+
+        if (archiveResultBoList == null || archiveResultBoList.size() < 1) {
+            return null;
+        }
+
+        return archiveResultBoList.get(0);
     }
 
 

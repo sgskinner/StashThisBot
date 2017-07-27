@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-@Service("atbotUrlService")
+@Service
 @Transactional
 public class AtbotUrlServiceImpl implements AtbotUrlService {
 
@@ -53,4 +53,5 @@ public class AtbotUrlServiceImpl implements AtbotUrlService {
     public void update(AtbotUrl atbotUrl) {
 
     }
+
 }

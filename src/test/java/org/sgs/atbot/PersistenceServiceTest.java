@@ -71,7 +71,7 @@ public class PersistenceServiceTest {
         archiveResultBo.setSummoningCommentUrl(generateMockUrl());
         archiveResultBo.setRequestDate(Calendar.getInstance().getTime());
         archiveResultBo.setServicedDate(Calendar.getInstance().getTime());
-        archiveResultBo.setArchivedUrls(generateAtbotUrlList(getRandomInt(1, 5)));
+        archiveResultBo.addAtbotUrls(generateAtbotUrlList(getRandomInt(1, 5)));
 
         return archiveResultBo;
     }

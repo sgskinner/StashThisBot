@@ -25,11 +25,11 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.service.AuthService;
 import org.sgs.atbot.service.RedditService;
-import org.sgs.atbot.model.ArchiveResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
@@ -40,7 +40,7 @@ import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.TimePeriod;
 
 
-@Component
+@Service
 public class RedditServiceImpl implements RedditService {
     private static final Logger LOG = LogManager.getLogger(RedditServiceImpl.class);
 

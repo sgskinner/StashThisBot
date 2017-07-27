@@ -12,15 +12,15 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.model.AtbotUrl;
-import org.springframework.stereotype.Component;
+import org.sgs.atbot.service.ArchiveService;
+import org.springframework.stereotype.Service;
 
 import net.dean.jraw.models.CommentNode;
 
 
-@Component
+@Service
 public class WaybackMachineArchiveServiceImpl implements ArchiveService {
     private static final Logger LOG = LogManager.getLogger(WaybackMachineArchiveServiceImpl.class);
     private static final String WAYBACK_SAVE_URL = "https://web.archive.org/save/";

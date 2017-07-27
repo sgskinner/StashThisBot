@@ -27,6 +27,7 @@ public class AtbotUrl {
     private Date lastArchived;
 
 
+
     public AtbotUrl() {
         // Necessary for ORM
     }
@@ -51,7 +52,7 @@ public class AtbotUrl {
 
 
     @ManyToOne
-    @JoinColumn(name = "result_id", nullable = false)
+    @JoinColumn(name = "result_id_fk", nullable = false)
     public ArchiveResultBo getArchiveResultBo() {
         return archiveResultBo;
     }

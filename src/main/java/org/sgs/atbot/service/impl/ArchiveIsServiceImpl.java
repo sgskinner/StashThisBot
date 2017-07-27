@@ -24,13 +24,14 @@ package org.sgs.atbot.service.impl;
 import java.util.Calendar;
 import java.util.List;
 
-import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.model.AtbotUrl;
+import org.sgs.atbot.service.ArchiveService;
+import org.springframework.stereotype.Service;
 
 import net.dean.jraw.models.CommentNode;
 
-
+@Service
 public class ArchiveIsServiceImpl implements ArchiveService {
 
     @Override

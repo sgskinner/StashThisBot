@@ -10,14 +10,9 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
-import org.sgs.atbot.service.ArchiveService;
-import org.sgs.atbot.service.AuthService;
-import org.sgs.atbot.service.RedditService;
-import org.sgs.atbot.service.impl.OauthServiceImpl;
-import org.sgs.atbot.service.impl.RedditServiceImpl;
-import org.sgs.atbot.service.impl.WaybackMachineArchiveServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -38,6 +33,7 @@ import net.dean.jraw.http.oauth.Credentials;
 @Configuration
 @EnableTransactionManagement
 @PropertySource(value = {"classpath:org/sgs/atbot/atbot.properties", "classpath:org/sgs/atbot/security.properties"})
+@ComponentScan({"org.sgs.atbot.model", "org.sgs.atbot.dao", "org.sgs.atbot.service"})
 public class AtbotConfiguration {
     private final Environment environment;
 
@@ -63,7 +59,7 @@ public class AtbotConfiguration {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource());
-        factoryBean.setPackagesToScan(new String[]{"org.sgs.atbot.model", "org.sgs.atbot.service"});
+        factoryBean.setPackagesToScan(new String[]{"org.sgs.atbot.model", "org.sgs.atbot.service", "org.sgs.atbot.service.impl"});
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
         factoryBean.setJpaProperties(jpaProperties());
         return factoryBean;
@@ -98,12 +94,6 @@ public class AtbotConfiguration {
 
 
     @Bean
-    public AuthService getAuthService() {
-        return new OauthServiceImpl(getCredentials());
-    }
-
-
-    @Bean
     public UserAgent getUserAgent() {
         return UserAgent.of("desktop", "org.sgs.atbot", "0.1.1", "ArchiveThisBot");
     }
@@ -122,17 +112,6 @@ public class AtbotConfiguration {
         return subredditList;
     }
 
-
-    @Bean
-    public RedditService getRedditService() {
-        return new RedditServiceImpl(getAuthService(), getRedditClient(), getSubredditList());
-    }
-
-
-    @Bean
-    public ArchiveService getArchiveService() {
-        return new WaybackMachineArchiveServiceImpl();
-    }
 
     private Properties jpaProperties() {
         Properties properties = new Properties();
