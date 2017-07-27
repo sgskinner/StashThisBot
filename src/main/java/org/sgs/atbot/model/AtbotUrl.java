@@ -1,5 +1,6 @@
 package org.sgs.atbot.model;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Date;
 
@@ -19,7 +20,9 @@ import org.apache.commons.lang3.StringUtils;
 
 @Entity
 @Table(name = "atbot_url_t")
-public class AtbotUrl {
+public class AtbotUrl implements Serializable {
+    private static final long serialVersionUID = 5169553373729915231L;
+
     private BigInteger urlId;
     private ArchiveResultBo archiveResultBo;
     private String originalUrl;

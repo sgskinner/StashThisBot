@@ -1,5 +1,6 @@
 package org.sgs.atbot.model;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,7 +18,8 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "archive_result_t")
-public class ArchiveResultBo {
+public class ArchiveResultBo implements Serializable {
+    private static final long serialVersionUID = 4260302707444143426L;
 
     private BigInteger resultId;
     private String submissionUrl;
