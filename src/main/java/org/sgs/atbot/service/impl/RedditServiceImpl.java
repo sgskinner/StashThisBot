@@ -23,12 +23,14 @@ package org.sgs.atbot.service.impl;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.sgs.atbot.util.ArchiveResultPostFormatter;
 import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.service.AuthService;
 import org.sgs.atbot.service.RedditService;
+import org.sgs.atbot.util.ArchiveResultPostFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,17 +47,17 @@ import net.dean.jraw.paginators.TimePeriod;
 public class RedditServiceImpl implements RedditService {
     private static final Logger LOG = LogManager.getLogger(RedditServiceImpl.class);
 
+    @Resource(name = "subredditList")
+    private List<String> subredditList;
     private final AuthService authService;
     private final RedditClient redditClient;
-    private final List subredditList;
     private boolean isFirstRun;
 
 
     @Autowired
-    public RedditServiceImpl(AuthService authService, RedditClient redditClient, List subredditList) {
+    public RedditServiceImpl(AuthService authService, RedditClient redditClient) {
         this.authService = authService;
         this.redditClient = redditClient;
-        this.subredditList = subredditList;
         this.isFirstRun = false;
     }
 
@@ -114,16 +116,18 @@ public class RedditServiceImpl implements RedditService {
             accountManager.reply(archiveResult.getSummoningCommentNode().getComment(), postText);
         } catch (ApiException e) {
             LOG.warn("Reddit API barfed on posting a reply to comment with ID: " + archiveResult.getSummoningCommentNode().getComment());
-            return;
         }
-
-        saveArchiveResult(archiveResult);
 
     }
 
 
-    private void saveArchiveResult(ArchiveResult archiveResult) {
+    public List<String> getSubredditList() {
+        return subredditList;
+    }
 
+
+    public void setSubredditList(List<String> subredditList) {
+        this.subredditList = subredditList;
     }
 
 
@@ -136,8 +140,4 @@ public class RedditServiceImpl implements RedditService {
         return authService;
     }
 
-
-    public List getSubredditList() {
-        return subredditList;
-    }
 }

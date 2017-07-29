@@ -24,6 +24,8 @@ package org.sgs.atbot;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,6 +38,7 @@ import org.sgs.atbot.service.RedditService;
 import org.sgs.atbot.service.RedditTimeService;
 import org.sgs.atbot.service.UserService;
 import org.sgs.atbot.spring.SpringContext;
+import org.sgs.atbot.util.SummonTokenMatcher;
 import org.sgs.atbot.util.TimeUtils;
 import org.sgs.atbot.util.UrlMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,32 +49,37 @@ import net.dean.jraw.models.CommentNode;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 
+
 @Component
 public class ArchiveThisBot {
     private static final Logger LOG = LogManager.getLogger(ArchiveThisBot.class);
-    private static final long SLEEP_INTERVAL = 10 * 1000; // 10 seconds in millis
+    private static final long AUTH_SLEEP_INTERVAL = 10 * 1000; // 10 seconds in millis
+    private static final long SUBMISSION_POLLING_INTERVAL = 10 * 1000; // 10 seconds in millis
     private static final long OAUTH_REFRESH_INTERVAL = 50 * 60 * 1000; // 50 minutes in millis
     private static final int MAX_AUTH_ATTEMPTS = 3;
 
+    @Resource(name = "subredditList")
+    private List<String> subredditList;
     private final RedditService redditService;
     private final ArchiveService archiveIsService;
-    private final List<String> subredditList;
     private final ArchiveResultBoService archiveResultBoService;
     private final UserService userService;
     private final RedditTimeService redditTimeService;
     private final AuthTimeService authTimeService;
-    private boolean killSwitchClick = false;
+    private final SummonTokenMatcher summonTokenMatcher;
+    private boolean killSwitchClick;
 
 
     @Autowired
-    public ArchiveThisBot(RedditService redditService, ArchiveService archiveIsService, List<String> subredditList, ArchiveResultBoService archiveResultBoService, UserService userService, RedditTimeService redditTimeService, AuthTimeService authTimeService) {
+    public ArchiveThisBot(RedditService redditService, ArchiveService archiveIsService, ArchiveResultBoService archiveResultBoService, UserService userService, RedditTimeService redditTimeService, AuthTimeService authTimeService, SummonTokenMatcher summonTokenMatcher) {
         this.redditService = redditService;
         this.archiveIsService = archiveIsService;
-        this.subredditList = subredditList;
         this.archiveResultBoService = archiveResultBoService;
         this.userService = userService;
         this.redditTimeService = redditTimeService;
         this.authTimeService = authTimeService;
+        this.summonTokenMatcher = summonTokenMatcher;
+        this.killSwitchClick = false;
     }
 
 
@@ -104,7 +112,7 @@ public class ArchiveThisBot {
             }
 
             try {
-                Thread.sleep(SLEEP_INTERVAL);
+                Thread.sleep(SUBMISSION_POLLING_INTERVAL);
             } catch (InterruptedException e) {
                 LOG.warn("Unexpectedly woken from sleep!: " + e.getMessage());
             }
@@ -114,7 +122,6 @@ public class ArchiveThisBot {
 
 
     private void recurseThroughComments(CommentNode commentNode, Submission submission) {
-
         if (commentNode == null) {
             LOG.warn("No comments found for submission!: " + submission.getShortURL());
             return;
@@ -148,7 +155,7 @@ public class ArchiveThisBot {
             }
 
             try {
-                Thread.sleep(SLEEP_INTERVAL);
+                Thread.sleep(AUTH_SLEEP_INTERVAL);
                 success = performAuth();
                 attempts++;
             } catch (InterruptedException e) {
@@ -182,9 +189,10 @@ public class ArchiveThisBot {
         String body = comment.getBody();
 
         if (StringUtils.isNotBlank(body)) {
-            //TODO: Add matcher so that we can report the actual match; also, get rid of these magic strings
-            if (body.contains("!ArchiveThis") || body.contains("!Archive This") || body.contains("Archive This!") || body.contains("Archive This!")) {
+            List<String> tokenHits = summonTokenMatcher.extractTokens(body);
+            if (tokenHits != null && tokenHits.size() > 0) {
                 LOG.info("Found summon hit(Comment#getId()): " + comment.getId());
+                LOG.info("Summon tokens found: " + tokenHits);
                 return true;
             }
         }
@@ -245,8 +253,13 @@ public class ArchiveThisBot {
     }
 
 
-    private List<String> getSubredditList() {
+    public List<String> getSubredditList() {
         return subredditList;
+    }
+
+
+    public void setSubredditList(List<String> subredditList) {
+        this.subredditList = subredditList;
     }
 
 

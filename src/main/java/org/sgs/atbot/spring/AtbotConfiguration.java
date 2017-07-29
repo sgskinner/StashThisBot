@@ -33,7 +33,7 @@ import net.dean.jraw.http.oauth.Credentials;
 @Configuration
 @EnableTransactionManagement
 @PropertySource(value = {"classpath:org/sgs/atbot/atbot.properties", "classpath:org/sgs/atbot/security.properties"})
-@ComponentScan({"org.sgs.atbot.model", "org.sgs.atbot.dao", "org.sgs.atbot.service"})
+@ComponentScan({"org.sgs.atbot.model", "org.sgs.atbot.dao", "org.sgs.atbot.service", "org.sgs.atbot.util"})
 public class AtbotConfiguration {
     private final Environment environment;
 
@@ -105,11 +105,23 @@ public class AtbotConfiguration {
     }
 
 
-    @Bean
+    @Bean(name = "subredditList")
     public List<String> getSubredditList() {
         List<String> subredditList = new ArrayList<>();
-        subredditList.addAll(Arrays.asList(environment.getRequiredProperty("subreddit.list").split(",")));
+        String[] rawStrings = environment.getRequiredProperty("subreddit.list").split(",");
+        subredditList.addAll(Arrays.asList(rawStrings));
+
         return subredditList;
+    }
+
+
+    @Bean(name = "summonTokens")
+    public List<String> getSummonTokens() {
+        List<String> tokenPatterns = new ArrayList<>();
+        String[] tmpPatterns = environment.getRequiredProperty("summon.token.patterns").split(",");
+        tokenPatterns.addAll(Arrays.asList(tmpPatterns));
+
+        return tokenPatterns;
     }
 
 
