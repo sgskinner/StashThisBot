@@ -51,6 +51,11 @@ public class PersistenceServiceTest {
         Assert.assertNotNull("Polling time should not be null!", returnedTime);
         Assert.assertTrue("Returned result is not the latest polling time!", returnedTime.getId().equals(time3.getId()));
         Assert.assertTrue("Dates for latest polling time should match!!!", returnedTime.getDate().compareTo(time3.getDate()) == 0);
+
+        service.delete(time1);
+        service.delete(time2);
+        service.delete(time3);
+
     }
 
 
