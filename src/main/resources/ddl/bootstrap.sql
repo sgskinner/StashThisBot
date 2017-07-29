@@ -49,6 +49,14 @@ CREATE TABLE reddit_polling_time_t (
 );
 
 
+CREATE TABLE auth_polling_time_t (
+  id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  date         DATETIME        NOT NULL,
+  success      BOOLEAN         NOT NULL,
+  PRIMARY KEY (id)
+);
+
+
 CREATE USER atbot@localhost
   IDENTIFIED BY 'password';
 

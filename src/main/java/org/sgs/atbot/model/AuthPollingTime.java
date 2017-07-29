@@ -15,22 +15,25 @@ import javax.persistence.TemporalType;
 
 
 @Entity
-@Table(name = "reddit_polling_time_t")
-public class RedditPollingTime implements Serializable {
-    private static final long serialVersionUID = 5415645255588950985L;
+@Table(name = "auth_polling_time_t")
+public class AuthPollingTime implements Serializable {
+    private static final long serialVersionUID = 898054764851451851L;
 
     private BigInteger id;
     private Date date;
+    private boolean success;
 
 
-    public RedditPollingTime() {
-        // Need by ORM
+    public AuthPollingTime() {
+        // Needed by ORM
     }
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+
+
     public BigInteger getId() {
         return id;
     }
@@ -50,6 +53,16 @@ public class RedditPollingTime implements Serializable {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
 }

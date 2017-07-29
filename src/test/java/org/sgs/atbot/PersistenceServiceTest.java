@@ -16,9 +16,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sgs.atbot.model.ArchiveResultBo;
 import org.sgs.atbot.model.AtbotUrl;
+import org.sgs.atbot.model.AuthPollingTime;
 import org.sgs.atbot.model.BlacklistedUser;
 import org.sgs.atbot.model.RedditPollingTime;
 import org.sgs.atbot.service.ArchiveResultBoService;
+import org.sgs.atbot.service.AuthTimeService;
 import org.sgs.atbot.service.RedditTimeService;
 import org.sgs.atbot.service.UserService;
 import org.sgs.atbot.spring.SpringContext;
@@ -29,6 +31,37 @@ public class PersistenceServiceTest {
     private static final String[] TEST_PARENT_USERNAMES = {"test-parent-0", "test-parent-1", "test-parent-2", "test-parent-3", "test-parent-4"};
 
     private static RandomStringGenerator stringGenerator;
+
+
+    @Test
+    public void testAuthTimeService() {
+        AuthTimeService service = SpringContext.getBean(AuthTimeService.class);
+
+        AuthPollingTime time1 = new AuthPollingTime();
+        time1.setDate(getZeroedMilliDate());
+        time1.setSuccess(false);
+        service.save(time1);
+
+        AuthPollingTime time2 = new AuthPollingTime();
+        time2.setDate(getZeroedMilliDate());
+        time2.setSuccess(true);
+        service.save(time2);
+
+        AuthPollingTime time3 = new AuthPollingTime();
+        time3.setDate(getZeroedMilliDate());
+        time3.setSuccess(false);
+        service.save(time3);
+
+        AuthPollingTime returnedTime = service.getLastSuccessfulAuth();
+        Assert.assertNotNull("Polling time should not be null!", returnedTime);
+        Assert.assertTrue("Returned result is not the last successful auth time!", returnedTime.getId().equals(time2.getId()));
+        Assert.assertTrue("Dates for last successful auth time should match!!!", returnedTime.getDate().compareTo(time2.getDate()) == 0);
+
+        service.delete(time1);
+        service.delete(time2);
+        service.delete(time3);
+
+    }
 
 
     @Test
