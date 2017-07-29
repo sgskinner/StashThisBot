@@ -24,6 +24,8 @@ import org.sgs.atbot.service.AuthTimeService;
 import org.sgs.atbot.service.RedditTimeService;
 import org.sgs.atbot.service.UserService;
 import org.sgs.atbot.spring.SpringContext;
+import org.sgs.atbot.util.ArchiveResultPostFormatter;
+import org.sgs.atbot.util.TimeUtils;
 
 
 public class PersistenceServiceTest {
@@ -31,6 +33,14 @@ public class PersistenceServiceTest {
     private static final String[] TEST_PARENT_USERNAMES = {"test-parent-0", "test-parent-1", "test-parent-2", "test-parent-3", "test-parent-4"};
 
     private static RandomStringGenerator stringGenerator;
+
+
+    @Test
+    public void testFormatter() {
+        ArchiveResultBo archiveResultBo = generateDummyArchiveResultBo();
+        String output = ArchiveResultPostFormatter.format(archiveResultBo);
+        System.out.println(output);
+    }
 
 
     @Test
@@ -96,6 +106,7 @@ public class PersistenceServiceTest {
     private Date getZeroedMilliDate() {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.MILLISECOND, 0);
+        calendar.setTimeZone(TimeUtils.GMT_TIME_ZONE);
         return calendar.getTime();
     }
 

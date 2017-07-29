@@ -28,15 +28,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.model.ArchiveResult;
+import org.sgs.atbot.model.AuthPollingTime;
 import org.sgs.atbot.service.ArchiveResultBoService;
 import org.sgs.atbot.service.ArchiveService;
+import org.sgs.atbot.service.AuthTimeService;
 import org.sgs.atbot.service.RedditService;
+import org.sgs.atbot.service.RedditTimeService;
 import org.sgs.atbot.service.UserService;
 import org.sgs.atbot.spring.SpringContext;
-import org.sgs.atbot.url.UrlMatcher;
+import org.sgs.atbot.util.TimeUtils;
+import org.sgs.atbot.util.UrlMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
 
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.CommentNode;
@@ -48,37 +51,39 @@ public class ArchiveThisBot {
     private static final Logger LOG = LogManager.getLogger(ArchiveThisBot.class);
     private static final long SLEEP_INTERVAL = 10 * 1000; // 10 seconds in millis
     private static final long OAUTH_REFRESH_INTERVAL = 50 * 60 * 1000; // 50 minutes in millis
+    private static final int MAX_AUTH_ATTEMPTS = 3;
 
     private final RedditService redditService;
     private final ArchiveService archiveIsService;
     private final List<String> subredditList;
     private final ArchiveResultBoService archiveResultBoService;
     private final UserService userService;
+    private final RedditTimeService redditTimeService;
+    private final AuthTimeService authTimeService;
+    private boolean killSwitchClick = false;
 
 
     @Autowired
-    public ArchiveThisBot(RedditService redditService, ArchiveService archiveIsService, List<String> subredditList, ArchiveResultBoService archiveResultBoService, UserService userService) {
+    public ArchiveThisBot(RedditService redditService, ArchiveService archiveIsService, List<String> subredditList, ArchiveResultBoService archiveResultBoService, UserService userService, RedditTimeService redditTimeService, AuthTimeService authTimeService) {
         this.redditService = redditService;
         this.archiveIsService = archiveIsService;
         this.subredditList = subredditList;
         this.archiveResultBoService = archiveResultBoService;
         this.userService = userService;
+        this.redditTimeService = redditTimeService;
+        this.authTimeService = authTimeService;
     }
 
 
     private void run() {
 
-        // OAuth token is set to expire in 1 hour from authenticating, so we need to watch for refreshing
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        performAuth();
-        if (!isAuthenticated()) {
-            LOG.fatal("Could not authenticate, exiting!");
-            return;
+        if (!performAuth()) {
+            LOG.fatal("Failed initial authentication, exiting!");
+            System.exit(1);
         }
 
-        do {
+        while (!killSwitchClick) {
+
             for (String subredditName : getSubredditList()) {
                 Listing<Submission> submissions = getRedditService().getSubredditSubmissions(subredditName);
                 for (Submission submission : submissions) {
@@ -93,11 +98,9 @@ public class ArchiveThisBot {
                 }
             }
 
-            // OAuth token needs refreshing every 60 minutes, so we're going to refresh every 50
-            if (stopWatch.getTotalTimeMillis() > OAUTH_REFRESH_INTERVAL) {
-                stopWatch = new StopWatch();
-                stopWatch.start();
-                performAuth();
+            // OAuth token needs refreshing every 60 minutes
+            if (authNeedsRefreshing()) {
+                retryAuthTillSuccess();
             }
 
             try {
@@ -106,7 +109,7 @@ public class ArchiveThisBot {
                 LOG.warn("Unexpectedly woken from sleep!: " + e.getMessage());
             }
 
-        } while (isAuthenticated());
+        }
     }
 
 
@@ -124,11 +127,43 @@ public class ArchiveThisBot {
             }
         }
 
-        // If we're here, we're a leaf node, so do summons search here
+        // Base case: if we're here, we're a leaf node, so do summons search
         if (isCommentSummoning(commentNode) && !isAlreadyServiced(commentNode) && !isUserBlacklisted(commentNode.getComment().getAuthor())) {
             processSummons(commentNode);
         }
 
+    }
+
+
+    private void retryAuthTillSuccess() {
+        int attempts = 0;
+
+        boolean success = performAuth();
+        attempts++;
+
+        while (!success) {
+            if (attempts >= MAX_AUTH_ATTEMPTS) {
+                killSwitchClick = true;
+                return;
+            }
+
+            try {
+                Thread.sleep(SLEEP_INTERVAL);
+                success = performAuth();
+                attempts++;
+            } catch (InterruptedException e) {
+                LOG.warn("Woken up from sleep unexpectedly!");
+            }
+        }
+    }
+
+
+    private boolean authNeedsRefreshing() {
+        AuthPollingTime lastAuthTime = getAuthTimeService().getLastSuccessfulAuth();
+        long now = TimeUtils.getTimeGmt().getTime();
+        long lastAuth = lastAuthTime.getDate().getTime();
+
+        return (now - lastAuth) >= OAUTH_REFRESH_INTERVAL;
     }
 
 
@@ -147,9 +182,9 @@ public class ArchiveThisBot {
         String body = comment.getBody();
 
         if (StringUtils.isNotBlank(body)) {
-            //TODO: Add matcher so that we can report the actual match
+            //TODO: Add matcher so that we can report the actual match; also, get rid of these magic strings
             if (body.contains("!ArchiveThis") || body.contains("!Archive This") || body.contains("Archive This!") || body.contains("Archive This!")) {
-                LOG.debug("Found summon hit(Comment#getId()): " + comment.getId());
+                LOG.info("Found summon hit(Comment#getId()): " + comment.getId());
                 return true;
             }
         }
@@ -184,8 +219,24 @@ public class ArchiveThisBot {
     }
 
 
-    protected void performAuth() {
+    protected boolean performAuth() {
+        boolean success;
+        AuthPollingTime time = new AuthPollingTime();
+        time.setDate(TimeUtils.getTimeGmt());
+
         getRedditService().performAuth();
+
+        if (isAuthenticated()) {
+            success = true;
+        } else {
+            LOG.warn("Could not authenticate!");
+            success = false;
+        }
+
+        time.setSuccess(success);
+        getAuthTimeService().save(time);
+
+        return success;
     }
 
 
@@ -206,6 +257,16 @@ public class ArchiveThisBot {
 
     public UserService getUserService() {
         return userService;
+    }
+
+
+    public RedditTimeService getRedditTimeService() {
+        return redditTimeService;
+    }
+
+
+    public AuthTimeService getAuthTimeService() {
+        return authTimeService;
     }
 
 

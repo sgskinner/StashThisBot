@@ -1,4 +1,4 @@
-package org.sgs.atbot.url;
+package org.sgs.atbot.util;
 
 import java.util.ArrayList;
 import java.util.List;

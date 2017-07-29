@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.sgs.atbot.url.UrlMatcher;
+import org.sgs.atbot.util.UrlMatcher;
 
 public class UrlMatcherTest {
     private static final Pattern URL_PATTERN = Pattern.compile("((https|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");

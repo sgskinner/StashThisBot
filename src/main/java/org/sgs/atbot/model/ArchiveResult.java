@@ -2,9 +2,10 @@ package org.sgs.atbot.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import org.sgs.atbot.util.TimeUtils;
 
 import net.dean.jraw.models.CommentNode;
 
@@ -22,7 +23,7 @@ public class ArchiveResult implements Serializable {
     public ArchiveResult(CommentNode parentCommentNode, CommentNode summoningCommentNode, List<String> urlsToArchive) {
         this.parentCommentNode = parentCommentNode;
         this.summoningCommentNode = summoningCommentNode;
-        this.requestDate = Calendar.getInstance().getTime();
+        this.requestDate = TimeUtils.getTimeGmt();
 
         this.urlsToArchive = new ArrayList<>();
         for (String url : urlsToArchive) {

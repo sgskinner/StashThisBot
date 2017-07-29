@@ -1,7 +1,6 @@
 package org.sgs.atbot.service.impl;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.List;
 
 import org.apache.http.Header;
@@ -15,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.model.AtbotUrl;
 import org.sgs.atbot.service.ArchiveService;
+import org.sgs.atbot.util.TimeUtils;
 import org.springframework.stereotype.Service;
 
 import net.dean.jraw.models.CommentNode;
@@ -70,7 +70,7 @@ public class WaybackMachineArchiveServiceImpl implements ArchiveService {
 
         if (archivePath != null && archivePath.length() > 0) {
             atbotUrl.setArchivedUrl(WAYBACK_ROOT_URL + archivePath);
-            atbotUrl.setLastArchived(Calendar.getInstance().getTime());
+            atbotUrl.setLastArchived(TimeUtils.getTimeGmt());
             LOG.info("Archive link successful: ");
             LOG.info(atbotUrl);
         } else {

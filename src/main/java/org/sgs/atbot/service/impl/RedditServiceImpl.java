@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.sgs.atbot.util.ArchiveResultPostFormatter;
 import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.service.AuthService;
 import org.sgs.atbot.service.RedditService;
@@ -109,8 +110,8 @@ public class RedditServiceImpl implements RedditService {
 
         AccountManager accountManager = new AccountManager(redditClient);
         try {
-            // TODO: need to aggregate *all* archived links, i.e., ArchiveResult->ArchivedUrl is a 1->n relationship
-            accountManager.reply(archiveResult.getSummoningCommentNode().getComment(), archiveResult.getUrlsToArchive().get(0).getArchivedUrl());
+            String postText = ArchiveResultPostFormatter.format(archiveResult);
+            accountManager.reply(archiveResult.getSummoningCommentNode().getComment(), postText);
         } catch (ApiException e) {
             LOG.warn("Reddit API barfed on posting a reply to comment with ID: " + archiveResult.getSummoningCommentNode().getComment());
             return;

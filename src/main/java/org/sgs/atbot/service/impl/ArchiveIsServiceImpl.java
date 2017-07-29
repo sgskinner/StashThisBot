@@ -21,12 +21,12 @@
 
 package org.sgs.atbot.service.impl;
 
-import java.util.Calendar;
 import java.util.List;
 
 import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.model.AtbotUrl;
 import org.sgs.atbot.service.ArchiveService;
+import org.sgs.atbot.util.TimeUtils;
 import org.springframework.stereotype.Service;
 
 import net.dean.jraw.models.CommentNode;
@@ -39,8 +39,8 @@ public class ArchiveIsServiceImpl implements ArchiveService {
         ArchiveResult request = new ArchiveResult(parentCommentNode, summoningNode, extractedUrls);
         for (AtbotUrl atbotUrl : request.getUrlsToArchive()) {
             //TODO: implement archive service here
-            atbotUrl.setArchivedUrl("sgs: MOCKED; " + Calendar.getInstance().getTimeInMillis());
-            request.setServicedDate(Calendar.getInstance().getTime());
+            atbotUrl.setArchivedUrl("sgs: MOCKED");
+            request.setServicedDate(TimeUtils.getTimeGmt());
         }
 
         return request;
