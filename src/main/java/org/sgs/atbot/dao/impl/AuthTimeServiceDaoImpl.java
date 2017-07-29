@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 public class AuthTimeServiceDaoImpl extends AbstractDao<BigInteger, AuthPollingTime> implements AuthTimeServiceDao {
     private static final String SELECT_BY_LAST_SUCCESS = "select t from AuthPollingTime t where id = (select max(id) from AuthPollingTime where success = true)";
 
+
     @Override
     public AuthPollingTime getLastSuccessfulAuth() {
         return (AuthPollingTime) getEntityManager()
@@ -43,4 +44,5 @@ public class AuthTimeServiceDaoImpl extends AbstractDao<BigInteger, AuthPollingT
     public void update(AuthPollingTime authPollingTime) {
         super.update(authPollingTime);
     }
+
 }
