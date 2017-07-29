@@ -31,6 +31,17 @@ CREATE TABLE atbot_url_t (
 );
 CREATE INDEX rslt_id_idx ON atbot_url_t (result_id_fk);
 
+
+CREATE TABLE blacklisted_user_t (
+  id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  username     VARCHAR(255)    NOT NULL,
+  date_created DATETIME        NOT NULL,
+  reason       TEXT            NOT NULL,
+  PRIMARY KEY (id)
+);
+CREATE INDEX username ON blacklisted_user_t (username);
+
+
 CREATE USER atbot@localhost
   IDENTIFIED BY 'password';
 

@@ -24,7 +24,6 @@ package org.sgs.atbot;
 
 import java.util.List;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,6 +31,7 @@ import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.service.ArchiveResultBoService;
 import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.service.RedditService;
+import org.sgs.atbot.service.UserService;
 import org.sgs.atbot.spring.SpringContext;
 import org.sgs.atbot.url.UrlMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,14 +53,16 @@ public class ArchiveThisBot {
     private final ArchiveService archiveIsService;
     private final List<String> subredditList;
     private final ArchiveResultBoService archiveResultBoService;
+    private final UserService userService;
 
 
     @Autowired
-    public ArchiveThisBot(RedditService redditService, ArchiveService archiveIsService, List<String> subredditList, ArchiveResultBoService archiveResultBoService) {
+    public ArchiveThisBot(RedditService redditService, ArchiveService archiveIsService, List<String> subredditList, ArchiveResultBoService archiveResultBoService, UserService userService) {
         this.redditService = redditService;
         this.archiveIsService = archiveIsService;
         this.subredditList = subredditList;
         this.archiveResultBoService = archiveResultBoService;
+        this.userService = userService;
     }
 
 
@@ -131,11 +133,7 @@ public class ArchiveThisBot {
 
 
     private boolean isUserBlacklisted(String authorUsername) {
-        if (StringUtils.isBlank(authorUsername)) {
-            return true;
-        }
-        // TODO: Implement this
-        throw new NotImplementedException("TODO: Create blacklist objects and logic");
+        return StringUtils.isBlank(authorUsername) || getUserService().isUserBlacklisted(authorUsername);
     }
 
 
@@ -203,6 +201,11 @@ public class ArchiveThisBot {
 
     public ArchiveResultBoService getArchiveResultBoService() {
         return archiveResultBoService;
+    }
+
+
+    public UserService getUserService() {
+        return userService;
     }
 
 

@@ -15,7 +15,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sgs.atbot.model.ArchiveResultBo;
 import org.sgs.atbot.model.AtbotUrl;
+import org.sgs.atbot.model.BlacklistedUser;
 import org.sgs.atbot.service.ArchiveResultBoService;
+import org.sgs.atbot.service.UserService;
 import org.sgs.atbot.spring.SpringContext;
 
 
@@ -24,6 +26,35 @@ public class PersistenceServiceTest {
     private static final String[] TEST_PARENT_USERNAMES = {"test-parent-0", "test-parent-1", "test-parent-2", "test-parent-3", "test-parent-4"};
 
     private static RandomStringGenerator stringGenerator;
+
+
+    @Test
+    public void testBlacklistedUser () {
+        UserService service = SpringContext.getBean(UserService.class);
+        BlacklistedUser user = generateBlacklistedUser();
+
+        service.save(user);
+
+        BlacklistedUser returnedUser = service.getBlackListedUserbyUsername(user.getUsername());
+        String username = returnedUser.getUsername();
+        Assert.assertTrue("Should return exactly one user!", returnedUser != null);
+        Assert.assertTrue("Username should match what was saved!", returnedUser.getUsername().equals(username));
+
+        service.delete(user);
+
+        returnedUser = service.getBlackListedUserbyUsername(username);
+        Assert.assertNull("Deleted user should not be returned in search!", returnedUser);
+    }
+
+
+    private BlacklistedUser generateBlacklistedUser() {
+        BlacklistedUser user = new BlacklistedUser();
+        user.setUsername(getRandomSummonerUsername());
+        user.setDateCreated(Calendar.getInstance().getTime());
+        user.setReason(generateRandomString(getRandomInt(10, 20)));
+
+        return user;
+    }
 
 
     @Test
@@ -123,7 +154,7 @@ public class PersistenceServiceTest {
 
 
     private String getRandomParentUsername() {
-        return TEST_PARENT_USERNAMES[getRandomInt(0, TEST_SUMMONER_USERNAMES.length)];
+        return TEST_PARENT_USERNAMES[getRandomInt(0, TEST_PARENT_USERNAMES.length)];
     }
 
 
@@ -156,7 +187,11 @@ public class PersistenceServiceTest {
     @BeforeClass
     public static void testInit() {
         SecureRandom rand = new SecureRandom();
-        stringGenerator = new RandomStringGenerator.Builder().usingRandom(rand::nextInt).withinRange(0, 'z').filteredBy(new AlphaNumericPredicate()).build();
+        stringGenerator = new RandomStringGenerator
+                .Builder()
+                .usingRandom(rand::nextInt).withinRange(0, 'z')
+                .filteredBy(new AlphaNumericPredicate())
+                .build();
     }
 
 
