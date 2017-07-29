@@ -54,6 +54,7 @@ public class PersistenceServiceTest {
 
         AuthPollingTime returnedTime = service.getLastSuccessfulAuth();
         Assert.assertNotNull("Polling time should not be null!", returnedTime);
+        Assert.assertTrue("Success attribute should be 'true'!", returnedTime.isSuccess());
         Assert.assertTrue("Returned result is not the last successful auth time!", returnedTime.getId().equals(time2.getId()));
         Assert.assertTrue("Dates for last successful auth time should match!!!", returnedTime.getDate().compareTo(time2.getDate()) == 0);
 

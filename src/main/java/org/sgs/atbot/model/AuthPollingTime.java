@@ -56,6 +56,7 @@ public class AuthPollingTime implements Serializable {
     }
 
 
+    @Column(name = "success")
     public boolean isSuccess() {
         return success;
     }
