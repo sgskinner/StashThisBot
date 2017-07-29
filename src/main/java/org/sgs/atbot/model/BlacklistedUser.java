@@ -53,7 +53,7 @@ public class BlacklistedUser implements Serializable {
     }
 
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_created")
     public Date getDateCreated() {
         return dateCreated;

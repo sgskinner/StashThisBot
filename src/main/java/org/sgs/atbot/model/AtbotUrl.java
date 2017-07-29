@@ -94,7 +94,7 @@ public class AtbotUrl implements Serializable {
     }
 
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "last_archived")
     public Date getLastArchived() {
         return lastArchived;

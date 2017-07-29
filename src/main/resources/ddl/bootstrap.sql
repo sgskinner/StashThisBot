@@ -42,6 +42,13 @@ CREATE TABLE blacklisted_user_t (
 CREATE INDEX username ON blacklisted_user_t (username);
 
 
+CREATE TABLE reddit_polling_time_t (
+  id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  date         DATETIME        NOT NULL,
+  PRIMARY KEY (id)
+);
+
+
 CREATE USER atbot@localhost
   IDENTIFIED BY 'password';
 

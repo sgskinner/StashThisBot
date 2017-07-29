@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -16,7 +17,9 @@ import org.junit.Test;
 import org.sgs.atbot.model.ArchiveResultBo;
 import org.sgs.atbot.model.AtbotUrl;
 import org.sgs.atbot.model.BlacklistedUser;
+import org.sgs.atbot.model.RedditPollingTime;
 import org.sgs.atbot.service.ArchiveResultBoService;
+import org.sgs.atbot.service.RedditTimeService;
 import org.sgs.atbot.service.UserService;
 import org.sgs.atbot.spring.SpringContext;
 
@@ -26,6 +29,36 @@ public class PersistenceServiceTest {
     private static final String[] TEST_PARENT_USERNAMES = {"test-parent-0", "test-parent-1", "test-parent-2", "test-parent-3", "test-parent-4"};
 
     private static RandomStringGenerator stringGenerator;
+
+
+    @Test
+    public void testRedditTimeService() {
+        RedditTimeService service = SpringContext.getBean(RedditTimeService.class);
+
+        RedditPollingTime time1 = new RedditPollingTime();
+        time1.setDate(getZeroedMilliDate());
+        service.save(time1);
+
+        RedditPollingTime time2 = new RedditPollingTime();
+        time2.setDate(getZeroedMilliDate());
+        service.save(time2);
+
+        RedditPollingTime time3 = new RedditPollingTime();
+        time3.setDate(getZeroedMilliDate());
+        service.save(time3);
+
+        RedditPollingTime returnedTime = service.getLastPollingTime();
+        Assert.assertNotNull("Polling time should not be null!", returnedTime);
+        Assert.assertTrue("Returned result is not the latest polling time!", returnedTime.getId().equals(time3.getId()));
+        Assert.assertTrue("Dates for latest polling time should match!!!", returnedTime.getDate().compareTo(time3.getDate()) == 0);
+    }
+
+
+    private Date getZeroedMilliDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
 
 
     @Test
@@ -50,7 +83,7 @@ public class PersistenceServiceTest {
     private BlacklistedUser generateBlacklistedUser() {
         BlacklistedUser user = new BlacklistedUser();
         user.setUsername(getRandomSummonerUsername());
-        user.setDateCreated(Calendar.getInstance().getTime());
+        user.setDateCreated(getZeroedMilliDate());
         user.setReason(generateRandomString(getRandomInt(10, 20)));
 
         return user;
@@ -100,8 +133,8 @@ public class PersistenceServiceTest {
         archiveResultBo.setSummoningCommentAuthor(getRandomSummonerUsername());
         archiveResultBo.setSummoningCommentId(stringGenerator.generate(getRandomInt(5, 9)));
         archiveResultBo.setSummoningCommentUrl(generateMockUrl());
-        archiveResultBo.setRequestDate(Calendar.getInstance().getTime());
-        archiveResultBo.setServicedDate(Calendar.getInstance().getTime());
+        archiveResultBo.setRequestDate(getZeroedMilliDate());
+        archiveResultBo.setServicedDate(getZeroedMilliDate());
         archiveResultBo.addAtbotUrls(generateAtbotUrlList(getRandomInt(1, 5)));
 
         return archiveResultBo;
@@ -122,7 +155,7 @@ public class PersistenceServiceTest {
         AtbotUrl atbotUrl = new AtbotUrl();
         atbotUrl.setOriginalUrl(generateMockUrl());
         atbotUrl.setArchivedUrl(generateMockUrl());
-        atbotUrl.setLastArchived(Calendar.getInstance().getTime());
+        atbotUrl.setLastArchived(getZeroedMilliDate());
 
         return atbotUrl;
     }
