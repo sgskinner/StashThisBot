@@ -94,14 +94,21 @@ public class ArchiveThisBot {
         while (!killSwitchClick) {
 
             for (String subredditName : getSubredditList()) {
+
+                LOG.info("Polling for submissions in subreddit: " + subredditName);
                 Listing<Submission> submissions = getRedditService().getSubredditSubmissions(subredditName);
+                LOG.info("Polling complete, found %d submissions.", submissions.size());
+
                 for (Submission submission : submissions) {
-                    if (submission == null || submission.getCommentCount() < 1 || submission.getId() == null) {
-                        // GIGO, move on
-                        LOG.warn("Bad submission, skipping: " + submission);
+                    if (submission.getCommentCount() < 1) {
+                        LOG.info("Skipping submission(id: %s) with no comments.", submission.getId());
                         continue;
                     }
+
+                    LOG.info("Hydrating full submission for: " + submission.getUrl());
                     submission = getRedditService().getFullSubmissionData(submission);
+
+                    LOG.info("Starting to recurse through comments for Submission(id: %s)", submission.getId());
                     CommentNode commentNode = submission.getComments();
                     recurseThroughComments(commentNode, submission);
                 }
@@ -182,7 +189,17 @@ public class ArchiveThisBot {
 
 
     private boolean isAlreadyServiced(CommentNode summoningCommentNode) {
-        return getArchiveResultService().existsByParentCommentId(summoningCommentNode.getParent().getComment().getId());
+        String parentCommentId = summoningCommentNode.getParent().getComment().getId();
+
+        if (parentCommentId == null) {
+            // This is a root comment node, so skip
+            return true;
+        }
+
+        boolean isServiced = getArchiveResultService().existsByParentCommentId(parentCommentId);
+        LOG.info("Comment(id: %s) %s previously been serviced.", parentCommentId, (isServiced ? "HAS" : "has NOT"));
+
+        return isServiced;
     }
 
 
@@ -193,8 +210,7 @@ public class ArchiveThisBot {
         if (StringUtils.isNotBlank(body)) {
             List<String> tokenHits = summonTokenMatcher.extractTokens(body);
             if (tokenHits != null && tokenHits.size() > 0) {
-                LOG.info("Found summon hit(Comment#getId()): " + comment.getId());
-                LOG.info("Summon tokens found: " + tokenHits);
+                LOG.info("Found summon hit in comment(id: %s) with summon tokens: %s", comment.getId(), tokenHits);
                 return true;
             }
         }
@@ -213,9 +229,10 @@ public class ArchiveThisBot {
         List<String> extractedUrls = UrlMatcher.extractUrls(body);
 
         if (extractedUrls.size() > 0) {
-            ArchiveResult archiveResult = new ArchiveResult(submission, parentCommentNode, summoningCommentNode, extractedUrls);
+            LOG.info("Found %d URLs to archive.", extractedUrls.size());
 
             // May or may not be able to archive all urls, which we'll guard against in a sec
+            ArchiveResult archiveResult = new ArchiveResult(submission, parentCommentNode, summoningCommentNode, extractedUrls);
             getArchiveService().archive(archiveResult);
 
             // Regardless if the URLs were successful of being archived, still want to save record of having tried
@@ -223,7 +240,9 @@ public class ArchiveThisBot {
 
             // Only make a reddit post if we actually have some successfully archived URLs
             if (shouldPost(archiveResult)) {
+                LOG.info("Making reddit post for ArchiveResult(id: %d)...", archiveResult.getId());
                 getRedditService().postArchiveResult(archiveResult);
+                LOG.info("Completed reddit post for ArchiveResult(id: %d)...", archiveResult.getId());
             }
 
         }
@@ -254,6 +273,7 @@ public class ArchiveThisBot {
 
 
     protected boolean performAuth() {
+        LOG.info("Attempting reddit authentication...");
         boolean success;
         AuthPollingTime time = new AuthPollingTime();
         time.setDate(TimeUtils.getTimeGmt());
@@ -270,6 +290,7 @@ public class ArchiveThisBot {
         time.setSuccess(success);
         getAuthTimeService().save(time);
 
+        LOG.info("Authentication returned: " + success);
         return success;
     }
 

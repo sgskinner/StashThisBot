@@ -4,7 +4,7 @@
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d [%p] %C: %m%n"/>
         </Console>
-        <RollingFile name="logfile" fileName="${env:HOME}/logs/atb/atb.log"
+        <RollingFile name="logfile" fileName="${env:HOME}/logs/atb.log"
                      filePattern="${env:HOME}/logs/atb/atb.log.%d{yyyy-MM-dd}"
                      immediateFlush="true">
             <PatternLayout pattern="%d [%p] %C: %m%n"/>
@@ -14,12 +14,12 @@
     <Loggers>
         <Logger name="org.springframework.beans.factory.xml" level="error" additivity="false"/>
         <Logger name="org.apache.commons.beanutils" level="error" additivity="false"/>
-        <Logger name="org.sgs.atbot" level="${sgs.logging.level}" additivity="false">
+        <Logger name="org.sgs.atbot" level="debug" additivity="false">
             <AppenderRef ref="logfile" />
         </Logger>
         <Root>
             <!-- OFF, FATAL, ERROR, WARN, INFO, DEBUG, TRACE, ALL -->
-            <AppenderRef ref="logfile" level="info"/>
+            <AppenderRef ref="logfile" level="debug"/>
         </Root>
     </Loggers>
 </log4j:configuration>

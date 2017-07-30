@@ -2,6 +2,8 @@ package org.sgs.atbot.service.impl;
 
 import java.math.BigInteger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.dao.ArchiveResultDao;
 import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.service.ArchiveResultService;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class ArchiveResultServiceImpl implements ArchiveResultService {
+    private static final Logger LOG = LogManager.getLogger(ArchiveResultServiceImpl.class);
 
     final ArchiveResultDao dao;
 
@@ -31,7 +34,9 @@ public class ArchiveResultServiceImpl implements ArchiveResultService {
 
     @Override
     public void save(ArchiveResult archiveResult) {
+        LOG.info("Saving archive result...");
         dao.save(archiveResult);
+        LOG.info("Successfully saved ArchiveResult(id: %d)", archiveResult.getId());
     }
 
 

@@ -74,7 +74,7 @@ public class WaybackMachineArchiveServiceImpl implements ArchiveService {
             atbotUrl.setLastArchived(TimeUtils.getTimeGmt());
             LOG.info("Archive link successful: " + archivePath);
         } else {
-            LOG.warn("Couldn't set archived URL: " + urlString);
+            LOG.warn("Couldn't obtain archive for URL: " + urlString);
         }
 
     }
