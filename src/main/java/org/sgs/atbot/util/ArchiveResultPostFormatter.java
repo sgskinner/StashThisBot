@@ -1,7 +1,6 @@
 package org.sgs.atbot.util;
 
 import org.sgs.atbot.model.ArchiveResult;
-import org.sgs.atbot.model.ArchiveResultBo;
 import org.sgs.atbot.model.AtbotUrl;
 
 public class ArchiveResultPostFormatter {
@@ -11,17 +10,12 @@ public class ArchiveResultPostFormatter {
 
 
     public static String format(ArchiveResult archiveResult) {
-        return format(new ArchiveResultBo(archiveResult));
-    }
-
-
-    public static String format(ArchiveResultBo archiveResultBo) {
         StringBuilder sb = new StringBuilder();
         sb.append("**Archived**:");
         sb.append(System.lineSeparator());
         sb.append(System.lineSeparator()); // reddit markdown needs 2 newlines to display one
 
-        for(AtbotUrl atbotUrl : archiveResultBo.getArchivedUrls()) {
+        for(AtbotUrl atbotUrl : archiveResult.getArchivedUrls()) {
             sb.append(String.format(LINK_LINE, atbotUrl.getOriginalUrl(), atbotUrl.getArchivedUrl(), TimeUtils.formatGmt(atbotUrl.getLastArchived())));
             sb.append(System.lineSeparator());
             sb.append(System.lineSeparator());

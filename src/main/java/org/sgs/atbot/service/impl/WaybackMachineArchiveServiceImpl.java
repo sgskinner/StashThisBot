@@ -1,7 +1,6 @@
 package org.sgs.atbot.service.impl;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
@@ -17,8 +16,6 @@ import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.util.TimeUtils;
 import org.springframework.stereotype.Service;
 
-import net.dean.jraw.models.CommentNode;
-
 
 @Service
 public class WaybackMachineArchiveServiceImpl implements ArchiveService {
@@ -29,11 +26,12 @@ public class WaybackMachineArchiveServiceImpl implements ArchiveService {
 
 
     @Override
-    public ArchiveResult archiveUrls(CommentNode parentCommentNode, CommentNode summoningNode, List<String> extractedUrls) {
-        ArchiveResult archiveResult = new ArchiveResult(parentCommentNode, summoningNode, extractedUrls);
-        for (AtbotUrl atbotUrl : archiveResult.getUrlsToArchive()) {
+    public ArchiveResult archive(ArchiveResult archiveResult) {
+        for (AtbotUrl atbotUrl : archiveResult.getArchivedUrls()) {
             doArchive(atbotUrl);
         }
+
+        archiveResult.setServicedDate(TimeUtils.getTimeGmt());
 
         return archiveResult;
     }

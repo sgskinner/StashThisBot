@@ -14,12 +14,12 @@ import org.apache.commons.text.RandomStringGenerator;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sgs.atbot.model.ArchiveResultBo;
+import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.model.AtbotUrl;
 import org.sgs.atbot.model.AuthPollingTime;
 import org.sgs.atbot.model.BlacklistedUser;
 import org.sgs.atbot.model.RedditPollingTime;
-import org.sgs.atbot.service.ArchiveResultBoService;
+import org.sgs.atbot.service.ArchiveResultService;
 import org.sgs.atbot.service.AuthTimeService;
 import org.sgs.atbot.service.RedditTimeService;
 import org.sgs.atbot.service.UserService;
@@ -37,8 +37,8 @@ public class PersistenceServiceTest {
 
     @Test
     public void testFormatter() {
-        ArchiveResultBo archiveResultBo = generateDummyArchiveResultBo();
-        String output = ArchiveResultPostFormatter.format(archiveResultBo);
+        ArchiveResult archiveResult = generateDummyArchiveResult();
+        String output = ArchiveResultPostFormatter.format(archiveResult);
         System.out.println(output);
     }
 
@@ -142,7 +142,7 @@ public class PersistenceServiceTest {
 
     @Test
     public void testArchiveResultIsServiced() {
-        ArchiveResultBoService service = SpringContext.getBean(ArchiveResultBoService.class);
+        ArchiveResultService service = SpringContext.getBean(ArchiveResultService.class);
 
         boolean exists = service.existsByParentCommentId("SVdBrk2");// in dummy data
         Assert.assertTrue("ArchiveResultBo should exist in dummy data!", exists);
@@ -153,12 +153,12 @@ public class PersistenceServiceTest {
 
 
     @Test
-    public void testSaveArchiveResultBo() {
-        ArchiveResultBo archiveResultBo = generateDummyArchiveResultBo();
-        ArchiveResultBoService service = SpringContext.getBean(ArchiveResultBoService.class);
+    public void testSaveArchiveResult() {
+        ArchiveResult archiveResultBo = generateDummyArchiveResult();
+        ArchiveResultService service = SpringContext.getBean(ArchiveResultService.class);
         service.save(archiveResultBo);
 
-        ArchiveResultBo returnedBo = service.findByParentCommentId(archiveResultBo.getParentCommentId());
+        ArchiveResult returnedBo = service.findByParentCommentId(archiveResultBo.getParentCommentId());
         Assert.assertNotNull("Should get back one result that we just inserted!", returnedBo);
 
         BigInteger id = returnedBo.getResultId();
@@ -173,9 +173,9 @@ public class PersistenceServiceTest {
     }
 
 
-    private ArchiveResultBo generateDummyArchiveResultBo() {
+    private ArchiveResult generateDummyArchiveResult() {
 
-        ArchiveResultBo archiveResultBo = new ArchiveResultBo();
+        ArchiveResult archiveResultBo = new ArchiveResult();
         archiveResultBo.setSubmissionUrl(generateMockUrl());
         archiveResultBo.setParentCommentAuthor(getRandomParentUsername());
         archiveResultBo.setParentCommentId(stringGenerator.generate(getRandomInt(5, 9)));
@@ -243,26 +243,26 @@ public class PersistenceServiceTest {
 
     @Test
     public void testArchiveResultDao() {
-        ArchiveResultBoService service = SpringContext.getBean(ArchiveResultBoService.class);
-        ArchiveResultBo archiveResultBo = service.findByParentCommentId("V1X0rS");// in dummy data file
+        ArchiveResultService service = SpringContext.getBean(ArchiveResultService.class);
+        ArchiveResult archiveResultBo = service.findByParentCommentId("V1X0rS");// in dummy data file
         Assert.assertTrue(archiveResultBo.getArchivedUrls().size() == 4);
     }
 
 
     @Test
     public void testFetchOfArchiveResult() {
-        ArchiveResultBoService archiveResultDao = SpringContext.getBean(ArchiveResultBoService.class);
-        ArchiveResultBo archiveResultBo = archiveResultDao.findById(new BigInteger("1"));
+        ArchiveResultService archiveResultDao = SpringContext.getBean(ArchiveResultService.class);
+        ArchiveResult archiveResult = archiveResultDao.findById(new BigInteger("1"));
 
-        Assert.assertNotNull(archiveResultBo);
-        Assert.assertNotNull(archiveResultBo.getParentCommentAuthor());
-        Assert.assertNotNull(archiveResultBo.getParentCommentId());
-        Assert.assertNotNull(archiveResultBo.getParentCommentUrl());
-        Assert.assertNotNull(archiveResultBo.getSubmissionUrl());
-        Assert.assertNotNull(archiveResultBo.getSummoningCommentAuthor());
-        Assert.assertNotNull(archiveResultBo.getSummoningCommentId());
-        Assert.assertNotNull(archiveResultBo.getSummoningCommentUrl());
-        Assert.assertNotNull(archiveResultBo.getResultId());
+        Assert.assertNotNull(archiveResult);
+        Assert.assertNotNull(archiveResult.getParentCommentAuthor());
+        Assert.assertNotNull(archiveResult.getParentCommentId());
+        Assert.assertNotNull(archiveResult.getParentCommentUrl());
+        Assert.assertNotNull(archiveResult.getSubmissionUrl());
+        Assert.assertNotNull(archiveResult.getSummoningCommentAuthor());
+        Assert.assertNotNull(archiveResult.getSummoningCommentId());
+        Assert.assertNotNull(archiveResult.getSummoningCommentUrl());
+        Assert.assertNotNull(archiveResult.getResultId());
 
     }
 

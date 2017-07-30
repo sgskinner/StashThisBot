@@ -16,7 +16,7 @@ public class BlacklistedUserDaoImpl extends AbstractDao<BigInteger, BlacklistedU
 
     @Override
     public boolean isUserBlacklisted(String username) {
-        return getBlackListedUserbyUsername(username) == null;
+        return getBlackListedUserbyUsername(username) != null;
     }
 
 

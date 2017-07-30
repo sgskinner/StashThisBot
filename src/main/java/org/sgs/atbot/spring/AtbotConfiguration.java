@@ -33,7 +33,7 @@ import net.dean.jraw.http.oauth.Credentials;
 @Configuration
 @EnableTransactionManagement
 @PropertySource(value = {"classpath:org/sgs/atbot/atbot.properties", "classpath:org/sgs/atbot/security.properties"})
-@ComponentScan({"org.sgs.atbot.model", "org.sgs.atbot.dao", "org.sgs.atbot.service", "org.sgs.atbot.util"})
+@ComponentScan({"org.sgs.atbot"})
 public class AtbotConfiguration {
     private final Environment environment;
 

@@ -31,7 +31,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.model.AuthPollingTime;
-import org.sgs.atbot.service.ArchiveResultBoService;
+import org.sgs.atbot.service.ArchiveResultService;
 import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.service.AuthTimeService;
 import org.sgs.atbot.service.RedditService;
@@ -62,7 +62,7 @@ public class ArchiveThisBot {
     private List<String> subredditList;
     private final RedditService redditService;
     private final ArchiveService archiveIsService;
-    private final ArchiveResultBoService archiveResultBoService;
+    private final ArchiveResultService archiveResultService;
     private final UserService userService;
     private final RedditTimeService redditTimeService;
     private final AuthTimeService authTimeService;
@@ -71,10 +71,10 @@ public class ArchiveThisBot {
 
 
     @Autowired
-    public ArchiveThisBot(RedditService redditService, ArchiveService archiveIsService, ArchiveResultBoService archiveResultBoService, UserService userService, RedditTimeService redditTimeService, AuthTimeService authTimeService, SummonTokenMatcher summonTokenMatcher) {
+    public ArchiveThisBot(RedditService redditService, ArchiveService archiveIsService, ArchiveResultService archiveResultService, UserService userService, RedditTimeService redditTimeService, AuthTimeService authTimeService, SummonTokenMatcher summonTokenMatcher) {
         this.redditService = redditService;
         this.archiveIsService = archiveIsService;
-        this.archiveResultBoService = archiveResultBoService;
+        this.archiveResultService = archiveResultService;
         this.userService = userService;
         this.redditTimeService = redditTimeService;
         this.authTimeService = authTimeService;
@@ -136,7 +136,7 @@ public class ArchiveThisBot {
 
         // Base case: if we're here, we're a leaf node, so do summons search
         if (isCommentSummoning(commentNode) && !isAlreadyServiced(commentNode) && !isUserBlacklisted(commentNode.getComment().getAuthor())) {
-            processSummons(commentNode);
+            processSummons(commentNode, submission);
         }
 
     }
@@ -150,6 +150,7 @@ public class ArchiveThisBot {
 
         while (!success) {
             if (attempts >= MAX_AUTH_ATTEMPTS) {
+                LOG.fatal("Could not authenticate before exhausting %d attempts, exiting.", MAX_AUTH_ATTEMPTS);
                 killSwitchClick = true;
                 return;
             }
@@ -180,7 +181,7 @@ public class ArchiveThisBot {
 
 
     private boolean isAlreadyServiced(CommentNode summoningCommentNode) {
-        return getArchiveResultBoService().existsByParentCommentId(summoningCommentNode.getParent().getComment().getId());
+        return getArchiveResultService().existsByParentCommentId(summoningCommentNode.getParent().getComment().getId());
     }
 
 
@@ -201,19 +202,22 @@ public class ArchiveThisBot {
     }
 
 
-    private void processSummons(CommentNode summoningCommentNode) {
+    private void processSummons(CommentNode summoningCommentNode, Submission submission) {
         LOG.debug("Processing summons: " + summoningCommentNode.getComment().getId());
 
-        // Pull all urls that we can find in the parent comment
         CommentNode parentCommentNode = summoningCommentNode.getParent();
         Comment parentComment = parentCommentNode.getComment();
         String body = parentComment.getBody();
 
         List<String> extractedUrls = UrlMatcher.extractUrls(body);
+
         if (extractedUrls.size() > 0) {
-            ArchiveResult archivedResult = getArchiveService().archiveUrls(parentCommentNode, summoningCommentNode, extractedUrls);
-            getRedditService().postArchiveResult(archivedResult);
+            ArchiveResult archiveResult = new ArchiveResult(submission, parentCommentNode, summoningCommentNode, extractedUrls);
+            getArchiveService().archive(archiveResult);
+            getArchiveResultService().save(archiveResult);
+            getRedditService().postArchiveResult(archiveResult);
         }
+
     }
 
 
@@ -263,8 +267,8 @@ public class ArchiveThisBot {
     }
 
 
-    public ArchiveResultBoService getArchiveResultBoService() {
-        return archiveResultBoService;
+    public ArchiveResultService getArchiveResultService() {
+        return archiveResultService;
     }
 
 

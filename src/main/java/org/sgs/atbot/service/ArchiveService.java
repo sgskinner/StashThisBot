@@ -21,13 +21,9 @@
 
 package org.sgs.atbot.service;
 
-import java.util.List;
-
 import org.sgs.atbot.model.ArchiveResult;
-
-import net.dean.jraw.models.CommentNode;
 
 
 public interface ArchiveService {
-    ArchiveResult archiveUrls(CommentNode parentCommentNode, CommentNode summoningNode, List<String> extractedUrls);
+    ArchiveResult archive(ArchiveResult archiveResult);
 }

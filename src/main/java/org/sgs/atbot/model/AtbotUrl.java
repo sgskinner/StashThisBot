@@ -24,7 +24,7 @@ public class AtbotUrl implements Serializable {
     private static final long serialVersionUID = 5169553373729915231L;
 
     private BigInteger urlId;
-    private ArchiveResultBo archiveResultBo;
+    private ArchiveResult archiveResult;
     private String originalUrl;
     private String archivedUrl;
     private Date lastArchived;
@@ -54,15 +54,15 @@ public class AtbotUrl implements Serializable {
     }
 
 
-    @ManyToOne(targetEntity = ArchiveResultBo.class)
+    @ManyToOne(targetEntity = ArchiveResult.class)
     @JoinColumn(name = "result_id_fk", nullable = false)
-    public ArchiveResultBo getArchiveResultBo() {
-        return archiveResultBo;
+    public ArchiveResult getArchiveResult() {
+        return archiveResult;
     }
 
 
-    public void setArchiveResultBo(ArchiveResultBo archiveResultBo) {
-        this.archiveResultBo = archiveResultBo;
+    public void setArchiveResult(ArchiveResult archiveResultBo) {
+        this.archiveResult = archiveResultBo;
     }
 
 
