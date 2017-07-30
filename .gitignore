@@ -44,3 +44,6 @@ sftp-config.json
 # Credentials added in scrubbed state, now ignore to prevent accidental checkin
 **/security.properties
 
+# Genertated when building shaded project jar
+dependency-reduced-pom.xml
+
