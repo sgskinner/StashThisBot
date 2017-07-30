@@ -39,14 +39,13 @@ public class WaybackMachineArchiveServiceImpl implements ArchiveService {
 
 
     private void doArchive(AtbotUrl atbotUrl) {
-        LOG.info("About to archive link: ");
-        LOG.info(atbotUrl);
+        LOG.info("Attempting to archive link: %s", atbotUrl.getOriginalUrl());
 
         String urlString = atbotUrl.getOriginalUrl();
-        String encodedUrl = WAYBACK_SAVE_URL + urlString;
+        String saveRequestUrl = WAYBACK_SAVE_URL + urlString;
 
         CloseableHttpClient client = HttpClientBuilder.create().build();
-        HttpHead headMethod = new HttpHead(encodedUrl);
+        HttpHead headMethod = new HttpHead(saveRequestUrl);
         String archivePath = null;
         CloseableHttpResponse response = null;
         try {
@@ -74,6 +73,10 @@ public class WaybackMachineArchiveServiceImpl implements ArchiveService {
             atbotUrl.setLastArchived(TimeUtils.getTimeGmt());
             LOG.info("Archive link successful: " + archivePath);
         } else {
+            // Set the attempted save url, which we can then later use as hyperlink in
+            // failure message; we WON'T set lastArchived, which is how we detect if save
+            // worked or not
+            atbotUrl.setArchivedUrl(saveRequestUrl);
             LOG.warn("Couldn't obtain archive for URL: " + urlString);
         }
 
