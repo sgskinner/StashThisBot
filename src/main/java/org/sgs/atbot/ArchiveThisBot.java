@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.model.ArchiveResult;
+import org.sgs.atbot.model.AtbotUrl;
 import org.sgs.atbot.model.AuthPollingTime;
 import org.sgs.atbot.service.ArchiveResultService;
 import org.sgs.atbot.service.ArchiveService;
@@ -213,11 +214,32 @@ public class ArchiveThisBot {
 
         if (extractedUrls.size() > 0) {
             ArchiveResult archiveResult = new ArchiveResult(submission, parentCommentNode, summoningCommentNode, extractedUrls);
+
+            // May or may not be able to archive all urls, which we'll guard against in a sec
             getArchiveService().archive(archiveResult);
+
+            // Regardless if the URLs were successful of being archived, still want to save record of having tried
             getArchiveResultService().save(archiveResult);
-            getRedditService().postArchiveResult(archiveResult);
+
+            // Only make a reddit post if we actually have some successfully archived URLs
+            if (shouldPost(archiveResult)) {
+                getRedditService().postArchiveResult(archiveResult);
+            }
+
         }
 
+    }
+
+
+    private boolean shouldPost(ArchiveResult archiveResult) {
+        for (AtbotUrl atbotUrl : archiveResult.getArchivedUrls()) {
+            if (atbotUrl.isArchived()) {
+                // Post if we have even one good archived URL
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

@@ -2,6 +2,7 @@ package org.sgs.atbot.service.impl;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -51,6 +52,7 @@ public class WaybackMachineArchiveServiceImpl implements ArchiveService {
         try {
             response = client.execute(headMethod);
             int statusCode = response.getStatusLine().getStatusCode();
+
             if (statusCode == HttpStatus.SC_OK) {
                 Header[] headers = response.getHeaders(HEADER_CONTENT_LOC_KEY);
                 if (headers != null && headers.length > 0) {
@@ -60,19 +62,19 @@ public class WaybackMachineArchiveServiceImpl implements ArchiveService {
                     }
                 }
             }
+
         } catch (IOException e) {
             LOG.warn("Error encountered when trying to archive link!: " + e.getMessage());
         } finally {
             closeHttpObjects(response, client);
         }
 
-        if (archivePath != null && archivePath.length() > 0) {
+        if (StringUtils.isNoneBlank(archivePath)) {
             atbotUrl.setArchivedUrl(WAYBACK_ROOT_URL + archivePath);
             atbotUrl.setLastArchived(TimeUtils.getTimeGmt());
-            LOG.info("Archive link successful: ");
-            LOG.info(atbotUrl);
+            LOG.info("Archive link successful: " + archivePath);
         } else {
-            LOG.warn("Couldn't set archivedLink, header returned: " + archivePath);
+            LOG.warn("Couldn't set archived URL: " + urlString);
         }
 
     }

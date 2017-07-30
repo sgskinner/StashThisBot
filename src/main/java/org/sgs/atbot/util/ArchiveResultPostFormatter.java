@@ -16,6 +16,10 @@ public class ArchiveResultPostFormatter {
         sb.append(System.lineSeparator()); // reddit markdown needs 2 newlines to display one
 
         for(AtbotUrl atbotUrl : archiveResult.getArchivedUrls()) {
+            if (!atbotUrl.isArchived()) {
+                continue;
+            }
+
             sb.append(String.format(LINK_LINE, atbotUrl.getOriginalUrl(), atbotUrl.getArchivedUrl(), TimeUtils.formatGmt(atbotUrl.getLastArchived())));
             sb.append(System.lineSeparator());
             sb.append(System.lineSeparator());

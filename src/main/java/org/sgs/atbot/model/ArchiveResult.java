@@ -228,6 +228,7 @@ public class ArchiveResult implements Serializable {
         for (String rawUrl : urlsToArchive) {
             AtbotUrl atbotUrl = new AtbotUrl();
             atbotUrl.setOriginalUrl(rawUrl);
+            atbotUrls.add(atbotUrl);
         }
 
         return atbotUrls;
@@ -235,9 +236,11 @@ public class ArchiveResult implements Serializable {
 
 
     private String buildRedditCommentUrl(Submission submission, CommentNode commentNode) {
-        //https://www.reddit.com/r/ArchiveThisBotSandbox/comments/6qdqub/yatr_yet_another_test_run_here_we_are_again/dkwgsdw/
-        String format = "https://www.reddit.com/r/%s/comments/%s/%s/%s/";
-        return String.format(format, submission.getSubredditName(), commentNode.getComment().getId(), submission.getFullName(), commentNode.getComment().getSubmissionId());
+        // |--------------------------------------------- 1 ---------------------------------------------------------||-- 2 --|
+        // https://www.reddit.com/r/ArchiveThisBotSandbox/comments/6qdqub/yatr_yet_another_test_run_here_we_are_again/dkwgsdw/
+        // 1. submission.getUrl()
+        // 2. commentNode.getComment().getId()
+        return submission.getUrl() + commentNode.getComment().getId();
     }
 
 }
