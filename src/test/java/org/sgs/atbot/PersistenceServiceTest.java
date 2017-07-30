@@ -165,7 +165,7 @@ public class PersistenceServiceTest {
         Assert.assertNotNull(id);
         for (AtbotUrl atbotUrl : returnedBo.getArchivedUrls()) {
             Assert.assertNotNull(atbotUrl);
-            Assert.assertTrue(atbotUrl.getUrlId() != null); // set by hibernate save
+            Assert.assertTrue(atbotUrl.getId() != null); // set by hibernate save
         }
 
         service.delete(returnedBo);

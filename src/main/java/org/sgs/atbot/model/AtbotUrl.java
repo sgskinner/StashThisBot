@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 public class AtbotUrl implements Serializable {
     private static final long serialVersionUID = 5169553373729915231L;
 
-    private BigInteger urlId;
+    private BigInteger id;
     private ArchiveResult archiveResult;
     private String originalUrl;
     private String archivedUrl;
@@ -44,13 +44,13 @@ public class AtbotUrl implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    public BigInteger getUrlId() {
-        return urlId;
+    public BigInteger getId() {
+        return id;
     }
 
 
-    public void setUrlId(BigInteger urlId) {
-        this.urlId = urlId;
+    public void setId(BigInteger id) {
+        this.id = id;
     }
 
 
