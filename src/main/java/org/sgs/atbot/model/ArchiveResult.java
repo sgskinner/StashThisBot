@@ -27,7 +27,7 @@ import net.dean.jraw.models.Submission;
 public class ArchiveResult implements Serializable {
     private static final long serialVersionUID = 4260302707444143426L;
 
-    private BigInteger resultId;
+    private BigInteger id;
     private String submissionUrl;
     private String parentCommentAuthor;
     private String parentCommentId;
@@ -64,14 +64,14 @@ public class ArchiveResult implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "result_id")
-    public BigInteger getResultId() {
-        return resultId;
+    @Column(name = "id")
+    public BigInteger getId() {
+        return id;
     }
 
 
-    public void setResultId(BigInteger resultId) {
-        this.resultId = resultId;
+    public void setId(BigInteger id) {
+        this.id = id;
     }
 
 

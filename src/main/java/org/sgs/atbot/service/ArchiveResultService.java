@@ -8,8 +8,7 @@ public interface ArchiveResultService {
 
     ArchiveResult findById(BigInteger id);
 
-
-    void save(ArchiveResult archiveResultBo);
+    void save(ArchiveResult archiveResult);
 
     void delete(ArchiveResult archiveResult);
 

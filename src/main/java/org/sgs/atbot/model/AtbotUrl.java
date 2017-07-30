@@ -55,14 +55,14 @@ public class AtbotUrl implements Serializable {
 
 
     @ManyToOne(targetEntity = ArchiveResult.class)
-    @JoinColumn(name = "result_id_fk", nullable = false)
+    @JoinColumn(name = "archive_result_id", nullable = false)
     public ArchiveResult getArchiveResult() {
         return archiveResult;
     }
 
 
-    public void setArchiveResult(ArchiveResult archiveResultBo) {
-        this.archiveResult = archiveResultBo;
+    public void setArchiveResult(ArchiveResult archiveResult) {
+        this.archiveResult = archiveResult;
     }
 
 

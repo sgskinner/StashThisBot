@@ -8,9 +8,9 @@ public interface ArchiveResultDao {
 
     ArchiveResult findById(BigInteger id);
 
-    void save(ArchiveResult archiveResultBo);
+    void save(ArchiveResult archiveResult);
 
-    void delete(ArchiveResult archiveResultBo);
+    void delete(ArchiveResult archiveResult);
 
     ArchiveResult findByParentCommentId(String parentCommentId);
 

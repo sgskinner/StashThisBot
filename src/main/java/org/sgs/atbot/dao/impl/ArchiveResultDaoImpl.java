@@ -43,16 +43,16 @@ public class ArchiveResultDaoImpl extends AbstractDao<BigInteger, ArchiveResult>
     @SuppressWarnings("unchecked")//getResultList()
     @Override
     public ArchiveResult findByParentCommentId(String parentCommentId) {
-        List<ArchiveResult> archiveResultBoList =  getEntityManager()
+        List<ArchiveResult> archiveResultList =  getEntityManager()
                 .createQuery(SELECT_BY_PARENT_ID)
                 .setParameter(PARENT_COMMENT_ID_KEY, parentCommentId)
                 .getResultList();
 
-        if (archiveResultBoList == null || archiveResultBoList.size() < 1) {
+        if (archiveResultList == null || archiveResultList.size() < 1) {
             return null;
         }
 
-        return archiveResultBoList.get(0);
+        return archiveResultList.get(0);
     }
 
 
