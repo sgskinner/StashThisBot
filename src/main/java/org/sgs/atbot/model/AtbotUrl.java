@@ -43,7 +43,7 @@ public class AtbotUrl implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "url_id")
+    @Column(name = "id")
     public BigInteger getUrlId() {
         return urlId;
     }

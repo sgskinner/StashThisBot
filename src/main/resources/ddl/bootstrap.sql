@@ -19,12 +19,12 @@ CREATE UNIQUE INDEX p_cmt_id_idx ON archive_result_t (parent_comment_id);
 
 
 CREATE TABLE atbot_url_t (
-  url_id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  id                 BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   archive_result_id  BIGINT UNSIGNED NOT NULL,
   archived_url       TEXT            NOT NULL,
   original_url       TEXT            NOT NULL,
   last_archived      DATETIME        NOT NULL,
-  PRIMARY KEY (url_id),
+  PRIMARY KEY (id),
   FOREIGN KEY result_id_fk (archive_result_id) REFERENCES archive_result_t (id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
