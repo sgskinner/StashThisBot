@@ -6,10 +6,10 @@ CREATE TABLE archive_result_t (
   id                       BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   submission_url           TEXT            NOT NULL,
   parent_comment_author    TEXT            NOT NULL,
-  parent_comment_id        VARCHAR(255)    NOT NULL,
+  parent_comment_id        VARCHAR(128)    NOT NULL,
   parent_comment_url       TEXT            NOT NULL,
   summoning_comment_author TEXT            NOT NULL,
-  summoning_comment_id     VARCHAR(255)    NOT NULL,
+  summoning_comment_id     VARCHAR(128)    NOT NULL,
   summoning_comment_url    TEXT            NOT NULL,
   request_date             DATETIME        NOT NULL,
   serviced_date            DATETIME        NOT NULL,
@@ -34,7 +34,7 @@ CREATE INDEX rslt_id_idx ON atbot_url_t (archive_result_id);
 
 CREATE TABLE blacklisted_user_t (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  username     VARCHAR(255)    NOT NULL,
+  username     VARCHAR(128)    NOT NULL,
   date_created DATETIME        NOT NULL,
   reason       TEXT            NOT NULL,
   PRIMARY KEY (id)
@@ -58,8 +58,11 @@ CREATE TABLE auth_polling_time_t (
 
 
 CREATE USER atbot@localhost
-  IDENTIFIED BY 'password';
-
+IDENTIFIED BY 'password';
 
 GRANT SELECT, INSERT, UPDATE, DELETE, DROP, ALTER, CREATE TEMPORARY TABLES ON atbot.* TO atbot@localhost;
+
+-- Newer installs of mysql will use unix auth, which we don't want
+USE mysql;
+UPDATE user SET plugin='mysql_native_password' WHERE User='atbot';
 
