@@ -125,6 +125,12 @@ public class AtbotConfiguration {
     }
 
 
+    @Bean(name = "botsRedditUsername")
+    public String getBotsRedditUsername() {
+        return environment.getRequiredProperty("reddit.username");
+    }
+
+
     private Properties jpaProperties() {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));

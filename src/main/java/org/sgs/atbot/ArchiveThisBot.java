@@ -60,6 +60,8 @@ public class ArchiveThisBot {
 
     @Resource(name = "subredditList")
     private List<String> subredditList;
+    @Resource(name = "botsRedditUsername")
+    private String botsRedditUsername;
     private final RedditService redditService;
     private final ArchiveService archiveIsService;
     private final ArchiveResultService archiveResultService;
@@ -93,7 +95,6 @@ public class ArchiveThisBot {
         while (!killSwitchClick) {
 
             for (String subredditName : getSubredditList()) {
-
                 LOG.info("Polling for submissions in subreddit: " + subredditName);
                 Listing<Submission> submissions = getRedditService().getSubredditSubmissions(subredditName);
                 LOG.info("Polling complete, found %d submissions.", submissions.size());
@@ -142,7 +143,11 @@ public class ArchiveThisBot {
         }
 
         // Base case: if we're here, we're a leaf node, so do summons search
-        if (isCommentSummoning(commentNode) && !isAlreadyServiced(commentNode) && !isUserBlacklisted(commentNode.getComment().getAuthor())) {
+        String parentAuthorUsername = commentNode.getParent() == null ? "" : commentNode.getParent().getComment().getAuthor();
+        if (isCommentSummoning(commentNode)
+                && !parentAuthorUsername.equals(botsRedditUsername)// don't archive this bot's own comments
+                && !isAlreadyServiced(commentNode)
+                && !isUserBlacklisted(commentNode.getComment().getAuthor())) {
             processSummons(commentNode, submission);
         }
 
@@ -183,7 +188,12 @@ public class ArchiveThisBot {
 
 
     private boolean isUserBlacklisted(String authorUsername) {
-        return StringUtils.isBlank(authorUsername) || getUserService().isUserBlacklisted(authorUsername);
+        boolean isBlacklisted = StringUtils.isBlank(authorUsername) || getUserService().isUserBlacklisted(authorUsername);
+        if (isBlacklisted) {
+            LOG.info("User '%s' is blacklisted.");
+        }
+
+        return isBlacklisted;
     }
 
 
@@ -219,7 +229,7 @@ public class ArchiveThisBot {
 
 
     private void processSummons(CommentNode summoningCommentNode, Submission submission) {
-        LOG.debug("Processing summons: " + summoningCommentNode.getComment().getId());
+        LOG.info("Processing summons: " + summoningCommentNode.getComment().getId());
 
         CommentNode parentCommentNode = summoningCommentNode.getParent();
         Comment parentComment = parentCommentNode.getComment();
