@@ -39,8 +39,8 @@ import net.dean.jraw.RedditClient;
 import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.paginators.Paginator;
 import net.dean.jraw.paginators.SubredditPaginator;
-import net.dean.jraw.paginators.TimePeriod;
 
 
 @Service
@@ -51,14 +51,12 @@ public class RedditServiceImpl implements RedditService {
     private List<String> subredditList;
     private final AuthService authService;
     private final RedditClient redditClient;
-    private boolean isFirstRun;
 
 
     @Autowired
     public RedditServiceImpl(AuthService authService, RedditClient redditClient) {
         this.authService = authService;
         this.redditClient = redditClient;
-        this.isFirstRun = false;
     }
 
 
@@ -66,14 +64,7 @@ public class RedditServiceImpl implements RedditService {
     public Listing<Submission> getSubredditSubmissions(String subredditName) {
         SubredditPaginator paginator = new SubredditPaginator(getRedditClient());
         paginator.setSubreddit(subredditName);
-
-        TimePeriod timePeriod = TimePeriod.HOUR;
-        if (isFirstRun) {
-            timePeriod = TimePeriod.WEEK;
-            isFirstRun = false;
-        }
-        paginator.setTimePeriod(timePeriod);
-
+        paginator.setLimit(Paginator.RECOMMENDED_MAX_LIMIT);
         return paginator.next();
     }
 
@@ -87,7 +78,7 @@ public class RedditServiceImpl implements RedditService {
     @Override
     public Submission getFullSubmissionData(Submission submission) {
         if (submission == null || submission.getCommentCount() < 1) {
-            LOG.info("No comments to fetch for submission: " + (submission == null ? null : submission.getShortURL()));
+            LOG.info("No comments to fetch for submission: " + (submission == null ? null : submission.getUrl()));
             return null;
         }
 

@@ -37,4 +37,5 @@ public interface RedditService {
     boolean isAuthenticated();
 
     void postArchiveResult(ArchiveResult archiveResult);
+
 }

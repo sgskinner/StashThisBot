@@ -95,6 +95,7 @@ public class ArchiveThisBot {
         while (!killSwitchClick) {
 
             for (String subredditName : getSubredditList()) {
+                LOG.info("--------------------------------------------------------------------------------");
                 LOG.info("Polling for submissions in subreddit: " + subredditName);
                 Listing<Submission> submissions = getRedditService().getSubredditSubmissions(subredditName);
                 LOG.info("Polling complete, found %d submissions.", submissions.size());
@@ -104,13 +105,14 @@ public class ArchiveThisBot {
                         LOG.info("Skipping submission(id: %s) with no comments.", submission.getId());
                         continue;
                     }
-
-                    LOG.info("Hydrating full submission for: " + submission.getUrl());
+                    LOG.info("----------------------------------------");
+                    LOG.info("Hydrating submission: " + submission.getShortURL());
                     submission = getRedditService().getFullSubmissionData(submission);
 
-                    LOG.info("Starting to recurse through comments for Submission(id: %s)", submission.getId());
+                    LOG.info("Starting to recurse through comments for Submission(id: %s).", submission.getId());
                     CommentNode commentNode = submission.getComments();
-                    recurseThroughComments(commentNode, submission);
+                    int numRecursed = recurseThroughComments(commentNode, submission, 0);
+                    LOG.info("Completed comment recursing %d comments for Submission(id: %s).", numRecursed, submission.getId());
                 }
             }
 
@@ -129,20 +131,25 @@ public class ArchiveThisBot {
     }
 
 
-    private void recurseThroughComments(CommentNode commentNode, Submission submission) {
+    private int recurseThroughComments(CommentNode commentNode, Submission submission, int count) {
+
+        //Base case #1
         if (commentNode == null) {
-            LOG.warn("No comments found for submission!: " + submission.getShortURL());
-            return;
+            LOG.info("No comments found for submission!: " + submission.getShortURL());
+            return count;
         }
 
-        // Depth-first traversal, might want to also try breadth-first and assess which is better
+        // Reporting for logs
+        count++;
+
+        // Recursive step, depth-first traversal, might want to also try breadth-first and assess which is better
         if (commentNode.getChildren().size() > 0) {
             for (CommentNode childNode : commentNode.getChildren()) {
-                recurseThroughComments(childNode, submission);
+                count = recurseThroughComments(childNode, submission, count);
             }
         }
 
-        // Base case: if we're here, we're a leaf node, so do summons search
+        // Base case #2: if we're here, we're a leaf node, so do summons search
         String parentAuthorUsername = commentNode.getParent() == null ? "" : commentNode.getParent().getComment().getAuthor();
         if (isCommentSummoning(commentNode)
                 && !parentAuthorUsername.equals(botsRedditUsername)// don't archive this bot's own comments
@@ -151,6 +158,7 @@ public class ArchiveThisBot {
             processSummons(commentNode, submission);
         }
 
+        return count;
     }
 
 
