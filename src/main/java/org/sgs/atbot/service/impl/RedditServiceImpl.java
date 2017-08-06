@@ -36,9 +36,16 @@ import org.springframework.stereotype.Service;
 
 import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
+import net.dean.jraw.fluent.AuthenticatedUserReference;
+import net.dean.jraw.fluent.FluentRedditClient;
+import net.dean.jraw.fluent.InboxReference;
 import net.dean.jraw.managers.AccountManager;
+import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Listing;
+import net.dean.jraw.models.Message;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.Thing;
+import net.dean.jraw.paginators.InboxPaginator;
 import net.dean.jraw.paginators.Paginator;
 import net.dean.jraw.paginators.SubredditPaginator;
 
@@ -104,11 +111,78 @@ public class RedditServiceImpl implements RedditService {
         AccountManager accountManager = new AccountManager(redditClient);
         try {
             String postText = ArchiveResultPostFormatter.format(archiveResult);
-            accountManager.reply(archiveResult.getSummoningCommentNode().getComment(), postText);
+            accountManager.reply(archiveResult.getSummoningComment(), postText);
         } catch (ApiException e) {
-            LOG.warn("Reddit API barfed on posting a reply to comment with ID: " + archiveResult.getSummoningCommentNode().getComment());
+            LOG.warn("Reddit API barfed on posting a reply to comment with ID: " + archiveResult.getSummoningComment());
         }
 
+    }
+
+
+    @Override
+    public Listing<Message> getUnreadMessages() {
+        FluentRedditClient client = new FluentRedditClient(redditClient);
+        AuthenticatedUserReference userRef = client.me();
+        InboxReference inbox = userRef.inbox();
+        InboxPaginator inboxPaginator = inbox.read();
+
+        return inboxPaginator.next(true);
+    }
+
+
+    @Override
+    public Comment getSummoningComment(Message message) {
+        String id = message.data("name");
+        if (id == null) {
+            LOG.warn("Comment ID is null for passed in Message(id: %s)", message.getFullName());
+            return null;
+        }
+
+        Listing<Thing> listing = getRedditClient().get(id);
+        if (listing == null || listing.size() == 0) {
+            LOG.warn("No Comment returned for passed in Message: %s", message.getFullName());
+            return null;
+        }
+
+        return (Comment) listing.get(0);
+    }
+
+
+    @Override
+    public Comment getTargetComment(Message message) {
+        String targetId = message.getParentId();
+        if (targetId == null) {
+            LOG.warn("Target ID is null for passed in Message: %s", message.getFullName());
+            return null;
+        }
+
+        Listing<Thing> listing = getRedditClient().get(targetId);
+        if (listing == null || listing.size() == 0) {
+            LOG.warn("No comment returned for passed in Message: %s", message.getFullName());
+            return null;
+        }
+
+        return (Comment) listing.get(0);
+    }
+
+
+    @Override
+    public Submission getSubmissionById(String submissionId) {
+        Listing<Thing> listing = getRedditClient().get(submissionId);
+        if (listing == null || listing.size() == 0) {
+            return null;
+        }
+
+        return (Submission) listing.get(0);
+    }
+
+
+    @Override
+    public void markMessageRead(Message message) {
+        FluentRedditClient client = new FluentRedditClient(redditClient);
+        AuthenticatedUserReference userRef = client.me();
+        InboxReference inbox = userRef.inbox();
+        inbox.readMessage(true, message);
     }
 
 

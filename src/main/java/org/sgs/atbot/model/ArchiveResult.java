@@ -19,7 +19,7 @@ import javax.persistence.Transient;
 
 import org.sgs.atbot.util.TimeUtils;
 
-import net.dean.jraw.models.CommentNode;
+import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Submission;
 
 @Entity
@@ -29,17 +29,17 @@ public class ArchiveResult implements Serializable {
 
     private BigInteger id;
     private String submissionUrl;
-    private String parentCommentAuthor;
-    private String parentCommentId;
-    private String parentCommentUrl;
+    private String targetCommentAuthor;
+    private String targetCommentId;
+    private String targetCommentUrl;
     private String summoningCommentAuthor;
     private String summoningCommentId;
     private String summoningCommentUrl;
     private Date requestDate;
     private Date servicedDate;
     private List<AtbotUrl> archivedUrls;
-    private CommentNode summoningCommentNode;
-    private CommentNode parentCommentNode;
+    private Comment summoningComment;
+    private Comment targetComment;
 
 
     public ArchiveResult() {
@@ -47,16 +47,16 @@ public class ArchiveResult implements Serializable {
     }
 
 
-    public ArchiveResult(Submission submission, CommentNode parentCommentNode, CommentNode summoningCommentNode, List<String> urlsToArchive) {
+    public ArchiveResult(Submission submission, Comment summoningComment, Comment targetComment, List<String> urlsToArchive) {
         this.submissionUrl = submission.getUrl();
-        this.parentCommentAuthor = parentCommentNode.getComment().getAuthor();
-        this.parentCommentId = parentCommentNode.getComment().getId();
-        this.parentCommentUrl = buildRedditCommentUrl(submission, parentCommentNode);
-        this.parentCommentNode = parentCommentNode;
-        this.summoningCommentAuthor = summoningCommentNode.getComment().getAuthor();
-        this.summoningCommentId = summoningCommentNode.getComment().getId();
-        this.summoningCommentUrl = buildRedditCommentUrl(submission, summoningCommentNode);
-        this.summoningCommentNode = summoningCommentNode;
+        this.summoningCommentAuthor = summoningComment.getAuthor();
+        this.summoningCommentId = summoningComment.getId();
+        this.summoningCommentUrl = buildRedditCommentUrl(submission, summoningComment);
+        this.summoningComment = summoningComment;
+        this.targetCommentAuthor = targetComment.getAuthor();
+        this.targetCommentId = targetComment.getId();
+        this.targetCommentUrl = buildRedditCommentUrl(submission, targetComment);
+        this.targetComment = targetComment;
         this.requestDate = TimeUtils.getTimeGmt();
         addAtbotUrls(buildAtbotUrls(urlsToArchive));
     }
@@ -86,36 +86,36 @@ public class ArchiveResult implements Serializable {
     }
 
 
-    @Column(name = "parent_comment_author")
-    public String getParentCommentAuthor() {
-        return parentCommentAuthor;
+    @Column(name = "target_comment_author")
+    public String getTargetCommentAuthor() {
+        return targetCommentAuthor;
     }
 
 
-    public void setParentCommentAuthor(String parentCommentAuthor) {
-        this.parentCommentAuthor = parentCommentAuthor;
+    public void setTargetCommentAuthor(String targetCommentAuthor) {
+        this.targetCommentAuthor = targetCommentAuthor;
     }
 
 
-    @Column(name = "parent_comment_id")
-    public String getParentCommentId() {
-        return parentCommentId;
+    @Column(name = "target_comment_id")
+    public String getTargetCommentId() {
+        return targetCommentId;
     }
 
 
-    public void setParentCommentId(String parentCommentId) {
-        this.parentCommentId = parentCommentId;
+    public void setTargetCommentId(String targetCommentId) {
+        this.targetCommentId = targetCommentId;
     }
 
 
-    @Column(name = "parent_comment_url")
-    public String getParentCommentUrl() {
-        return parentCommentUrl;
+    @Column(name = "target_comment_url")
+    public String getTargetCommentUrl() {
+        return targetCommentUrl;
     }
 
 
-    public void setParentCommentUrl(String parentCommentUrl) {
-        this.parentCommentUrl = parentCommentUrl;
+    public void setTargetCommentUrl(String targetCommentUrl) {
+        this.targetCommentUrl = targetCommentUrl;
     }
 
 
@@ -202,24 +202,24 @@ public class ArchiveResult implements Serializable {
 
 
     @Transient
-    public CommentNode getSummoningCommentNode() {
-        return summoningCommentNode;
+    public Comment getSummoningComment() {
+        return summoningComment;
     }
 
 
-    public void setSummoningCommentNode(CommentNode summoningCommentNode) {
-        this.summoningCommentNode = summoningCommentNode;
+    public void setSummoningComment(Comment summoningComment) {
+        this.summoningComment = summoningComment;
     }
 
 
     @Transient
-    public CommentNode getParentCommentNode() {
-        return parentCommentNode;
+    public Comment getTargetComment() {
+        return targetComment;
     }
 
 
-    public void setParentCommentNode(CommentNode parentCommentNode) {
-        this.parentCommentNode = parentCommentNode;
+    public void setTargetComment(Comment targetComment) {
+        this.targetComment = targetComment;
     }
 
 
@@ -235,12 +235,12 @@ public class ArchiveResult implements Serializable {
     }
 
 
-    private String buildRedditCommentUrl(Submission submission, CommentNode commentNode) {
+    private String buildRedditCommentUrl(Submission submission, Comment comment) {
         // |--------------------------------------------- 1 ---------------------------------------------------------||-- 2 --|
         // https://www.reddit.com/r/ArchiveThisBotSandbox/comments/6qdqub/yatr_yet_another_test_run_here_we_are_again/dkwgsdw/
         // 1. submission.getUrl()
         // 2. commentNode.getComment().getId()
-        return submission.getUrl() + commentNode.getComment().getId();
+        return submission.getUrl() + comment.getId();
     }
 
 }

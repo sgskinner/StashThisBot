@@ -12,8 +12,8 @@ public interface ArchiveResultDao {
 
     void delete(ArchiveResult archiveResult);
 
-    ArchiveResult findByParentCommentId(String parentCommentId);
+    ArchiveResult findByTargetCommentId(String targetCommentId);
 
-    boolean existsByParentCommentId(String parentCommentId);
+    boolean existsByTargetCommentId(String targetCommentId);
 
 }

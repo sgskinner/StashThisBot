@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class ArchiveResultDaoImpl extends AbstractDao<BigInteger, ArchiveResult> implements ArchiveResultDao {
-    private static final String PARENT_COMMENT_ID_KEY = "parentCommentId";
-    private static final String SELECT_BY_PARENT_ID = String.format("select a from ArchiveResult a where parent_comment_id = :%s", PARENT_COMMENT_ID_KEY);
+    private static final String TARGET_COMMENT_ID = "targetCommentId";
+    private static final String SELECT_BY_TARGET_ID = String.format("select a from ArchiveResult a where target_comment_id = :%s", TARGET_COMMENT_ID);
 
 
     @Override
@@ -42,10 +42,10 @@ public class ArchiveResultDaoImpl extends AbstractDao<BigInteger, ArchiveResult>
 
     @SuppressWarnings("unchecked")//getResultList()
     @Override
-    public ArchiveResult findByParentCommentId(String parentCommentId) {
+    public ArchiveResult findByTargetCommentId(String targetCommentId) {
         List<ArchiveResult> archiveResultList =  getEntityManager()
-                .createQuery(SELECT_BY_PARENT_ID)
-                .setParameter(PARENT_COMMENT_ID_KEY, parentCommentId)
+                .createQuery(SELECT_BY_TARGET_ID)
+                .setParameter(TARGET_COMMENT_ID, targetCommentId)
                 .getResultList();
 
         if (archiveResultList == null || archiveResultList.size() < 1) {
@@ -57,8 +57,8 @@ public class ArchiveResultDaoImpl extends AbstractDao<BigInteger, ArchiveResult>
 
 
     @Override
-    public boolean existsByParentCommentId(String parentCommentId) {
-        ArchiveResult archiveResult = findByParentCommentId(parentCommentId);
+    public boolean existsByTargetCommentId(String targetCommentId) {
+        ArchiveResult archiveResult = findByTargetCommentId(targetCommentId);
         return archiveResult != null;
     }
 

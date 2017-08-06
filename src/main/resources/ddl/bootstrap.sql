@@ -5,9 +5,9 @@ USE atbot;
 CREATE TABLE archive_result_t (
   id                       BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   submission_url           TEXT            NOT NULL,
-  parent_comment_author    TEXT            NOT NULL,
-  parent_comment_id        VARCHAR(128)    NOT NULL,
-  parent_comment_url       TEXT            NOT NULL,
+  target_comment_author    TEXT            NOT NULL,
+  target_comment_id        VARCHAR(128)    NOT NULL,
+  target_comment_url       TEXT            NOT NULL,
   summoning_comment_author TEXT            NOT NULL,
   summoning_comment_id     VARCHAR(128)    NOT NULL,
   summoning_comment_url    TEXT            NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE archive_result_t (
   serviced_date            DATETIME        NOT NULL,
   PRIMARY KEY (id)
 );
-CREATE UNIQUE INDEX p_cmt_id_idx ON archive_result_t (parent_comment_id);
+CREATE UNIQUE INDEX target_id_idx ON archive_result_t (target_comment_id);
 
 
 CREATE TABLE atbot_url_t (

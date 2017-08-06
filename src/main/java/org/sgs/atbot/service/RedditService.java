@@ -24,7 +24,9 @@ package org.sgs.atbot.service;
 
 import org.sgs.atbot.model.ArchiveResult;
 
+import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Listing;
+import net.dean.jraw.models.Message;
 import net.dean.jraw.models.Submission;
 
 public interface RedditService {
@@ -38,4 +40,13 @@ public interface RedditService {
 
     void postArchiveResult(ArchiveResult archiveResult);
 
+    Listing<Message> getUnreadMessages();
+
+    Comment getSummoningComment(Message message);
+
+    Comment getTargetComment(Message message);
+
+    Submission getSubmissionById(String submissionId);
+
+    void markMessageRead(Message message);
 }

@@ -47,14 +47,14 @@ public class ArchiveResultServiceImpl implements ArchiveResultService {
 
 
     @Override
-    public ArchiveResult findByParentCommentId(String parentCommentId) {
-        return dao.findByParentCommentId(parentCommentId);
+    public ArchiveResult findByTargetCommentId(String targetCommentId) {
+        return dao.findByTargetCommentId(targetCommentId);
     }
 
 
     @Override
-    public boolean existsByParentCommentId(String parentCommentId) {
-        return this.findByParentCommentId(parentCommentId) != null;
+    public boolean existsByTargetCommentId(String targetCommentId) {
+        return this.findByTargetCommentId(targetCommentId) != null;
     }
 
 }

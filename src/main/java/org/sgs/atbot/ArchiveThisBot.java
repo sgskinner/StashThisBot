@@ -38,15 +38,14 @@ import org.sgs.atbot.service.RedditService;
 import org.sgs.atbot.service.RedditTimeService;
 import org.sgs.atbot.service.UserService;
 import org.sgs.atbot.spring.SpringContext;
-import org.sgs.atbot.util.SummonTokenMatcher;
 import org.sgs.atbot.util.TimeUtils;
 import org.sgs.atbot.util.UrlMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.dean.jraw.models.Comment;
-import net.dean.jraw.models.CommentNode;
 import net.dean.jraw.models.Listing;
+import net.dean.jraw.models.Message;
 import net.dean.jraw.models.Submission;
 
 
@@ -57,9 +56,8 @@ public class ArchiveThisBot {
     private static final long SUBMISSION_POLLING_INTERVAL = 10 * 1000; // 10 seconds in millis
     private static final long OAUTH_REFRESH_INTERVAL = 50 * 60 * 1000; // 50 minutes in millis
     private static final int MAX_AUTH_ATTEMPTS = 3;
+    private static final String SUMMONING_SUBJECT_TEXT = "username mention";
 
-    @Resource(name = "subredditList")
-    private List<String> subredditList;
     @Resource(name = "botsRedditUsername")
     private String botsRedditUsername;
     private final RedditService redditService;
@@ -68,19 +66,17 @@ public class ArchiveThisBot {
     private final UserService userService;
     private final RedditTimeService redditTimeService;
     private final AuthTimeService authTimeService;
-    private final SummonTokenMatcher summonTokenMatcher;
     private boolean killSwitchClick;
 
 
     @Autowired
-    public ArchiveThisBot(RedditService redditService, ArchiveService archiveIsService, ArchiveResultService archiveResultService, UserService userService, RedditTimeService redditTimeService, AuthTimeService authTimeService, SummonTokenMatcher summonTokenMatcher) {
+    public ArchiveThisBot(RedditService redditService, ArchiveService archiveIsService, ArchiveResultService archiveResultService, UserService userService, RedditTimeService redditTimeService, AuthTimeService authTimeService) {
         this.redditService = redditService;
         this.archiveIsService = archiveIsService;
         this.archiveResultService = archiveResultService;
         this.userService = userService;
         this.redditTimeService = redditTimeService;
         this.authTimeService = authTimeService;
-        this.summonTokenMatcher = summonTokenMatcher;
         this.killSwitchClick = false;
     }
 
@@ -94,27 +90,49 @@ public class ArchiveThisBot {
 
         while (!killSwitchClick) {
 
-            for (String subredditName : getSubredditList()) {
-                LOG.info("--------------------------------------------------------------------------------");
-                LOG.info("Polling for submissions in subreddit: " + subredditName);
-                Listing<Submission> submissions = getRedditService().getSubredditSubmissions(subredditName);
-                LOG.info("Polling complete, found %d submissions.", submissions.size());
+            LOG.info("--------------------------------------------------------------------------------");
+            LOG.info("Polling for new messages...");
+            Listing<Message> messages = getRedditService().getUnreadMessages();
 
-                for (Submission submission : submissions) {
-                    if (submission.getCommentCount() < 1) {
-                        LOG.info("Skipping submission(id: %s) with no comments.", submission.getId());
+            if (messages == null || messages.size() == 0) {
+                LOG.info("No new messages.");
+            } else {
+                LOG.info("Found %d message(s).", messages.size());
+
+                for (Message message : messages) {
+                    LOG.info("----------------------------------------");
+
+                    // Mark as read so we don't keep processing the same message
+                    getRedditService().markMessageRead(message);
+
+                    String subject = message.getSubject();
+                    if (subject == null || !subject.equals(SUMMONING_SUBJECT_TEXT)) {
+                        LOG.info("Skipping Message(id: %s) with subject '%s'.", message.getId(), subject);
                         continue;
                     }
-                    LOG.info("----------------------------------------");
-                    LOG.info("Hydrating submission: " + submission.getShortURL());
-                    submission = getRedditService().getFullSubmissionData(submission);
 
-                    LOG.info("Starting to recurse through comments for Submission(id: %s).", submission.getId());
-                    CommentNode commentNode = submission.getComments();
-                    int numRecursed = recurseThroughComments(commentNode, submission, 0);
-                    LOG.info("Completed comment recursing %d comments for Submission(id: %s).", numRecursed, submission.getId());
-                }
-            }
+                    Comment summoningComment = getRedditService().getSummoningComment(message);
+                    Comment targetComment = getRedditService().getTargetComment(message);
+
+                    if (summoningComment == null || targetComment == null) {
+                        LOG.warn("Could not pull comments for user mention: %s", message.data("context"));
+                        continue;
+                    }
+
+                    if (targetComment.getAuthor().equals(botsRedditUsername)) {
+                        LOG.info("Skipping due to being called on bot's own comment.");
+                        continue;
+                    }
+
+                    if (!isAlreadyServiced(targetComment) && !isUserBlacklisted(summoningComment.getAuthor())) {
+                        processSummons(summoningComment, targetComment);
+                    }
+
+                    LOG.info("Completed processing messages.");
+
+                }//for
+
+            }//else
 
             // OAuth token needs refreshing every 60 minutes
             if (authNeedsRefreshing()) {
@@ -122,43 +140,14 @@ public class ArchiveThisBot {
             }
 
             try {
+                LOG.info("Sleeping...");
                 Thread.sleep(SUBMISSION_POLLING_INTERVAL);
+                LOG.info("Awake now.");
             } catch (InterruptedException e) {
                 LOG.warn("Unexpectedly woken from sleep!: " + e.getMessage());
             }
 
         }
-    }
-
-
-    private int recurseThroughComments(CommentNode commentNode, Submission submission, int count) {
-
-        //Base case #1
-        if (commentNode == null) {
-            LOG.info("No comments found for submission!: " + submission.getShortURL());
-            return count;
-        }
-
-        // Reporting for logs
-        count++;
-
-        // Recursive step, depth-first traversal, might want to also try breadth-first and assess which is better
-        if (commentNode.getChildren().size() > 0) {
-            for (CommentNode childNode : commentNode.getChildren()) {
-                count = recurseThroughComments(childNode, submission, count);
-            }
-        }
-
-        // Base case #2: if we're here, we're a leaf node, so do summons search
-        String parentAuthorUsername = commentNode.getParent() == null ? "" : commentNode.getParent().getComment().getAuthor();
-        if (isCommentSummoning(commentNode)
-                && !parentAuthorUsername.equals(botsRedditUsername)// don't archive this bot's own comments
-                && !isAlreadyServiced(commentNode)
-                && !isUserBlacklisted(commentNode.getComment().getAuthor())) {
-            processSummons(commentNode, submission);
-        }
-
-        return count;
     }
 
 
@@ -205,43 +194,19 @@ public class ArchiveThisBot {
     }
 
 
-    private boolean isAlreadyServiced(CommentNode summoningCommentNode) {
-        String parentCommentId = summoningCommentNode.getParent().getComment().getId();
-
-        if (parentCommentId == null) {
-            // This is a root comment node, so skip
-            return true;
-        }
-
-        boolean isServiced = getArchiveResultService().existsByParentCommentId(parentCommentId);
-        LOG.info("Comment(id: %s) %s previously been serviced.", parentCommentId, (isServiced ? "HAS" : "has NOT"));
+    private boolean isAlreadyServiced(Comment targetComment) {
+        String targetCommentId = targetComment.getId();
+        boolean isServiced = getArchiveResultService().existsByTargetCommentId(targetCommentId);
+        LOG.info("Comment(id: %s) %s previously been serviced.", targetCommentId, (isServiced ? "HAS" : "has NOT"));
 
         return isServiced;
     }
 
 
-    private boolean isCommentSummoning(CommentNode commentNode) {
-        Comment comment = commentNode.getComment();
-        String body = comment.getBody();
+    private void processSummons(Comment summoningComment, Comment targetComment) {
+        LOG.info("Processing summons: " + summoningComment.getId());
 
-        if (StringUtils.isNotBlank(body)) {
-            List<String> tokenHits = summonTokenMatcher.extractTokens(body);
-            if (tokenHits != null && tokenHits.size() > 0) {
-                LOG.info("Found summon hit in comment(id: %s) with summon tokens: %s", comment.getId(), tokenHits);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
-    private void processSummons(CommentNode summoningCommentNode, Submission submission) {
-        LOG.info("Processing summons: " + summoningCommentNode.getComment().getId());
-
-        CommentNode parentCommentNode = summoningCommentNode.getParent();
-        Comment parentComment = parentCommentNode.getComment();
-        String body = parentComment.getBody();
+        String body = targetComment.getBody();
 
         List<String> extractedUrls = UrlMatcher.extractUrls(body);
 
@@ -249,7 +214,10 @@ public class ArchiveThisBot {
             LOG.info("Found %d URLs to archive.", extractedUrls.size());
 
             // May or may not be able to archive all urls, which we'll guard against in a sec
-            ArchiveResult archiveResult = new ArchiveResult(submission, parentCommentNode, summoningCommentNode, extractedUrls);
+            String submissionId = summoningComment.getSubmissionId();
+            Submission submission = getRedditService().getSubmissionById(submissionId);
+
+            ArchiveResult archiveResult = new ArchiveResult(submission, summoningComment, targetComment, extractedUrls);
             getArchiveService().archive(archiveResult);
 
             // Regardless if the URLs were successful of being archived, still want to save record of having tried
@@ -259,6 +227,8 @@ public class ArchiveThisBot {
             LOG.info("Making reddit post for ArchiveResult(id: %d)...", archiveResult.getId());
             getRedditService().postArchiveResult(archiveResult);
             LOG.info("Completed reddit post for ArchiveResult(id: %d)...", archiveResult.getId());
+        } else {
+            LOG.info("Didn't find any URLs to archive: %s", targetComment.getUrl());
         }
 
     }
@@ -289,16 +259,6 @@ public class ArchiveThisBot {
 
     protected boolean isAuthenticated() {
         return getRedditService().isAuthenticated();
-    }
-
-
-    public List<String> getSubredditList() {
-        return subredditList;
-    }
-
-
-    public void setSubredditList(List<String> subredditList) {
-        this.subredditList = subredditList;
     }
 
 
