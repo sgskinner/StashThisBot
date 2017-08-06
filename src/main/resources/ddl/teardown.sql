@@ -1,2 +1,2 @@
-DROP DATABASE IF EXISTS atbot;
-DROP USER atbot@localhost;
+DROP DATABASE IF EXISTS stashbot;
+DROP USER stashbot@localhost;

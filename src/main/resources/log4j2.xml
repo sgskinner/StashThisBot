@@ -4,8 +4,8 @@
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d [%p] %C: %m%n"/>
         </Console>
-        <RollingFile name="logfile" fileName="${env:HOME}/logs/atb.log"
-                     filePattern="${env:HOME}/logs/atb/atb.log.%d{yyyy-MM-dd}"
+        <RollingFile name="logfile" fileName="${env:HOME}/logs/stashbot.log"
+                     filePattern="${env:HOME}/logs/stashbot/stashbot.log.%d{yyyy-MM-dd}"
                      immediateFlush="true">
             <PatternLayout pattern="%d [%p] %C: %m%n"/>
             <TimeBasedTriggeringPolicy interval="1"/>
@@ -14,7 +14,7 @@
     <Loggers>
         <Logger name="org.springframework.beans.factory.xml" level="error" additivity="false"/>
         <Logger name="org.apache.commons.beanutils" level="error" additivity="false"/>
-        <Logger name="org.sgs.atbot" level="debug" additivity="false">
+        <Logger name="org.sgs.stashbot" level="debug" additivity="false">
             <AppenderRef ref="logfile" />
         </Logger>
         <Root>

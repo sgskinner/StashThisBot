@@ -1,35 +1,35 @@
-CREATE DATABASE atbot;
+CREATE DATABASE stashbot;
 
-USE atbot;
+USE stashbot;
 
-CREATE TABLE archive_result_t (
+CREATE TABLE stash_result_t (
   id                       BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   submission_url           TEXT            NOT NULL,
-  target_comment_author    TEXT            NOT NULL,
-  target_comment_id        VARCHAR(128)    NOT NULL,
-  target_comment_url       TEXT            NOT NULL,
   summoning_comment_author TEXT            NOT NULL,
   summoning_comment_id     VARCHAR(128)    NOT NULL,
   summoning_comment_url    TEXT            NOT NULL,
+  target_postable_author   TEXT            NOT NULL,
+  target_postable_id       VARCHAR(128)    NOT NULL,
+  target_postable_url      TEXT            NOT NULL,
   request_date             DATETIME        NOT NULL,
   serviced_date            DATETIME        NOT NULL,
   PRIMARY KEY (id)
 );
-CREATE UNIQUE INDEX target_id_idx ON archive_result_t (target_comment_id);
+CREATE UNIQUE INDEX target_id_idx ON stash_result_t (target_postable_id);
 
 
-CREATE TABLE atbot_url_t (
+CREATE TABLE stash_url_t (
   id                 BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  archive_result_id  BIGINT UNSIGNED NOT NULL,
-  archived_url       TEXT,
+  stash_result_id    BIGINT UNSIGNED NOT NULL,
+  stashed_url        TEXT,
   original_url       TEXT            NOT NULL,
-  last_archived      DATETIME,
+  last_stashed       DATETIME,
   PRIMARY KEY (id),
-  FOREIGN KEY result_id_fk (archive_result_id) REFERENCES archive_result_t (id)
+  FOREIGN KEY result_id_fk (stash_result_id) REFERENCES stash_result_t (id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
-CREATE INDEX rslt_id_idx ON atbot_url_t (archive_result_id);
+CREATE INDEX rslt_id_idx ON stash_url_t (stash_result_id);
 
 
 CREATE TABLE blacklisted_user_t (
@@ -57,12 +57,13 @@ CREATE TABLE auth_polling_time_t (
 );
 
 
-CREATE USER atbot@localhost
+CREATE USER stashbot@localhost
 IDENTIFIED BY 'password';
 
-GRANT SELECT, INSERT, UPDATE, DELETE, DROP, ALTER, CREATE TEMPORARY TABLES ON atbot.* TO atbot@localhost;
+GRANT SELECT, INSERT, UPDATE, DELETE, DROP, ALTER, CREATE TEMPORARY TABLES ON stashbot.* TO stashbot@localhost;
 
 -- Newer installs of mysql will use unix auth, which we don't want
 USE mysql;
-UPDATE user SET plugin='mysql_native_password' WHERE User='atbot';
+# noinspection SqlResolve
+UPDATE user SET plugin ='mysql_native_password' WHERE User = 'stashbot';
 
