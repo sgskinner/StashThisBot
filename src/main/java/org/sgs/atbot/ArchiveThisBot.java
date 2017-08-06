@@ -31,6 +31,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.model.ArchiveResult;
 import org.sgs.atbot.model.AuthPollingTime;
+import org.sgs.atbot.model.Postable;
 import org.sgs.atbot.service.ArchiveResultService;
 import org.sgs.atbot.service.ArchiveService;
 import org.sgs.atbot.service.AuthTimeService;
@@ -112,20 +113,20 @@ public class ArchiveThisBot {
                     }
 
                     Comment summoningComment = getRedditService().getSummoningComment(message);
-                    Comment targetComment = getRedditService().getTargetComment(message);
+                    Postable targetPostable = getRedditService().getTargetPostable(message);
 
-                    if (summoningComment == null || targetComment == null) {
+                    if (summoningComment == null || targetPostable == null) {
                         LOG.warn("Could not pull comments for user mention: %s", message.data("context"));
                         continue;
                     }
 
-                    if (targetComment.getAuthor().equals(botsRedditUsername)) {
+                    if (targetPostable.getAuthor().equals(botsRedditUsername)) {
                         LOG.info("Skipping due to being called on bot's own comment.");
                         continue;
                     }
 
-                    if (!isAlreadyServiced(targetComment) && !isUserBlacklisted(summoningComment.getAuthor())) {
-                        processSummons(summoningComment, targetComment);
+                    if (!isAlreadyServiced(targetPostable) && !isUserBlacklisted(summoningComment.getAuthor())) {
+                        processSummons(summoningComment, targetPostable);
                     }
 
                     LOG.info("Completed processing messages.");
@@ -194,8 +195,8 @@ public class ArchiveThisBot {
     }
 
 
-    private boolean isAlreadyServiced(Comment targetComment) {
-        String targetCommentId = targetComment.getId();
+    private boolean isAlreadyServiced(Postable targetPostable) {
+        String targetCommentId = targetPostable.getId();
         boolean isServiced = getArchiveResultService().existsByTargetCommentId(targetCommentId);
         LOG.info("Comment(id: %s) %s previously been serviced.", targetCommentId, (isServiced ? "HAS" : "has NOT"));
 
@@ -203,10 +204,10 @@ public class ArchiveThisBot {
     }
 
 
-    private void processSummons(Comment summoningComment, Comment targetComment) {
+    private void processSummons(Comment summoningComment, Postable targetPostable) {
         LOG.info("Processing summons: " + summoningComment.getId());
 
-        String body = targetComment.getBody();
+        String body = targetPostable.getBody();
 
         List<String> extractedUrls = UrlMatcher.extractUrls(body);
 
@@ -217,7 +218,7 @@ public class ArchiveThisBot {
             String submissionId = summoningComment.getSubmissionId();
             Submission submission = getRedditService().getSubmissionById(submissionId);
 
-            ArchiveResult archiveResult = new ArchiveResult(submission, summoningComment, targetComment, extractedUrls);
+            ArchiveResult archiveResult = new ArchiveResult(submission, summoningComment, targetPostable, extractedUrls);
             getArchiveService().archive(archiveResult);
 
             // Regardless if the URLs were successful of being archived, still want to save record of having tried
@@ -228,7 +229,7 @@ public class ArchiveThisBot {
             getRedditService().postArchiveResult(archiveResult);
             LOG.info("Completed reddit post for ArchiveResult(id: %d)...", archiveResult.getId());
         } else {
-            LOG.info("Didn't find any URLs to archive: %s", targetComment.getUrl());
+            LOG.info("Didn't find any URLs to archive: %s", targetPostable.getUrl());
         }
 
     }

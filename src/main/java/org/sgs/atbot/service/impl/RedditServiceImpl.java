@@ -28,6 +28,7 @@ import javax.annotation.Resource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sgs.atbot.model.ArchiveResult;
+import org.sgs.atbot.model.Postable;
 import org.sgs.atbot.service.AuthService;
 import org.sgs.atbot.service.RedditService;
 import org.sgs.atbot.util.ArchiveResultPostFormatter;
@@ -149,24 +150,6 @@ public class RedditServiceImpl implements RedditService {
 
 
     @Override
-    public Comment getTargetComment(Message message) {
-        String targetId = message.getParentId();
-        if (targetId == null) {
-            LOG.warn("Target ID is null for passed in Message: %s", message.getFullName());
-            return null;
-        }
-
-        Listing<Thing> listing = getRedditClient().get(targetId);
-        if (listing == null || listing.size() == 0) {
-            LOG.warn("No comment returned for passed in Message: %s", message.getFullName());
-            return null;
-        }
-
-        return (Comment) listing.get(0);
-    }
-
-
-    @Override
     public Submission getSubmissionById(String submissionId) {
         Listing<Thing> listing = getRedditClient().get(submissionId);
         if (listing == null || listing.size() == 0) {
@@ -183,6 +166,24 @@ public class RedditServiceImpl implements RedditService {
         AuthenticatedUserReference userRef = client.me();
         InboxReference inbox = userRef.inbox();
         inbox.readMessage(true, message);
+    }
+
+
+    @Override
+    public Postable getTargetPostable(Message message) {
+        String targetId = message.getParentId();
+        if (targetId == null) {
+            LOG.warn("Target ID is null for passed in Message: %s", message.getFullName());
+            return null;
+        }
+
+        Listing<Thing> listing = getRedditClient().get(targetId);
+        if (listing == null || listing.size() == 0) {
+            LOG.warn("No comment returned for passed in Message: %s", message.getFullName());
+            return null;
+        }
+
+        return new Postable(listing.get(0));
     }
 
 

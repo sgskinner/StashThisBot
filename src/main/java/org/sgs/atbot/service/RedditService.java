@@ -23,6 +23,7 @@ package org.sgs.atbot.service;
 
 
 import org.sgs.atbot.model.ArchiveResult;
+import org.sgs.atbot.model.Postable;
 
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Listing;
@@ -44,9 +45,9 @@ public interface RedditService {
 
     Comment getSummoningComment(Message message);
 
-    Comment getTargetComment(Message message);
-
     Submission getSubmissionById(String submissionId);
 
     void markMessageRead(Message message);
+
+    Postable getTargetPostable(Message message);
 }

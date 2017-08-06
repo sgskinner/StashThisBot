@@ -21,6 +21,7 @@ import org.sgs.atbot.util.TimeUtils;
 
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.Thing;
 
 @Entity
 @Table(name = "archive_result_t")
@@ -39,7 +40,7 @@ public class ArchiveResult implements Serializable {
     private Date servicedDate;
     private List<AtbotUrl> archivedUrls;
     private Comment summoningComment;
-    private Comment targetComment;
+    private Postable targetPostable;
 
 
     public ArchiveResult() {
@@ -47,16 +48,16 @@ public class ArchiveResult implements Serializable {
     }
 
 
-    public ArchiveResult(Submission submission, Comment summoningComment, Comment targetComment, List<String> urlsToArchive) {
+    public ArchiveResult(Submission submission, Comment summoningComment, Postable targetPostable, List<String> urlsToArchive) {
         this.submissionUrl = submission.getUrl();
         this.summoningCommentAuthor = summoningComment.getAuthor();
         this.summoningCommentId = summoningComment.getId();
         this.summoningCommentUrl = buildRedditCommentUrl(submission, summoningComment);
         this.summoningComment = summoningComment;
-        this.targetCommentAuthor = targetComment.getAuthor();
-        this.targetCommentId = targetComment.getId();
-        this.targetCommentUrl = buildRedditCommentUrl(submission, targetComment);
-        this.targetComment = targetComment;
+        this.targetCommentAuthor = targetPostable.getAuthor();
+        this.targetCommentId = targetPostable.getId();
+        this.targetCommentUrl = buildRedditCommentUrl(submission, targetPostable.getThing());
+        this.targetPostable = targetPostable;
         this.requestDate = TimeUtils.getTimeGmt();
         addAtbotUrls(buildAtbotUrls(urlsToArchive));
     }
@@ -213,13 +214,13 @@ public class ArchiveResult implements Serializable {
 
 
     @Transient
-    public Comment getTargetComment() {
-        return targetComment;
+    public Postable getTargetPostable() {
+        return targetPostable;
     }
 
 
-    public void setTargetComment(Comment targetComment) {
-        this.targetComment = targetComment;
+    public void setTargetPostable(Postable targetPostable) {
+        this.targetPostable = targetPostable;
     }
 
 
@@ -235,7 +236,7 @@ public class ArchiveResult implements Serializable {
     }
 
 
-    private String buildRedditCommentUrl(Submission submission, Comment comment) {
+    private String buildRedditCommentUrl(Submission submission, Thing comment) {
         // |--------------------------------------------- 1 ---------------------------------------------------------||-- 2 --|
         // https://www.reddit.com/r/ArchiveThisBotSandbox/comments/6qdqub/yatr_yet_another_test_run_here_we_are_again/dkwgsdw/
         // 1. submission.getUrl()
