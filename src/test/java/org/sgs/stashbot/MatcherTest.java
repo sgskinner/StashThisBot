@@ -6,29 +6,10 @@ import java.util.regex.Pattern;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.sgs.stashbot.spring.SpringContext;
-import org.sgs.stashbot.util.SummonTokenMatcher;
 import org.sgs.stashbot.util.UrlMatcher;
 
 public class MatcherTest {
     private static final Pattern URL_PATTERN = Pattern.compile("((https|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
-
-
-    @Test
-    public void testSummonTokenMatcher() {
-        String testString = "This is some text !ArchiveThis, and boom that just happend!";
-        SummonTokenMatcher matcher = SpringContext.getBean(SummonTokenMatcher.class);
-        List<String> hits = matcher.extractTokens(testString);
-        Assert.assertTrue("Should get exactly one hit!", hits != null && hits.size() == 1);
-
-        testString = "This is some text, nothing here, cya!";
-        hits = matcher.extractTokens(testString);
-        Assert.assertTrue("Should get exactly one hit!", hits == null || hits.size() == 0);
-
-        testString = "Lets see all !ArchiveThis the tokens at !Archive This once jsut to see it Archive This! happen again and again foo and done.";
-        hits = matcher.extractTokens(testString);
-        Assert.assertTrue("Should get exactly one hit!", hits != null && hits.size() == 3);
-    }
 
 
 

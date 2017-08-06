@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class StashResultDaoImpl extends AbstractDao<BigInteger, StashResult> implements StashResultDao {
     private static final String TARGET_COMMENT_ID = "targetCommentId";
-    private static final String SELECT_BY_TARGET_ID = String.format("select a from StashResult a where target_comment_id = :%s", TARGET_COMMENT_ID);
+    private static final String SELECT_BY_TARGET_ID = String.format("select a from StashResult a where target_postable_id = :%s", TARGET_COMMENT_ID);
 
 
     @Override

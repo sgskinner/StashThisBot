@@ -1,9 +1,6 @@
 package org.sgs.stashbot.spring;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import javax.naming.NamingException;
@@ -102,26 +99,6 @@ public class StashThisConfiguration {
     @Bean
     public RedditClient getRedditClient() {
         return new RedditClient(getUserAgent());
-    }
-
-
-    @Bean(name = "subredditList")
-    public List<String> getSubredditList() {
-        List<String> subredditList = new ArrayList<>();
-        String[] rawStrings = environment.getRequiredProperty("subreddit.list").split(",");
-        subredditList.addAll(Arrays.asList(rawStrings));
-
-        return subredditList;
-    }
-
-
-    @Bean(name = "summonTokens")
-    public List<String> getSummonTokens() {
-        List<String> tokenPatterns = new ArrayList<>();
-        String[] tmpPatterns = environment.getRequiredProperty("summon.token.patterns").split(",");
-        tokenPatterns.addAll(Arrays.asList(tmpPatterns));
-
-        return tokenPatterns;
     }
 
 

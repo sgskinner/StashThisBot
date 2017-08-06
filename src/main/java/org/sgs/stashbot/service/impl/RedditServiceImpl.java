@@ -21,14 +21,10 @@
 
 package org.sgs.stashbot.service.impl;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.Postable;
+import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.service.AuthService;
 import org.sgs.stashbot.service.RedditService;
 import org.sgs.stashbot.util.StashResultPostFormatter;
@@ -55,8 +51,6 @@ import net.dean.jraw.paginators.SubredditPaginator;
 public class RedditServiceImpl implements RedditService {
     private static final Logger LOG = LogManager.getLogger(RedditServiceImpl.class);
 
-    @Resource(name = "subredditList")
-    private List<String> subredditList;
     private final AuthService authService;
     private final RedditClient redditClient;
 
@@ -184,16 +178,6 @@ public class RedditServiceImpl implements RedditService {
         }
 
         return new Postable(listing.get(0));
-    }
-
-
-    public List<String> getSubredditList() {
-        return subredditList;
-    }
-
-
-    public void setSubredditList(List<String> subredditList) {
-        this.subredditList = subredditList;
     }
 
 
