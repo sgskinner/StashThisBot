@@ -32,7 +32,14 @@ public class Postable {
         if (isComment()) {
             return ((Comment) thing).getBody();
         } else {
-            return ((Submission)thing).getSelftext();
+            // We are a Submission, but we need to figure out if we're a self post,
+            // or link submission, and then handle it
+            Submission submission = (Submission)thing;
+            if (submission.isSelfPost()) {
+                return submission.getSelftext();
+            } else {
+                return submission.getUrl();
+            }
         }
     }
 
