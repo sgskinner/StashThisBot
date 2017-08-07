@@ -180,6 +180,23 @@ public class RedditServiceImpl implements RedditService {
         return new Postable(listing.get(0));
     }
 
+    @Override
+    public void deliverStashResultByMessage(StashResult stashResult) {
+        String to = stashResult.getSummoningCommentAuthor();
+        String subject = "StashThis Result";
+        String body = StashResultPostFormatter.format(stashResult);
+
+        FluentRedditClient client = new FluentRedditClient(redditClient);
+        AuthenticatedUserReference userRef = client.me();
+        InboxReference inbox = userRef.inbox();
+
+        try {
+            inbox.compose(to, subject, body);
+        } catch (ApiException e) {
+            LOG.error("Reddit API puked while PM'ing a summoner: %s", e.getMessage());
+        }
+    }
+
 
     private RedditClient getRedditClient() {
         return redditClient;

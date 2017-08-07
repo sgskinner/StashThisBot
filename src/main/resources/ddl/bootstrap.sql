@@ -42,6 +42,16 @@ CREATE TABLE blacklisted_user_t (
 CREATE INDEX username ON blacklisted_user_t (username);
 
 
+CREATE TABLE blacklisted_subreddit_t (
+  id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name         VARCHAR(128)    NOT NULL,
+  date_created DATETIME        NOT NULL,
+  note         TEXT            NOT NULL,
+  PRIMARY KEY (id)
+);
+CREATE INDEX sub_name_idx ON blacklisted_subreddit_t (name);
+
+
 CREATE TABLE reddit_polling_time_t (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   date         DATETIME        NOT NULL,

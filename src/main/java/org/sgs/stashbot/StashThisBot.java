@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Logger;
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.AuthPollingTime;
 import org.sgs.stashbot.model.Postable;
+import org.sgs.stashbot.service.BlacklistedSubredditService;
 import org.sgs.stashbot.service.StashResultService;
 import org.sgs.stashbot.service.ArchiveService;
 import org.sgs.stashbot.service.AuthTimeService;
@@ -67,17 +68,21 @@ public class StashThisBot {
     private final UserService userService;
     private final RedditTimeService redditTimeService;
     private final AuthTimeService authTimeService;
+    private final BlacklistedSubredditService blacklistedSubredditService;
     private boolean killSwitchClick;
 
 
     @Autowired
-    public StashThisBot(RedditService redditService, ArchiveService archiveIsService, StashResultService stashResultService, UserService userService, RedditTimeService redditTimeService, AuthTimeService authTimeService) {
+    public StashThisBot(RedditService redditService, ArchiveService archiveIsService, StashResultService stashResultService,
+                        UserService userService, RedditTimeService redditTimeService, AuthTimeService authTimeService,
+                        BlacklistedSubredditService blacklistedSubredditService) {
         this.redditService = redditService;
         this.archiveIsService = archiveIsService;
         this.stashResultService = stashResultService;
         this.userService = userService;
         this.redditTimeService = redditTimeService;
         this.authTimeService = authTimeService;
+        this.blacklistedSubredditService = blacklistedSubredditService;
         this.killSwitchClick = false;
     }
 
@@ -218,20 +223,36 @@ public class StashThisBot {
             String submissionId = summoningComment.getSubmissionId();
             Submission submission = getRedditService().getSubmissionById(submissionId);
 
+            // Attempt actual archiving
             StashResult stashResult = new StashResult(submission, summoningComment, targetPostable, extractedUrls);
             getArchiveService().archive(stashResult);
 
             // Regardless if the URLs were successful of being archived, still want to save record of having tried
             getStashResultService().save(stashResult);
 
-            // Now make the post
-            LOG.info("Making reddit post for StashResult(id: %d)...", stashResult.getId());
-            getRedditService().postStashResult(stashResult);
-            LOG.info("Completed reddit post for StashResult(id: %d)...", stashResult.getId());
+            // Deliver results to summoner
+            deliverStashResult(stashResult, summoningComment);
+
         } else {
             LOG.info("Didn't find any URLs to archive: %s", targetPostable.getUrl());
         }
 
+    }
+
+
+    private void deliverStashResult(StashResult stashResult, Comment summoningComment) {
+        String subredditName = summoningComment.getSubredditName();
+        if (getBlacklistedSubredditService().isSubredditBlacklisted(subredditName)) {
+            // This sub does not allow bots to post, so send a PM instead
+            LOG.info("Making reddit post for StashResult(id: %d)...", stashResult.getId());
+            getRedditService().deliverStashResultByMessage(stashResult);
+            LOG.info("Completed reddit post for StashResult(id: %d)...", stashResult.getId());
+        } else {
+            // The sub is not blacklisted, so make a post
+            LOG.info("Making private message for StashResult(id: %d)...", stashResult.getId());
+            getRedditService().postStashResult(stashResult);
+            LOG.info("Completed private message for StashResult(id: %d)...", stashResult.getId());
+        }
     }
 
 
@@ -290,6 +311,11 @@ public class StashThisBot {
 
     private ArchiveService getArchiveService() {
         return archiveIsService;
+    }
+
+
+    public BlacklistedSubredditService getBlacklistedSubredditService() {
+        return blacklistedSubredditService;
     }
 
 

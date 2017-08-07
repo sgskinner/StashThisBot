@@ -13,7 +13,7 @@ public class StashResultPostFormatter {
 
     public static String format(StashResult stashResult) {
         StringBuilder sb = new StringBuilder();
-        sb.append("**Stashed!:**");
+        sb.append("**Stashed:**");
         sb.append(System.lineSeparator());
         sb.append(System.lineSeparator()); // reddit markdown needs 2 newlines to display one
 

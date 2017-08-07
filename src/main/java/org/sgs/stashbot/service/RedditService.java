@@ -50,4 +50,6 @@ public interface RedditService {
     void markMessageRead(Message message);
 
     Postable getTargetPostable(Message message);
+
+    void deliverStashResultByMessage(StashResult stashResult);
 }
