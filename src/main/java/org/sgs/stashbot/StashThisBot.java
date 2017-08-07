@@ -244,14 +244,15 @@ public class StashThisBot {
         String subredditName = summoningComment.getSubredditName();
         if (getBlacklistedSubredditService().isSubredditBlacklisted(subredditName)) {
             // This sub does not allow bots to post, so send a PM instead
-            LOG.info("Making reddit post for StashResult(id: %d)...", stashResult.getId());
+            LOG.info("Making private message for StashResult(id: %d)...", stashResult.getId());
             getRedditService().deliverStashResultByMessage(stashResult);
-            LOG.info("Completed reddit post for StashResult(id: %d)...", stashResult.getId());
+            LOG.info("Completed private message for StashResult(id: %d).", stashResult.getId());
+
         } else {
             // The sub is not blacklisted, so make a post
-            LOG.info("Making private message for StashResult(id: %d)...", stashResult.getId());
+            LOG.info("Making reddit post for StashResult(id: %d)...", stashResult.getId());
             getRedditService().postStashResult(stashResult);
-            LOG.info("Completed private message for StashResult(id: %d)...", stashResult.getId());
+            LOG.info("Completed reddit post for StashResult(id: %d).", stashResult.getId());
         }
     }
 

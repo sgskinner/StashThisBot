@@ -2,6 +2,8 @@ package org.sgs.stashbot.service.impl;
 
 import java.math.BigInteger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.sgs.stashbot.dao.BlacklistedSubredditDao;
 import org.sgs.stashbot.model.BlacklistedSubreddit;
 import org.sgs.stashbot.service.BlacklistedSubredditService;
@@ -12,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class BlacklistedSubredditServiceImpl implements BlacklistedSubredditService {
+    private static final Logger LOG = LogManager.getLogger(BlacklistedSubredditServiceImpl.class);
+
     final BlacklistedSubredditDao dao;
 
 
@@ -29,7 +33,12 @@ public class BlacklistedSubredditServiceImpl implements BlacklistedSubredditServ
 
     @Override
     public boolean isSubredditBlacklisted(String name) {
-        return dao.isSubredditBlacklisted(name);
+        boolean isBlacklisted = dao.isSubredditBlacklisted(name);
+        if (isBlacklisted) {
+            LOG.info("Subreddit '%s' is blacklisted.", name);
+        }
+
+        return isBlacklisted;
     }
 
 
