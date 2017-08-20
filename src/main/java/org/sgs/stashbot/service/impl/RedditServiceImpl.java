@@ -119,7 +119,14 @@ public class RedditServiceImpl implements RedditService {
         FluentRedditClient client = new FluentRedditClient(redditClient);
         AuthenticatedUserReference userRef = client.me();
         InboxReference inbox = userRef.inbox();
-        InboxPaginator inboxPaginator = inbox.read();
+
+        InboxPaginator inboxPaginator;
+        try {
+            inboxPaginator = inbox.read();
+        } catch (Exception e) {
+            LOG.error(e);
+            return new Listing<>(Message.class);
+        }
 
         return inboxPaginator.next(true);
     }
@@ -179,6 +186,7 @@ public class RedditServiceImpl implements RedditService {
 
         return new Postable(listing.get(0));
     }
+
 
     @Override
     public void deliverStashResultByMessage(StashResult stashResult) {
