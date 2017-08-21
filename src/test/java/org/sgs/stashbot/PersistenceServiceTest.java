@@ -1,38 +1,23 @@
 package org.sgs.stashbot;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.commons.text.CharacterPredicate;
-import org.apache.commons.text.CharacterPredicates;
-import org.apache.commons.text.RandomStringGenerator;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sgs.stashbot.model.StashResult;
-import org.sgs.stashbot.model.StashUrl;
 import org.sgs.stashbot.model.AuthPollingTime;
 import org.sgs.stashbot.model.BlacklistedUser;
 import org.sgs.stashbot.model.RedditPollingTime;
-import org.sgs.stashbot.service.StashResultService;
+import org.sgs.stashbot.model.StashResult;
+import org.sgs.stashbot.model.StashUrl;
 import org.sgs.stashbot.service.AuthTimeService;
 import org.sgs.stashbot.service.RedditTimeService;
+import org.sgs.stashbot.service.StashResultService;
 import org.sgs.stashbot.service.UserService;
 import org.sgs.stashbot.spring.SpringContext;
 import org.sgs.stashbot.util.StashResultPostFormatter;
-import org.sgs.stashbot.util.TimeUtils;
 
 
-public class PersistenceServiceTest {
-    private static final String[] TEST_SUMMONER_USERNAMES = {"test-summoner-0", "test-summoner-1", "test-summoner-2", "test-summoner-3", "test-summoner-4"};
-    private static final String[] TEST_TARGET_USERNAMES = {"test-target-0", "test-target-1", "test-target-2", "test-target-3", "test-target-4"};
-
-    private static RandomStringGenerator stringGenerator;
+public class PersistenceServiceTest extends GeneratorTestBase {
 
 
     @Test
@@ -103,16 +88,8 @@ public class PersistenceServiceTest {
     }
 
 
-    private Date getZeroedMilliDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.MILLISECOND, 0);
-        calendar.setTimeZone(TimeUtils.GMT_TIME_ZONE);
-        return calendar.getTime();
-    }
-
-
     @Test
-    public void testBlacklistedUser () {
+    public void testBlacklistedUser() {
         UserService service = SpringContext.getBean(UserService.class);
         BlacklistedUser user = generateBlacklistedUser();
 
@@ -128,16 +105,6 @@ public class PersistenceServiceTest {
 
         returnedUser = service.getBlackListedUserbyUsername(username);
         Assert.assertNull("Deleted user should not be returned in search!", returnedUser);
-    }
-
-
-    private BlacklistedUser generateBlacklistedUser() {
-        BlacklistedUser user = new BlacklistedUser();
-        user.setUsername(getRandomSummonerUsername());
-        user.setDateCreated(getZeroedMilliDate());
-        user.setReason(generateRandomString(getRandomInt(10, 20)));
-
-        return user;
     }
 
 
@@ -174,74 +141,6 @@ public class PersistenceServiceTest {
     }
 
 
-    private StashResult generateDummyStashResult() {
-
-        StashResult stashResult = new StashResult();
-        stashResult.setSubmissionUrl(generateMockUrl());
-        stashResult.setTargetPostableAuthor(getRandomTargetUsername());
-        stashResult.setTargetPostableId(stringGenerator.generate(getRandomInt(5, 9)));
-        stashResult.setTargetPostableUrl(generateMockUrl());
-        stashResult.setSummoningCommentAuthor(getRandomSummonerUsername());
-        stashResult.setSummoningCommentId(stringGenerator.generate(getRandomInt(5, 9)));
-        stashResult.setSummoningCommentUrl(generateMockUrl());
-        stashResult.setRequestDate(getZeroedMilliDate());
-        stashResult.setServicedDate(getZeroedMilliDate());
-        stashResult.addStashUrls(generateStashUrlList(getRandomInt(1, 5)));
-
-        return stashResult;
-    }
-
-
-    private List<StashUrl> generateStashUrlList(int howMany) {
-        List<StashUrl> stashUrls = new ArrayList<>();
-        for (int i = 0; i < howMany; i++) {
-            stashUrls.add(generateStashUrl());
-        }
-
-        return stashUrls;
-    }
-
-
-    private StashUrl generateStashUrl() {
-        StashUrl stashUrl = new StashUrl();
-        stashUrl.setOriginalUrl(generateMockUrl());
-        stashUrl.setStashedUrl(generateMockUrl());
-        stashUrl.setLastStashed(getZeroedMilliDate());
-
-        return stashUrl;
-    }
-
-
-    private String generateMockUrl() {
-        StringBuilder sb = new StringBuilder("http://www.");
-        sb.append(generateRandomString(getRandomInt(5, 14)));
-        sb.append(".com/");
-        sb.append(generateRandomString(getRandomInt(6, 10)));
-        sb.append(".html");
-        return sb.toString();
-    }
-
-
-    private String generateRandomString(int length) {
-        return stringGenerator.generate(length);
-    }
-
-
-    private int getRandomInt(int min, int max) {
-        return ThreadLocalRandom.current().nextInt(min, max);
-    }
-
-
-    private String getRandomSummonerUsername() {
-        return TEST_SUMMONER_USERNAMES[getRandomInt(0, TEST_SUMMONER_USERNAMES.length)];
-    }
-
-
-    private String getRandomTargetUsername() {
-        return TEST_TARGET_USERNAMES[getRandomInt(0, TEST_TARGET_USERNAMES.length)];
-    }
-
-
     @Test
     public void testStashResultDao() {
         StashResultService service = SpringContext.getBean(StashResultService.class);
@@ -267,26 +166,5 @@ public class PersistenceServiceTest {
 
     }
 
-
-    @BeforeClass
-    public static void testInit() {
-        SecureRandom rand = new SecureRandom();
-        stringGenerator = new RandomStringGenerator
-                .Builder()
-                .usingRandom(rand::nextInt).withinRange(0, 'z')
-                .filteredBy(new AlphaNumericPredicate())
-                .build();
-    }
-
-
-    static class AlphaNumericPredicate implements CharacterPredicate {
-
-        @Override
-        public boolean test(int codePoint) {
-            return CharacterPredicates.DIGITS.test(codePoint) ||
-                    CharacterPredicates.LETTERS.test(codePoint);
-
-        }
-    }
 
 }

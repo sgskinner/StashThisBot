@@ -67,6 +67,14 @@ CREATE TABLE auth_polling_time_t (
 );
 
 
+CREATE TABLE scraped_url_t (
+  id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  date         DATETIME        NOT NULL,
+  url          TEXT            NOT NULL,
+  PRIMARY KEY (id)
+);
+
+
 CREATE USER stashbot@localhost
 IDENTIFIED BY 'password';
 

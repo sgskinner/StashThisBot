@@ -21,17 +21,21 @@
 
 package org.sgs.stashbot;
 
-import org.junit.Test;
-
 import org.junit.Assert;
+import org.junit.Test;
+import org.sgs.stashbot.model.StashResult;
+import org.sgs.stashbot.service.ArchiveService;
 import org.sgs.stashbot.spring.SpringContext;
 
-public class ArchiveIsServiceTest {
+public class ArchiveIsServiceTest extends GeneratorTestBase {
 
     @Test
     public void testAppInit() {
-        StashThisBot app = SpringContext.getBean(StashThisBot.class);
-        Assert.assertTrue("App could not initialize.", app != null);
+
+        StashResult stashResult = generateDummyStashResult();
+
+        ArchiveService archiveService = SpringContext.getBean(ArchiveService.class);
+        Assert.assertTrue("ArchiveService could not initialize.", archiveService != null);
     }
 
 }
