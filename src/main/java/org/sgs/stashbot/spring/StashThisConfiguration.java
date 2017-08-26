@@ -52,6 +52,17 @@ public class StashThisConfiguration {
     }
 
 
+    @Bean(name = "rootDataSource")
+    public DataSource rootDataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(environment.getRequiredProperty("jdbc.driverClassName"));
+        dataSource.setUrl(environment.getRequiredProperty("jdbc.root.url"));
+        dataSource.setUsername(environment.getRequiredProperty("jdbc.root.username"));
+        dataSource.setPassword(environment.getRequiredProperty("jdbc.root.password"));
+        return dataSource;
+    }
+
+
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();

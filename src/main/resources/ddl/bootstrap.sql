@@ -82,6 +82,5 @@ GRANT SELECT, INSERT, UPDATE, DELETE, DROP, ALTER, CREATE TEMPORARY TABLES ON st
 
 -- Newer installs of mysql will use unix auth, which we don't want
 USE mysql;
-# noinspection SqlResolve
 UPDATE user SET plugin ='mysql_native_password' WHERE User = 'stashbot';
 

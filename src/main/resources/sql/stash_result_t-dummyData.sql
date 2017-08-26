@@ -1,9 +1,3 @@
-/*
--- Query: select * from stash_result_t
-LIMIT 0, 1000
-
--- Date: 2017-07-23 15:03
-*/
 INSERT INTO `stash_result_t` (`id`,`submission_url`,`target_postable_author`,`target_postable_id`,`target_postable_url`,`summoning_comment_author`,`summoning_comment_id`,`summoning_comment_url`,`request_date`,`serviced_date`) VALUES (1,'http://www.zE5MlKmxuV.com/RZnqwHaP.html','test-parent-4','bliqZNL','http://www.OT2c0.com/nLQGA1.html','test-summoner-3','Qvj2im','http://www.Pf5ZQXILCNCB.com/fhDDWZFC.html','2017-07-23 15:02:45','2017-07-23 15:02:45');
 INSERT INTO `stash_result_t` (`id`,`submission_url`,`target_postable_author`,`target_postable_id`,`target_postable_url`,`summoning_comment_author`,`summoning_comment_id`,`summoning_comment_url`,`request_date`,`serviced_date`) VALUES (2,'http://www.XBnC44MVD.com/zknYzYBH.html','test-parent-4','xDj2m5D','http://www.Z5MDLwwzchPcj.com/xfydZA.html','test-summoner-0','pVXQ6','http://www.PaloFC.com/I58ws2xGu.html','2017-07-23 15:02:45','2017-07-23 15:02:45');
 INSERT INTO `stash_result_t` (`id`,`submission_url`,`target_postable_author`,`target_postable_id`,`target_postable_url`,`summoning_comment_author`,`summoning_comment_id`,`summoning_comment_url`,`request_date`,`serviced_date`) VALUES (3,'http://www.rljuOM9yY.com/sMEMm4.html','test-parent-2','bkNFqlL','http://www.PRReJ2V0l3.com/i9OBsfFK.html','test-summoner-4','hPtpGyI','http://www.heo3UlH.com/0hw3Fw0.html','2017-07-23 15:02:45','2017-07-23 15:02:45');
