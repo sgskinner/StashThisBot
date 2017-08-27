@@ -15,6 +15,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.sgs.stashbot.util.TimeUtils;
@@ -152,7 +154,7 @@ public class StashResult implements Serializable {
         this.summoningCommentUrl = summoningCommentUrl;
     }
 
-
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "request_date")
     public Date getRequestDate() {
         return requestDate;
@@ -164,6 +166,7 @@ public class StashResult implements Serializable {
     }
 
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "serviced_date")
     public Date getServicedDate() {
         return servicedDate;
