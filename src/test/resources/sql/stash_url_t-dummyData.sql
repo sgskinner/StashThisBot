@@ -1,9 +1,3 @@
-/*
--- Query: select * from stash_url_t
-LIMIT 0, 1000
-
--- Date: 2017-07-23 15:03
-*/
 INSERT INTO `stash_url_t` (`id`,`stash_result_id`,`stashed_url`,`original_url`,`last_stashed`) VALUES (1,1,'http://www.k51K3.com/5eYsva.html','http://www.9lC309ge.com/upVBxPV.html','2017-07-23 00:00:00');
 INSERT INTO `stash_url_t` (`id`,`stash_result_id`,`stashed_url`,`original_url`,`last_stashed`) VALUES (2,1,'http://www.OY1JAnTcLkbh.com/PVoobYZ.html','http://www.aWlg0A.com/HyzE0tNMz.html','2017-07-23 00:00:00');
 INSERT INTO `stash_url_t` (`id`,`stash_result_id`,`stashed_url`,`original_url`,`last_stashed`) VALUES (3,1,'http://www.hmKgz.com/MhrAnirI.html','http://www.4YTFr316S.com/ol6pbV1Mw.html','2017-07-23 00:00:00');
