@@ -1,8 +1,13 @@
 package org.sgs.stashbot;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -12,6 +17,8 @@ import java.util.Scanner;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,6 +45,7 @@ public class DbDataLoader {
         teardownDb();
         bootstrapDb();
         loadDummyStashResults();
+        loadScrapedUrls();
     }
 
 
@@ -61,6 +69,44 @@ public class DbDataLoader {
     }
 
 
+    public void loadDummyStashUrls() {
+        executeSqlStatements(getDummyUrlSqlStatements(), getDataSource());
+    }
+
+
+    public void loadScrapedUrls() {
+        try {
+            executeSqlStatements(getScrapedUrlStatements(), getDataSource());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private List<String> getScrapedUrlStatements() throws IOException {
+        InputStream fileInputStream;
+        try {
+            fileInputStream = new FileInputStream("src/test/resources/sql/scraped_url_t.sql.tgz");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        TarArchiveInputStream tarArchiveInputStream;
+        try {
+            tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(fileInputStream));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Have to do this to advance to the one and only file in the archive
+        tarArchiveInputStream.getNextTarEntry();
+
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(tarArchiveInputStream));
+
+        return getSqlStatementsFromFile(bufferedReader);
+    }
+
+
     private List<String> getTeardownSqlStatements() {
         return getSqlStatementsFromFile("src/main/resources/ddl/teardown.sql");
     }
@@ -72,7 +118,12 @@ public class DbDataLoader {
 
 
     private List<String> getDummyStashResultSqlStatements() {
-        return getSqlStatementsFromFile("src/main/resources/sql/stash_result_t-dummyData.sql");
+        return getSqlStatementsFromFile("src/test/resources/sql/stash_result_t-dummyData.sql");
+    }
+
+
+    private List<String> getDummyUrlSqlStatements() {
+        return getSqlStatementsFromFile("src/test/resources/sql/stash_url_t-dummyData.sql");
     }
 
 
@@ -101,13 +152,21 @@ public class DbDataLoader {
 
 
     private List<String> getSqlStatementsFromFile(String filepath) {
-        StringBuilder stringBuilder = new StringBuilder();
-        Scanner scanner;
+        FileReader fileReader;
         try {
-            scanner = new Scanner(new FileReader(new File(filepath)));
+            fileReader = new FileReader(filepath);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+
+        return getSqlStatementsFromFile(fileReader);
+    }
+
+
+
+    private List<String> getSqlStatementsFromFile(Reader reader) {
+        Scanner scanner = new Scanner(reader);
+        StringBuilder stringBuilder = new StringBuilder();
 
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine().trim();
@@ -117,6 +176,7 @@ public class DbDataLoader {
                 stringBuilder.append(line);
             }
         }
+
         scanner.close();
 
         String[] statements = stringBuilder.toString().split(";");

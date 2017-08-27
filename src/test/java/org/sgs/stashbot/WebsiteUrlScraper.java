@@ -81,10 +81,12 @@ public class WebsiteUrlScraper {
             Iterator<String> urlIter = urls.iterator();
             while (urlIter.hasNext()) {
                 String url = urlIter.next();
-                if (url.length() > 16) {
-                    // Two things happening here:
-                    // 1) we're discarding short urls which were malformed,
-                    // 2) we're deduplicating by adding to a set
+                if (url.length() > 16 && !url.contains(";")) {
+                    // Three things happened here:
+                    // 1) we're discarding short urls which were malformed
+                    // 2) we're dropping urls that contain ";" which messes up sql
+                    //    parsing in DbDataLoader (6 out of 110k dropped)
+                    // 3) we're deduplicating by adding to a set
                     knownUrlSet.add(url);
                 } else {
                     // Discard into the ether
