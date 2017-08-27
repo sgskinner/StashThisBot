@@ -30,6 +30,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class DbDataLoader {
     private static final Logger LOG = LogManager.getLogger(DbDataLoader.class);
+    private static final int BATCH_SIZE = 1000;
+
     private DataSource dataSource;
     private DataSource rootDataSource;
 
@@ -103,27 +105,27 @@ public class DbDataLoader {
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(tarArchiveInputStream));
 
-        return getSqlStatementsFromFile(bufferedReader);
+        return getSqlStatements(bufferedReader);
     }
 
 
     private List<String> getTeardownSqlStatements() {
-        return getSqlStatementsFromFile("src/main/resources/ddl/teardown.sql");
+        return getSqlStatements("src/main/resources/ddl/teardown.sql");
     }
 
 
     private List<String> getBootstrapSqlStatements() {
-        return getSqlStatementsFromFile("src/main/resources/ddl/bootstrap.sql");
+        return getSqlStatements("src/main/resources/ddl/bootstrap.sql");
     }
 
 
     private List<String> getDummyStashResultSqlStatements() {
-        return getSqlStatementsFromFile("src/test/resources/sql/stash_result_t-dummyData.sql");
+        return getSqlStatements("src/test/resources/sql/stash_result_t-dummyData.sql");
     }
 
 
     private List<String> getDummyUrlSqlStatements() {
-        return getSqlStatementsFromFile("src/test/resources/sql/stash_url_t-dummyData.sql");
+        return getSqlStatements("src/test/resources/sql/stash_url_t-dummyData.sql");
     }
 
 
@@ -132,11 +134,31 @@ public class DbDataLoader {
         try {
             connection = aDataSource.getConnection();
             Statement statement = connection.createStatement();
+
+            int totalDone = 0;
+            int totalToDo = stringStatements.size();
+            int batchCountRightNow = 0;
             for (String stringStatement : stringStatements) {
-                statement.executeUpdate(stringStatement);
-                LOG.info("Executed: %s", stringStatement);
+                batchCountRightNow++;
+                statement.addBatch(stringStatement);
+                if (batchCountRightNow >= BATCH_SIZE) {
+                    totalDone += batchCountRightNow;
+                    statement.executeBatch();
+                    statement.clearBatch();
+
+                    LOG.info("Executed: %d statements (%d/%d)", batchCountRightNow, totalDone, totalToDo);
+                    batchCountRightNow = 0;
+                }
             }
+
+            if (batchCountRightNow > 0) {
+                totalDone += batchCountRightNow;
+                statement.executeBatch();
+                LOG.info("Executed: %d statements (%d/%d)", batchCountRightNow, totalDone, totalToDo);
+            }
+
             statement.close();
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -151,7 +173,7 @@ public class DbDataLoader {
     }
 
 
-    private List<String> getSqlStatementsFromFile(String filepath) {
+    private List<String> getSqlStatements(String filepath) {
         FileReader fileReader;
         try {
             fileReader = new FileReader(filepath);
@@ -159,12 +181,12 @@ public class DbDataLoader {
             throw new RuntimeException(e);
         }
 
-        return getSqlStatementsFromFile(fileReader);
+        return getSqlStatements(fileReader);
     }
 
 
 
-    private List<String> getSqlStatementsFromFile(Reader reader) {
+    private List<String> getSqlStatements(Reader reader) {
         Scanner scanner = new Scanner(reader);
         StringBuilder stringBuilder = new StringBuilder();
 
