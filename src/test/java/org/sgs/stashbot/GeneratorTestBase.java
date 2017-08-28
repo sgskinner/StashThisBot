@@ -12,8 +12,11 @@ import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
 import org.junit.BeforeClass;
 import org.sgs.stashbot.model.BlacklistedUser;
+import org.sgs.stashbot.model.ScrapedUrl;
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.StashUrl;
+import org.sgs.stashbot.service.ScrapedUrlService;
+import org.sgs.stashbot.spring.SpringContext;
 import org.sgs.stashbot.util.TimeUtils;
 
 public class GeneratorTestBase {
@@ -35,6 +38,11 @@ public class GeneratorTestBase {
 
 
     protected StashResult generateDummyStashResult() {
+        return generateDummyStashResult(false);
+    }
+
+
+    protected StashResult generateDummyStashResult(boolean withValidStashUrls) {
 
         StashResult stashResult = new StashResult();
         stashResult.setSubmissionUrl(generateMockUrl());
@@ -46,23 +54,29 @@ public class GeneratorTestBase {
         stashResult.setSummoningCommentUrl(generateMockUrl());
         stashResult.setRequestDate(getZeroedMilliDate());
         stashResult.setServicedDate(getZeroedMilliDate());
-        stashResult.addStashUrls(generateStashUrlList(getRandomInt(1, 5)));
+
+        if (withValidStashUrls) {
+            stashResult.addStashUrls(generateValidUrlList(getRandomInt(1, 5)));
+        } else {
+            stashResult.addStashUrls(generateMockUrlList(getRandomInt(1, 5)));
+        }
+
 
         return stashResult;
     }
 
 
-    protected List<StashUrl> generateStashUrlList(int howMany) {
+    protected List<StashUrl> generateMockUrlList(int howMany) {
         List<StashUrl> stashUrls = new ArrayList<>();
         for (int i = 0; i < howMany; i++) {
-            stashUrls.add(generateStashUrl());
+            stashUrls.add(generateMockStashUrl());
         }
 
         return stashUrls;
     }
 
 
-    protected StashUrl generateStashUrl() {
+    protected StashUrl generateMockStashUrl() {
         StashUrl stashUrl = new StashUrl();
         stashUrl.setOriginalUrl(generateMockUrl());
         stashUrl.setStashedUrl(generateMockUrl());
@@ -71,6 +85,24 @@ public class GeneratorTestBase {
         return stashUrl;
     }
 
+
+    protected List<StashUrl> generateValidUrlList(int howMany) {
+        List<StashUrl> stashUrls = new ArrayList<>();
+        for (int i = 0; i < howMany; i++) {
+            stashUrls.add(generateValidUrl());
+        }
+
+        return stashUrls;
+    }
+
+
+    protected StashUrl generateValidUrl() {
+        ScrapedUrl scrapedUrl = SpringContext.getBean(ScrapedUrlService.class).getNextUrl();
+        StashUrl stashUrl = new StashUrl();
+        stashUrl.setOriginalUrl(scrapedUrl.getUrl());
+
+        return stashUrl;
+    }
 
     protected String generateMockUrl() {
         StringBuilder sb = new StringBuilder("http://www.");

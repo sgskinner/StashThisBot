@@ -21,21 +21,66 @@
 
 package org.sgs.stashbot;
 
+import static org.sgs.stashbot.service.impl.ArchiveIsServiceImpl.FAILURE_STAMP;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.htmlcleaner.CleanerProperties;
+import org.htmlcleaner.DomSerializer;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.TagNode;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sgs.stashbot.model.StashResult;
+import org.sgs.stashbot.model.StashUrl;
 import org.sgs.stashbot.service.ArchiveService;
 import org.sgs.stashbot.spring.SpringContext;
+import org.w3c.dom.Document;
 
 public class ArchiveIsServiceTest extends GeneratorTestBase {
 
     @Test
-    public void testAppInit() {
-
-        StashResult stashResult = generateDummyStashResult();
-
+    public void testArchive() {
         ArchiveService archiveService = SpringContext.getBean(ArchiveService.class);
         Assert.assertTrue("ArchiveService could not initialize.", archiveService != null);
+
+        StashResult stashResult  = generateDummyStashResult(true);
+        archiveService.archive(stashResult);
+        Assert.assertTrue("Not marked as serviced!", stashResult.getServicedDate() != null);
+
+        List<StashUrl> stashUrlList = stashResult.getStashUrls();
+        for (StashUrl stashUrl : stashUrlList) {
+            String archivedUrl = stashUrl.getOriginalUrl();
+            Assert.assertTrue("Archive URL not acceptable!", !archivedUrl.contains("archive.is") && !archivedUrl.equals(FAILURE_STAMP));
+        }
     }
+
+
+
+    @Test
+    public void testXpathExtraction() throws IOException, ParserConfigurationException, XPathExpressionException {
+        byte[] encoded = Files.readAllBytes(Paths.get("src/test/resources/raw_data/archive.is.html"));
+        String htmlContents = new String(encoded, StandardCharsets.UTF_8);
+
+        TagNode tagNode = new HtmlCleaner().clean(htmlContents);
+        Document doc = new DomSerializer(new CleanerProperties()).createDOM(tagNode);
+
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        String str = (String) xpath.evaluate("//*[@id=\"submiturl\"]/input/@value", doc, XPathConstants.STRING);
+
+        String actualValue = "YHuwL/nTgL370PMDM2G2vkuvMg3kmNqk/y/i7NRSaLyf2JSIU+/now+AYw+X0nX8";
+        Assert.assertTrue("Did not extract expected value!", str.equals(actualValue));
+    }
+
 
 }
