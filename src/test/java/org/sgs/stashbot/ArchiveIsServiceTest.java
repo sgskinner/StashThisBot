@@ -21,8 +21,6 @@
 
 package org.sgs.stashbot;
 
-import static org.sgs.stashbot.service.impl.ArchiveIsServiceImpl.FAILURE_STAMP;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -54,17 +52,17 @@ public class ArchiveIsServiceTest extends GeneratorTestBase {
         ArchiveService archiveService = SpringContext.getBean(ArchiveService.class);
         Assert.assertTrue("ArchiveService could not initialize.", archiveService != null);
 
-        StashResult stashResult  = generateDummyStashResult(true);
+        StashResult stashResult = generateDummyStashResult(true);
         archiveService.archive(stashResult);
         Assert.assertTrue("Not marked as serviced!", stashResult.getServicedDate() != null);
 
         List<StashUrl> stashUrlList = stashResult.getStashUrls();
         for (StashUrl stashUrl : stashUrlList) {
             String archivedUrl = stashUrl.getOriginalUrl();
-            Assert.assertTrue("Archive URL not acceptable!", !archivedUrl.contains("archive.is") && !archivedUrl.equals(FAILURE_STAMP));
+            Assert.assertTrue("Archive URL should not be null!", archivedUrl != null);
+            Assert.assertTrue("Archive URL not acceptable!", !archivedUrl.contains("archive.is"));
         }
     }
-
 
 
     @Test

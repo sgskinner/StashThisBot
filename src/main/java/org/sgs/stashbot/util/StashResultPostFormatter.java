@@ -7,7 +7,7 @@ public class StashResultPostFormatter {
     private static final String FOOTER = "^[FAQ](https://np.reddit.com/r/StashThis/wiki/index)&nbsp;| ^[Source&nbsp;Code](https://github.com/sgskinner/StashThisBot)&nbsp;| ^[PM&nbsp;Developer](https://www.reddit.com/message/compose?to=sgskinner&subject=StashThisBot)&nbsp;| ^v0.1.1";
     private static final String LINK_LINE_SUCCESS = "1. [Original](%s) --> [Stashed](%s) (%s)";
     private static final String LINK_LINE_FAILURE = "1. [Original](%s) --> [Stash Failed!](%s)";
-    private static final String FAILURE_HELP_NOTE = "(Please see the wiki [here](https://www.reddit.com/r/StashThis/wiki/faq/failures) about stash failures, and/or reproduce the failure by clicking the 'Stash Failed!' link.)";
+    private static final String FAILURE_HELP_NOTE = "(Please see the wiki [here](https://www.reddit.com/r/StashThis/wiki/index#wiki_failures) about stash failures, and/or reproduce the failure by clicking the 'Stash Failed!' link.)";
     private static final String LINE = "-----";
 
 

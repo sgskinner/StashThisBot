@@ -13,7 +13,6 @@ import org.sgs.stashbot.util.TimeUtils;
 
 public abstract class ArchiveServiceBase implements ArchiveService {
     private static final Logger LOG = LogManager.getLogger(ArchiveService.class);
-    public static final String FAILURE_STAMP = "ARCHIVE FAILED";
 
     protected abstract void executeHttpTransaction(StashUrl stashUrl);
 

@@ -45,6 +45,7 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
     private static final String HEADER_REFRESH_KEY = "Refresh";
     private static final String GET_REQUEST_URL = "https://archive.is";
     private static final String POST_REQUEST_URL = "http://archive.is/submit/";
+    private static final String FAIL_LINK_FORMAT = "https://archive.today/?run=1&url=%s";
 
 
     @Override
@@ -54,7 +55,6 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
         String submitId = getSubmitIdToken(client);
 
         if (StringUtils.isBlank(submitId)) {
-            LOG.error("Could not get submitId token!");
             setArchivedLink(null, stashUrl);
             return;
         }
@@ -170,7 +170,8 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
         } else {
             // Set message that this failed; we WON'T set lastArchived, which is how we detect if save
             // worked or not
-            stashUrl.setStashedUrl(FAILURE_STAMP);
+            String failLink = String.format(FAIL_LINK_FORMAT, stashUrl.getOriginalUrl());
+            stashUrl.setStashedUrl(failLink);
             LOG.warn("Couldn't obtain archive for URL: " + stashUrl.getOriginalUrl());
         }
     }

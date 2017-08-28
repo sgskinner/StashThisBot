@@ -63,7 +63,7 @@ public class WaybackMachineServiceImpl extends ArchiveServiceBase {
             // Set the attempted save url, which we can then later use as hyperlink in
             // failure message; we WON'T set lastArchived, which is how we detect if save
             // worked or not
-            stashUrl.setStashedUrl(FAILURE_STAMP);
+            stashUrl.setStashedUrl(saveRequestUrl);
             LOG.warn("Couldn't obtain archive for URL: " + urlString);
         }
 
