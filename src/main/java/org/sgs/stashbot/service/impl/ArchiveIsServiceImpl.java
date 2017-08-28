@@ -45,11 +45,11 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
     private static final String HEADER_REFRESH_KEY = "Refresh";
     private static final String GET_REQUEST_URL = "https://archive.is";
     private static final String POST_REQUEST_URL = "http://archive.is/submit/";
-    public static final String FAILURE_STAMP = "ARCHIVE FAILED";
 
 
     @Override
     protected void executeHttpTransaction(StashUrl stashUrl) {
+        LOG.info("Attempting to archive link: %s", stashUrl.getOriginalUrl());
         CloseableHttpClient client = HttpClientBuilder.create().build();
         String submitId = getSubmitIdToken(client);
 
@@ -156,7 +156,7 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
     /*
      * Separated out, since we have two spots in code of where we need to
      * set this: if the submitId token fails, we need to set the 'fail'
-     * message, and also after the post method regardless if it's successful.
+     * message, or after the post method regardless if it's successful.
      */
     private void setArchivedLink(String archivedLink, StashUrl stashUrl) {
         if (StringUtils.isNotBlank(archivedLink)) {
@@ -176,11 +176,11 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
      * Currently the archive.is form for submitting has one visible form field,
      * and one hidden. We need to submit both, which we build here.
      */
-    private HttpPost getPostMethod(String urlToSave, String submitid) {
+    private HttpPost getPostMethod(String urlToSave, String submitId) {
         HttpPost httpPost = new HttpPost(POST_REQUEST_URL);
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("url", urlToSave));
-        params.add(new BasicNameValuePair("submitid", submitid));
+        params.add(new BasicNameValuePair("submitid", submitId));
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(params));
         } catch (UnsupportedEncodingException e) {

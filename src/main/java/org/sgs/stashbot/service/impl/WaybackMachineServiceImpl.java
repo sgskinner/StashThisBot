@@ -11,7 +11,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.StashUrl;
 import org.sgs.stashbot.util.TimeUtils;
 import org.springframework.stereotype.Service;
@@ -23,18 +22,6 @@ public class WaybackMachineServiceImpl extends ArchiveServiceBase {
     private static final String WAYBACK_SAVE_URL = "https://web.archive.org/save/";
     private static final String WAYBACK_ROOT_URL = "https://web.archive.org";
     private static final String HEADER_CONTENT_LOC_KEY = "Content-Location";
-
-
-    @Override
-    public StashResult archive(StashResult stashResult) {
-        for (StashUrl stashUrl : stashResult.getStashUrls()) {
-            executeHttpTransaction(stashUrl);
-        }
-
-        stashResult.setServicedDate(TimeUtils.getTimeGmt());
-
-        return stashResult;
-    }
 
 
     @Override
@@ -68,7 +55,7 @@ public class WaybackMachineServiceImpl extends ArchiveServiceBase {
             closeHttpObjects(response, client);
         }
 
-        if (StringUtils.isNoneBlank(archivePath)) {
+        if (StringUtils.isNotBlank(archivePath)) {
             stashUrl.setStashedUrl(WAYBACK_ROOT_URL + archivePath);
             stashUrl.setLastStashed(TimeUtils.getTimeGmt());
             LOG.info("Archive link successful: " + archivePath);
@@ -76,7 +63,7 @@ public class WaybackMachineServiceImpl extends ArchiveServiceBase {
             // Set the attempted save url, which we can then later use as hyperlink in
             // failure message; we WON'T set lastArchived, which is how we detect if save
             // worked or not
-            stashUrl.setStashedUrl(saveRequestUrl);
+            stashUrl.setStashedUrl(FAILURE_STAMP);
             LOG.warn("Couldn't obtain archive for URL: " + urlString);
         }
 
