@@ -13,13 +13,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.StashUrl;
-import org.sgs.stashbot.service.ArchiveService;
 import org.sgs.stashbot.util.TimeUtils;
 import org.springframework.stereotype.Service;
 
 
 @Service
-public class WaybackMachineServiceImpl implements ArchiveService {
+public class WaybackMachineServiceImpl extends ArchiveServiceBase {
     private static final Logger LOG = LogManager.getLogger(WaybackMachineServiceImpl.class);
     private static final String WAYBACK_SAVE_URL = "https://web.archive.org/save/";
     private static final String WAYBACK_ROOT_URL = "https://web.archive.org";
@@ -29,7 +28,7 @@ public class WaybackMachineServiceImpl implements ArchiveService {
     @Override
     public StashResult archive(StashResult stashResult) {
         for (StashUrl stashUrl : stashResult.getStashUrls()) {
-            doArchive(stashUrl);
+            executeHttpTransaction(stashUrl);
         }
 
         stashResult.setServicedDate(TimeUtils.getTimeGmt());
@@ -38,7 +37,8 @@ public class WaybackMachineServiceImpl implements ArchiveService {
     }
 
 
-    private void doArchive(StashUrl stashUrl) {
+    @Override
+    protected void executeHttpTransaction(StashUrl stashUrl) {
         LOG.info("Attempting to archive link: %s", stashUrl.getOriginalUrl());
 
         String urlString = stashUrl.getOriginalUrl();
@@ -80,24 +80,6 @@ public class WaybackMachineServiceImpl implements ArchiveService {
             LOG.warn("Couldn't obtain archive for URL: " + urlString);
         }
 
-    }
-
-
-    private void closeHttpObjects(CloseableHttpResponse response, CloseableHttpClient client) {
-        if (response != null) {
-            try {
-                response.close();
-            } catch (IOException e) {
-                LOG.warn("Could not close HTTP Response!: " + e.getMessage());
-            }
-        }
-        if (client != null) {
-            try {
-                client.close();
-            } catch (IOException e) {
-                LOG.warn("Could not close HTTP Client!: " + e.getMessage());
-            }
-        }
     }
 
 }

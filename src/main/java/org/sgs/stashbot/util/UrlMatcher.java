@@ -14,15 +14,15 @@ public class UrlMatcher {
     private static final Pattern URL_PATTERN = Pattern.compile("((https|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
 
 
-    public static List<String> extractUrls(String comment) {
+    public static List<String> extractUrls(String text) {
         List<String> urls = new ArrayList<>();
 
-        if (comment == null) {
+        if (text == null) {
             LOG.warn("Null comment passed in, skipping.");
             return urls;
         }
 
-        Matcher matcher = URL_PATTERN.matcher(comment);
+        Matcher matcher = URL_PATTERN.matcher(text);
         while (matcher.find()) {
             String result = matcher.group(1);
             if (StringUtils.isNotBlank(result)) {
