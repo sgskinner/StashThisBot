@@ -93,7 +93,7 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
             submitId = (String) xpath.evaluate(XPATH_TO_SUBMIT_ID, doc, XPathConstants.STRING);
 
         } catch (IOException e) {
-            LOG.warn("Error encountered when trying to archive link!: " + e.getMessage());
+            LOG.warn("Error encountered when trying to archive link!: %s", e.getMessage());
         } catch (ParserConfigurationException e) {
             LOG.error("Could not parse html for submitId token: %s", e.getMessage());
         } catch (XPathExpressionException e) {
@@ -123,9 +123,13 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
 
             String headerKey;
             if (statusCode == HttpStatus.SC_OK) {
+                // For links that are saved already (and haven't changed?)
                 headerKey = HEADER_REFRESH_KEY;
+                LOG.info("Remote service detected this has been saved recently.");
             } else if (statusCode == HttpStatus.SC_MOVED_TEMPORARILY) {
+                // For links the service regards as never saved before
                 headerKey = HEADER_LOCATION_KEY;
+                LOG.info("Remote service detected this has never been saved.");
             } else {
                 LOG.error("Unknown response code: %d", statusCode);
                 return null;
