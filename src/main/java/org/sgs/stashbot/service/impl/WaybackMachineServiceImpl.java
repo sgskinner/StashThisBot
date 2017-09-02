@@ -25,7 +25,7 @@ public class WaybackMachineServiceImpl extends ArchiveServiceBase {
 
 
     @Override
-    protected void executeHttpTransaction(StashUrl stashUrl) {
+    protected void executeHttpTransactions(StashUrl stashUrl) {
         LOG.info("Attempting to archive link: %s", stashUrl.getOriginalUrl());
 
         String urlString = stashUrl.getOriginalUrl();

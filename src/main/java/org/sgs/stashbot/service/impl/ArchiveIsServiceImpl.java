@@ -36,6 +36,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 
+
+/**
+ * A class that handles posting links to the archive.is website.
+ */
 @Primary
 @Service
 public class ArchiveIsServiceImpl extends ArchiveServiceBase {
@@ -46,10 +50,19 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
     private static final String GET_REQUEST_URL = "https://archive.is";
     private static final String POST_REQUEST_URL = "http://archive.is/submit/";
     private static final String FAIL_LINK_FORMAT = "https://archive.today/?run=1&url=%s";
+    private static final String URL_FORM_KEY = "url";
+    private static final String SUBMIT_ID_FORM_KEY = "submitid";
 
 
+    /**
+     *  This method attempts to:
+     *  1. Get a token from archive.is within a hidden form field
+     *  2. Use the token to submit StashUrl for archiving
+     *
+     * @param stashUrl the container object whose summoner's URL should be archived
+     */
     @Override
-    protected void executeHttpTransaction(StashUrl stashUrl) {
+    protected void executeHttpTransactions(StashUrl stashUrl) {
         LOG.info("Attempting to archive link: %s", stashUrl.getOriginalUrl());
         CloseableHttpClient client = HttpClientBuilder.create().build();
         String submitId = getSubmitIdToken(client);
@@ -93,11 +106,13 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
             submitId = (String) xpath.evaluate(XPATH_TO_SUBMIT_ID, doc, XPathConstants.STRING);
 
         } catch (IOException e) {
-            LOG.warn("Error encountered when trying to archive link!: %s", e.getMessage());
+            LOG.error("Error encountered when trying to archive link!: %s", e.getMessage());
         } catch (ParserConfigurationException e) {
             LOG.error("Could not parse html for submitId token: %s", e.getMessage());
         } catch (XPathExpressionException e) {
             LOG.error("Xpath failed when trying to extract submitId token: %s", e.getMessage());
+        } catch (Exception e) {
+            LOG.error("Unkown exception when trying to extract submitId token: %s", e.getMessage());
         } finally {
             closeHttpObjects(response);
         }
@@ -115,8 +130,7 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
         HttpPost postMethod = getPostMethod(stashUrl.getOriginalUrl(), submitId);
 
         String archivedLink = null;
-        CloseableHttpResponse response;
-        response = null;
+        CloseableHttpResponse response = null;
         try {
             response = httpClient.execute(postMethod);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -147,8 +161,8 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
                 }
             }
 
-        } catch (IOException e) {
-            LOG.warn("Error encountered when trying to archive link!: " + e.getMessage());
+        } catch (Exception e) {
+            LOG.error("Error encountered when trying to archive link!: " + e.getMessage());
         } finally {
             closeHttpObjects(response);
         }
@@ -158,9 +172,9 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
 
 
     /*
-     * Separated out, since we have two spots in code of where we need to
-     * set this: if the submitId token fails, we need to set the 'fail'
-     * message, or after the post method regardless if it's successful.
+     * Separated out, since we have two spots where we might need to set this:
+     *     1) If the submitId token fails, we need to set the 'fail' link, OR
+     *     2) After the post method to archive.is is made
      */
     private void setArchivedLink(String archivedLink, StashUrl stashUrl) {
         if (StringUtils.isNotBlank(archivedLink)) {
@@ -168,8 +182,8 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
             stashUrl.setLastStashed(TimeUtils.getTimeGmt());
             LOG.info("Archive link successful: " + stashUrl.getStashedUrl());
         } else {
-            // Set message that this failed; we WON'T set lastArchived, which is how we detect if save
-            // worked or not
+            // Set clickable archive.is submission link that failed; we WON'T set
+            // lastArchived, which is how we detect if save worked or not
             String failLink = String.format(FAIL_LINK_FORMAT, stashUrl.getOriginalUrl());
             stashUrl.setStashedUrl(failLink);
             LOG.warn("Couldn't obtain archive for URL: " + stashUrl.getOriginalUrl());
@@ -182,13 +196,15 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
      * and one hidden. We need to submit both, which we build here.
      */
     private HttpPost getPostMethod(String urlToSave, String submitId) {
-        HttpPost httpPost = new HttpPost(POST_REQUEST_URL);
         List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("url", urlToSave));
-        params.add(new BasicNameValuePair("submitid", submitId));
+        params.add(new BasicNameValuePair(URL_FORM_KEY, urlToSave));
+        params.add(new BasicNameValuePair(SUBMIT_ID_FORM_KEY, submitId));
+
+        HttpPost httpPost = new HttpPost(POST_REQUEST_URL);
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(params));
         } catch (UnsupportedEncodingException e) {
+            // If this ever does happen, we want the app to tank, as something really weird is going on
             throw new RuntimeException(e);
         }
 

@@ -31,10 +31,6 @@ import net.dean.jraw.models.Message;
 import net.dean.jraw.models.Submission;
 
 public interface RedditService {
-    Listing<Submission> getSubredditSubmissions(String subredditName);
-
-    Submission getFullSubmissionData(Submission submission);
-
     void performAuth();
 
     boolean isAuthenticated();

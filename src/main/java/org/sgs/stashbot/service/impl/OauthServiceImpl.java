@@ -21,6 +21,8 @@
 
 package org.sgs.stashbot.service.impl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.sgs.stashbot.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,10 +30,10 @@ import org.springframework.stereotype.Component;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthData;
-import net.dean.jraw.http.oauth.OAuthException;
 
 @Component
 public class OauthServiceImpl implements AuthService {
+    private static final Logger LOG = LogManager.getLogger(OauthServiceImpl.class);
 
     private final Credentials credentials;
 
@@ -44,14 +46,13 @@ public class OauthServiceImpl implements AuthService {
 
     @Override
     public boolean authenticate(RedditClient redditClient) {
-        OAuthData oAuthData;
         try {
-            oAuthData = redditClient.getOAuthHelper().easyAuth(getCredentials());
-        } catch (OAuthException e) {
-            throw new RuntimeException(e);
+            OAuthData oAuthData = redditClient.getOAuthHelper().easyAuth(getCredentials());
+            redditClient.authenticate(oAuthData);
+        } catch (Exception e) {
+            LOG.error("Could not authenticate: %s", e.getMessage());
+            return false;
         }
-
-        redditClient.authenticate(oAuthData);
 
         return isAuthenticated(redditClient);
     }

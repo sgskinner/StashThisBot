@@ -14,13 +14,13 @@ import org.sgs.stashbot.util.TimeUtils;
 public abstract class ArchiveServiceBase implements ArchiveService {
     private static final Logger LOG = LogManager.getLogger(ArchiveService.class);
 
-    protected abstract void executeHttpTransaction(StashUrl stashUrl);
+    protected abstract void executeHttpTransactions(StashUrl stashUrl);
 
 
     @Override
     public StashResult archive(StashResult stashResult) {
         for (StashUrl stashUrl : stashResult.getStashUrls()) {
-            executeHttpTransaction(stashUrl);
+            executeHttpTransactions(stashUrl);
         }
 
         stashResult.setServicedDate(TimeUtils.getTimeGmt());

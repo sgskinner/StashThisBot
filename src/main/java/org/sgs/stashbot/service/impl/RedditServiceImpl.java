@@ -43,10 +43,18 @@ import net.dean.jraw.models.Message;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.Thing;
 import net.dean.jraw.paginators.InboxPaginator;
-import net.dean.jraw.paginators.Paginator;
-import net.dean.jraw.paginators.SubredditPaginator;
 
 
+/**
+ * A wrapper class around JRAW's RedditClient, with contained methods
+ * for the very specific use cases of the StashThisBot.
+ *
+ * Note: There is a ton of exception handeling here, and the nature of
+ * the app is that a StashResult is saved for every summons. Thus, if
+ * we see a failure in here that is logged instead of throwing an
+ * exception up, that same summons is recorded in the DB so we won't
+ * perpetually reply to the same summons (for instance).
+ */
 @Service
 public class RedditServiceImpl implements RedditService {
     private static final Logger LOG = LogManager.getLogger(RedditServiceImpl.class);
@@ -59,32 +67,6 @@ public class RedditServiceImpl implements RedditService {
     public RedditServiceImpl(AuthService authService, RedditClient redditClient) {
         this.authService = authService;
         this.redditClient = redditClient;
-    }
-
-
-    @Override
-    public Listing<Submission> getSubredditSubmissions(String subredditName) {
-        SubredditPaginator paginator = new SubredditPaginator(getRedditClient());
-        paginator.setSubreddit(subredditName);
-        paginator.setLimit(Paginator.RECOMMENDED_MAX_LIMIT);
-        return paginator.next();
-    }
-
-
-    /*
-     * Necessary due to reddit api: the Paginator only returns the root submission, and
-     * doesn't set any of the comment data. This requires an explicit call to the RedditClient
-     * with the Submission's id, as detailed by the JRAW maintainers:
-     * https://web.archive.org/web/20170716202732/https://github.com/thatJavaNerd/JRAW/issues/29
-     */
-    @Override
-    public Submission getFullSubmissionData(Submission submission) {
-        if (submission == null || submission.getCommentCount() < 1) {
-            LOG.info("No comments to fetch for submission: " + (submission == null ? null : submission.getUrl()));
-            return null;
-        }
-
-        return getRedditClient().getSubmission(submission.getId());
     }
 
 
@@ -102,33 +84,63 @@ public class RedditServiceImpl implements RedditService {
 
     @Override
     public void postStashResult(StashResult stashResult) {
-
         AccountManager accountManager = new AccountManager(redditClient);
         try {
             String postText = StashResultPostFormatter.format(stashResult);
             accountManager.reply(stashResult.getSummoningComment(), postText);
-        } catch (ApiException e) {
-            LOG.warn("Reddit API barfed on posting a reply to comment with ID: " + stashResult.getSummoningComment());
+        } catch (Exception e) {
+            LOG.error("Could not post reply to summons (url: %d): %s",
+                    stashResult.getSummoningComment().getUrl(),
+                    e.getMessage());
         }
-
     }
 
 
     @Override
     public Listing<Message> getUnreadMessages() {
-        FluentRedditClient client = new FluentRedditClient(redditClient);
-        AuthenticatedUserReference userRef = client.me();
-        InboxReference inbox = userRef.inbox();
+
+        FluentRedditClient client;
+        try {
+            client = new FluentRedditClient(redditClient);
+        } catch (Exception e) {
+            LOG.error("Could not instantiate fluent client to check mail: %s", e.getMessage());
+            return new Listing<>(Message.class);
+        }
+
+        AuthenticatedUserReference userRef;
+        try {
+            userRef = client.me();
+        } catch (Exception e) {
+            LOG.error("Could not get self user-ref: %s", e.getMessage());
+            return new Listing<>(Message.class);
+        }
+
+        InboxReference inbox;
+        try {
+            inbox = userRef.inbox();
+        } catch (Exception e) {
+            LOG.error("Could not get reference to inbox: %s", e.getMessage());
+            return new Listing<>(Message.class);
+        }
 
         InboxPaginator inboxPaginator;
         try {
             inboxPaginator = inbox.read();
         } catch (Exception e) {
-            LOG.error(e);
+            LOG.error("Could not read inbox: %s", e.getMessage());
             return new Listing<>(Message.class);
         }
 
-        return inboxPaginator.next(true);
+        // This is where we finally get the actual listing
+        Listing<Message> listing;
+        try {
+            listing = inboxPaginator.next(true);
+        } catch (Exception e) {
+            LOG.error("Could not get inbox message listing: %s", e.getMessage());
+            return new Listing<>(Message.class);
+        }
+
+        return listing;
     }
 
 
@@ -140,9 +152,16 @@ public class RedditServiceImpl implements RedditService {
             return null;
         }
 
-        Listing<Thing> listing = getRedditClient().get(id);
+        Listing<Thing> listing;
+        try {
+            listing = getRedditClient().get(id);
+        } catch (Exception e) {
+            LOG.error("Could not get summoning comment with id(%s): %s", id, e.getMessage());
+            return null;
+        }
+
         if (listing == null || listing.size() == 0) {
-            LOG.warn("No Comment returned for passed in Message: %s", message.getFullName());
+            LOG.error("No Comment returned for passed in Message: %s", message.getFullName());
             return null;
         }
 
@@ -152,8 +171,16 @@ public class RedditServiceImpl implements RedditService {
 
     @Override
     public Submission getSubmissionById(String submissionId) {
-        Listing<Thing> listing = getRedditClient().get(submissionId);
+        Listing<Thing> listing;
+        try {
+            listing = getRedditClient().get(submissionId);
+        } catch (Exception e) {
+            LOG.error("Could not get subbmission by id(%s): %s", submissionId, e.getMessage());
+            return null;
+        }
+
         if (listing == null || listing.size() == 0) {
+            LOG.warn("Submission with id(%s) came back null or empty.", submissionId);
             return null;
         }
 
@@ -163,10 +190,38 @@ public class RedditServiceImpl implements RedditService {
 
     @Override
     public void markMessageRead(Message message) {
-        FluentRedditClient client = new FluentRedditClient(redditClient);
-        AuthenticatedUserReference userRef = client.me();
-        InboxReference inbox = userRef.inbox();
-        inbox.readMessage(true, message);
+        FluentRedditClient client;
+        try {
+            client = new FluentRedditClient(redditClient);
+        } catch (Exception e) {
+            LOG.error("Could not get fluent client to mark message with id(%s) as read: %s",
+                    message.getId(), e.getMessage());
+            return;
+        }
+
+        AuthenticatedUserReference userRef;
+        try {
+            userRef = client.me();
+        } catch (Exception e) {
+            LOG.error("Could not get self user-ref while marking message with id(%s) as read: %s",
+                    message.getId(), e.getMessage());
+            return;
+        }
+
+        InboxReference inbox;
+        try {
+            inbox = userRef.inbox();
+        } catch (Exception e) {
+            LOG.error("Could not get inbox reference while marking message with id(%s) as read: %s",
+                    message.getId(), e.getMessage());
+            return;
+        }
+
+        try {
+            inbox.readMessage(true, message);
+        } catch (Exception e) {
+            LOG.error("Could not mark message with id(%s) as read: %s", message.getId(), e.getMessage());
+        }
     }
 
 
@@ -178,7 +233,13 @@ public class RedditServiceImpl implements RedditService {
             return null;
         }
 
-        Listing<Thing> listing = getRedditClient().get(targetId);
+        Listing<Thing> listing = null;
+        try {
+            listing = getRedditClient().get(targetId);
+        } catch (Exception e) {
+            LOG.error("Could not get listing for target reddit Thing with id(%s): %s", targetId, e.getMessage());
+        }
+
         if (listing == null || listing.size() == 0) {
             LOG.warn("No comment returned for passed in Message: %s", message.getFullName());
             return null;
@@ -194,14 +255,34 @@ public class RedditServiceImpl implements RedditService {
         String subject = "StashThis Result";
         String body = StashResultPostFormatter.format(stashResult);
 
-        FluentRedditClient client = new FluentRedditClient(redditClient);
-        AuthenticatedUserReference userRef = client.me();
-        InboxReference inbox = userRef.inbox();
+        FluentRedditClient client;
+        try {
+            client = new FluentRedditClient(redditClient);
+        } catch (Exception e) {
+            LOG.error("Could not instantiate fluent client to check mail: %s", e.getMessage());
+            return;
+        }
+
+        AuthenticatedUserReference userRef;
+        try {
+            userRef = client.me();
+        } catch (Exception e) {
+            LOG.error("Could not get self user-ref: %s", e.getMessage());
+            return;
+        }
+
+        InboxReference inbox;
+        try {
+            inbox = userRef.inbox();
+        } catch (Exception e) {
+            LOG.error("Could not get inbox ref when trying to send PM: %s", e.getMessage());
+            return;
+        }
 
         try {
             inbox.compose(to, subject, body);
-        } catch (ApiException e) {
-            LOG.error("Reddit API puked while PM'ing a summoner: %s", e.getMessage());
+        } catch (Exception e) {
+            LOG.error("Could not send PM to summoner: %s", e.getMessage());
         }
     }
 
