@@ -41,7 +41,7 @@ sftp-config.json
 # Ignore maven build dirs
 **/target/
 
-# Credentials added in scrubbed state, now ignore to prevent accidental checkin
+# Never committed, there is a stubbed security.properties.example of what this should be
 **/security.properties
 
 # Genertated when building shaded project jar

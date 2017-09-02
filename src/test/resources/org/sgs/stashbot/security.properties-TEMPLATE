@@ -1,0 +1,31 @@
+# This file is an example security.properties that org.sgs.stashbot.spring.StashThisConfiguration
+# pulls sensitve properties from. This repo's gitignore file has an entry for security.properties;
+# this is to try and prevent a security leak from happening (e.g., accidentally committing credentials).
+# this is to prevent accidental checking of sensitive info.
+#
+# Directions for use:
+#
+# First, copy this file to:
+# src/main/resources/org/sgs/stashbot/security.properties
+# (i.e., the same dir as this file)
+#
+# Next, replace all occurences of 'CHANGEME' to real values, and that's it. The Spring framework
+# will autowire these properties into the appropriate locations at runtime.
+
+# Reddit secrets
+reddit.username=CHANGEME
+reddit.password=CHANGEME
+reddit.clientId=CHANGEME
+reddit.clientSecret=CHANGEME
+reddit.redirectUrl=CHANGEME
+
+# The DB connection that StashThisBot will use in the main application
+jdbc.driverClassName=com.mysql.jdbc.Driver
+jdbc.username=CHANGEME
+jdbc.password=CHANGEME
+jdbc.url=CHANGEME
+
+# The connection used to create/bootstrap the DB
+jdbc.root.url=CHANGEME
+jdbc.root.username=CHANGEME
+jdbc.root.password=CHANGEME
