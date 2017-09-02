@@ -84,7 +84,7 @@
                             </filters>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.sgs.stashbot.StashThisBot</mainClass>
+                                    <mainClass>org.sgs.stashbot.app.StashThisBot</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

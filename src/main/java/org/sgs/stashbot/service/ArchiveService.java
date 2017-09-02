@@ -25,5 +25,5 @@ import org.sgs.stashbot.model.StashResult;
 
 
 public interface ArchiveService {
-    StashResult archive(StashResult stashResult);
+    void archive(StashResult stashResult);
 }

@@ -23,6 +23,8 @@ package org.sgs.stashbot;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.sgs.stashbot.app.StashThisBot;
+import org.sgs.stashbot.service.RedditService;
 import org.sgs.stashbot.spring.SpringContext;
 
 import net.dean.jraw.http.UserAgent;
@@ -39,9 +41,9 @@ public class AppBootstrapTest {
 
     @Test
     public void testOauth() {
-        StashThisBot bot = SpringContext.getBean(StashThisBot.class);
-        bot.performAuth();
-        Assert.assertTrue("Authentication has failed!", bot.isAuthenticated());
+        RedditService redditService = SpringContext.getBean(RedditService.class);
+        boolean success = redditService.performAuth();
+        Assert.assertTrue("Authentication has failed!", success && redditService.isAuthenticated());
     }
 
     @Test

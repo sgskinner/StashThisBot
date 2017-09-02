@@ -32,8 +32,8 @@ public class DbDataLoader {
     private static final Logger LOG = LogManager.getLogger(DbDataLoader.class);
     private static final int BATCH_SIZE = 1000;
 
-    private DataSource dataSource;
-    private DataSource rootDataSource;
+    private final DataSource dataSource;
+    private final DataSource rootDataSource;
 
 
     @Autowired

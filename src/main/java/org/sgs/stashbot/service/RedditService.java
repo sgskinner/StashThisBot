@@ -31,7 +31,7 @@ import net.dean.jraw.models.Message;
 import net.dean.jraw.models.Submission;
 
 public interface RedditService {
-    void performAuth();
+    boolean performAuth();
 
     boolean isAuthenticated();
 

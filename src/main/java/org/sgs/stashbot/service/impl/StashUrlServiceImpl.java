@@ -14,9 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class StashUrlServiceImpl implements StashUrlService {
-
-
-    final StashUrlDao dao;
+    private final StashUrlDao dao;
 
 
     @Autowired
@@ -27,31 +25,31 @@ public class StashUrlServiceImpl implements StashUrlService {
 
     @Override
     public List<StashUrl> findAll() {
-        return null;
+        return dao.findAll();
     }
 
 
     @Override
     public StashUrl findById(BigInteger id) {
-        return null;
+        return dao.findById(id);
     }
 
 
     @Override
     public void save(StashUrl stashUrl) {
-
+        dao.save(stashUrl);
     }
 
 
     @Override
     public void delete(StashUrl stashUrl) {
-
+        dao.delete(stashUrl);
     }
 
 
     @Override
     public void update(StashUrl stashUrl) {
-
+        dao.update(stashUrl);
     }
 
 }

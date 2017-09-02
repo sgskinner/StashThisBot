@@ -23,7 +23,8 @@ public class PersistenceServiceTest extends GeneratorTestBase {
     @Test
     public void testFormatter() {
         StashResult stashResult = generateDummyStashResult();
-        String output = StashResultPostFormatter.format(stashResult);
+        StashResultPostFormatter stashResultPostFormatter = new StashResultPostFormatter();
+        String output = stashResultPostFormatter.format(stashResult);
         System.out.println(output);
     }
 

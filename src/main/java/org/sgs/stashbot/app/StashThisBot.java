@@ -19,7 +19,7 @@
  * Copyright (C) 2017  S.G. Skinner
  */
 
-package org.sgs.stashbot;
+package org.sgs.stashbot.app;
 
 
 import java.util.List;
@@ -29,15 +29,15 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.AuthPollingTime;
 import org.sgs.stashbot.model.Postable;
-import org.sgs.stashbot.service.BlacklistedSubredditService;
-import org.sgs.stashbot.service.StashResultService;
+import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.service.ArchiveService;
 import org.sgs.stashbot.service.AuthTimeService;
+import org.sgs.stashbot.service.BlacklistedSubredditService;
 import org.sgs.stashbot.service.RedditService;
 import org.sgs.stashbot.service.RedditTimeService;
+import org.sgs.stashbot.service.StashResultService;
 import org.sgs.stashbot.service.UserService;
 import org.sgs.stashbot.spring.SpringContext;
 import org.sgs.stashbot.util.TimeUtils;
@@ -258,24 +258,18 @@ public class StashThisBot {
 
 
     protected boolean performAuth() {
+        LOG.info("********************************************************************************");
         LOG.info("Attempting reddit authentication...");
-        boolean success;
         AuthPollingTime time = new AuthPollingTime();
         time.setDate(TimeUtils.getTimeGmt());
 
-        getRedditService().performAuth();
-
-        if (isAuthenticated()) {
-            success = true;
-        } else {
-            LOG.warn("Could not authenticate!");
-            success = false;
-        }
+        boolean success = getRedditService().performAuth();
+        success &= isAuthenticated();
 
         time.setSuccess(success);
         getAuthTimeService().save(time);
 
-        LOG.info("Authentication returned: " + success);
+        LOG.info("Authentication attempt was successful: %s", success);
         return success;
     }
 
@@ -320,12 +314,41 @@ public class StashThisBot {
     }
 
 
+    public void resetKillSwitch() {
+        this.killSwitchClick = false;
+    }
+
+
     public static void main(String... sgs) {
+        LOG.info("################################################################################");
         LOG.info("Intializing bot...");
         StashThisBot stashbot = SpringContext.getBean(StashThisBot.class);
 
-        LOG.info("Intializing complete, starting main loop.");
-        stashbot.run();
+        int backoffTime = 10*1000; // 10 seconds
+        //noinspection InfiniteLoopStatement
+        while (true) {
+            try {
+                LOG.info("Starting main loop.");
+                stashbot.run();
+            } catch (Throwable t) {
+                LOG.fatal("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                LOG.fatal("Main loop has tanked: %s", t.getMessage());
+            }
+
+            try {
+                LOG.fatal("Sleeping for %d seconds...", backoffTime/1000);
+                Thread.sleep(backoffTime);
+            } catch (InterruptedException e) {
+                LOG.fatal("Backoff sleep interupted!: %s", e.getMessage());
+            }
+
+            // TODO: implement logic to detect when to reset this
+            // Exponential backoff
+            backoffTime *= 2;
+
+            stashbot.resetKillSwitch();
+        }
+
     }
 
 }

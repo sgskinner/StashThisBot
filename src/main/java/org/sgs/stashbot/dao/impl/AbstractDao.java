@@ -1,4 +1,4 @@
-package org.sgs.stashbot.dao;
+package org.sgs.stashbot.dao.impl;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;

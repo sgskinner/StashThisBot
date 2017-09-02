@@ -31,7 +31,6 @@ import org.sgs.stashbot.util.StashResultPostFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.fluent.AuthenticatedUserReference;
 import net.dean.jraw.fluent.FluentRedditClient;
@@ -61,18 +60,20 @@ public class RedditServiceImpl implements RedditService {
 
     private final AuthService authService;
     private final RedditClient redditClient;
+    private final StashResultPostFormatter stashResultPostFormatter;
 
 
     @Autowired
-    public RedditServiceImpl(AuthService authService, RedditClient redditClient) {
+    public RedditServiceImpl(AuthService authService, RedditClient redditClient, StashResultPostFormatter stashResultPostFormatter) {
         this.authService = authService;
         this.redditClient = redditClient;
+        this.stashResultPostFormatter = stashResultPostFormatter;
     }
 
 
     @Override
-    public void performAuth() {
-        getAuthService().authenticate(getRedditClient());
+    public boolean performAuth() {
+        return getAuthService().authenticate(getRedditClient());
     }
 
 
@@ -86,7 +87,7 @@ public class RedditServiceImpl implements RedditService {
     public void postStashResult(StashResult stashResult) {
         AccountManager accountManager = new AccountManager(redditClient);
         try {
-            String postText = StashResultPostFormatter.format(stashResult);
+            String postText = stashResultPostFormatter.format(stashResult);
             accountManager.reply(stashResult.getSummoningComment(), postText);
         } catch (Exception e) {
             LOG.error("Could not post reply to summons (url: %d): %s",
@@ -253,7 +254,7 @@ public class RedditServiceImpl implements RedditService {
     public void deliverStashResultByMessage(StashResult stashResult) {
         String to = stashResult.getSummoningCommentAuthor();
         String subject = "StashThis Result";
-        String body = StashResultPostFormatter.format(stashResult);
+        String body = stashResultPostFormatter.format(stashResult);
 
         FluentRedditClient client;
         try {

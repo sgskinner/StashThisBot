@@ -2,7 +2,6 @@ package org.sgs.stashbot.dao.impl;
 
 import java.math.BigInteger;
 
-import org.sgs.stashbot.dao.AbstractDao;
 import org.sgs.stashbot.dao.AuthTimeServiceDao;
 import org.sgs.stashbot.model.AuthPollingTime;
 import org.springframework.stereotype.Repository;

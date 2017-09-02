@@ -26,16 +26,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 
 public final class SpringContext {
-    private static ApplicationContext context = new AnnotationConfigApplicationContext(StashThisConfiguration.class);
+    private static final ApplicationContext context = new AnnotationConfigApplicationContext(StashThisConfiguration.class);
 
-
-    @SuppressWarnings("unchecked")
-    public static <T> T getBeanById(String beanId) {
-        return (T) context.getBean(beanId);
-    }
-
-
-    @SuppressWarnings("unchecked")
     public static <T> T getBean(Class<T> clazz) {
         return context.getBean(clazz);
     }

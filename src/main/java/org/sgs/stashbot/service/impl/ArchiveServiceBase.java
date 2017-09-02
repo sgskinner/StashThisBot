@@ -18,14 +18,12 @@ public abstract class ArchiveServiceBase implements ArchiveService {
 
 
     @Override
-    public StashResult archive(StashResult stashResult) {
+    public void archive(StashResult stashResult) {
         for (StashUrl stashUrl : stashResult.getStashUrls()) {
             executeHttpTransactions(stashUrl);
         }
 
         stashResult.setServicedDate(TimeUtils.getTimeGmt());
-
-        return stashResult;
     }
 
 

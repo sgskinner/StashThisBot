@@ -3,7 +3,6 @@ package org.sgs.stashbot.dao.impl;
 import java.math.BigInteger;
 import java.util.List;
 
-import org.sgs.stashbot.dao.AbstractDao;
 import org.sgs.stashbot.dao.BlacklistedSubredditDao;
 import org.sgs.stashbot.model.BlacklistedSubreddit;
 import org.springframework.stereotype.Repository;

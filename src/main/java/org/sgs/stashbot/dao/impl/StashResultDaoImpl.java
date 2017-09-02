@@ -3,7 +3,6 @@ package org.sgs.stashbot.dao.impl;
 import java.math.BigInteger;
 import java.util.List;
 
-import org.sgs.stashbot.dao.AbstractDao;
 import org.sgs.stashbot.dao.StashResultDao;
 import org.sgs.stashbot.model.StashResult;
 import org.springframework.stereotype.Repository;

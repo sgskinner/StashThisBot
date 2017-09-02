@@ -30,7 +30,8 @@ import net.dean.jraw.http.oauth.Credentials;
 @Configuration
 @EnableTransactionManagement
 @PropertySource(value = {"classpath:org/sgs/stashbot/stashbot.properties", "classpath:org/sgs/stashbot/security.properties"})
-@ComponentScan({"org.sgs.stashbot"})
+@ComponentScan({"org.sgs.stashbot.model", "org.sgs.stashbot.service.impl", "org.sgs.stashbot.dao.impl",
+        "org.sgs.stashbot.spring", "org.sgs.stashbot.app", "org.sgs.stashbot.util"})
 public class StashThisConfiguration {
     private final Environment environment;
 
@@ -52,6 +53,7 @@ public class StashThisConfiguration {
     }
 
 
+    // Used for bootstrapping DB
     @Bean(name = "rootDataSource")
     public DataSource rootDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -67,7 +69,8 @@ public class StashThisConfiguration {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource());
-        factoryBean.setPackagesToScan(new String[]{"org.sgs.stashbot.model", "org.sgs.stashbot.service", "org.sgs.stashbot.service.impl"});
+        factoryBean.setPackagesToScan("org.sgs.stashbot.model", "org.sgs.stashbot.service.impl", "org.sgs.stashbot.dao.impl",
+                "org.sgs.stashbot.spring", "org.sgs.stashbot.app", "org.sgs.stashbot.util");
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
         factoryBean.setJpaProperties(jpaProperties());
         return factoryBean;
@@ -103,7 +106,7 @@ public class StashThisConfiguration {
 
     @Bean
     public UserAgent getUserAgent() {
-        return UserAgent.of("desktop", "org.sgs.stashbot", "0.1.1", "StashThis");
+        return UserAgent.of("desktop", "org.sgs.stashbot", getStashbotVersion(), "StashThis");
     }
 
 
@@ -116,6 +119,12 @@ public class StashThisConfiguration {
     @Bean(name = "botsRedditUsername")
     public String getBotsRedditUsername() {
         return environment.getRequiredProperty("reddit.username");
+    }
+
+
+    @Bean(name = "stashbotVersion")
+    public String getStashbotVersion() {
+        return environment.getRequiredProperty("stashbot.version");
     }
 
 

@@ -1,17 +1,25 @@
 package org.sgs.stashbot.util;
 
+import javax.annotation.Resource;
+
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.StashUrl;
+import org.springframework.stereotype.Component;
 
+
+@Component
 public class StashResultPostFormatter {
-    private static final String FOOTER = "^[FAQ](https://np.reddit.com/r/StashThis/wiki/index)&nbsp;| ^[Source&nbsp;Code](https://github.com/sgskinner/StashThisBot)&nbsp;| ^[PM&nbsp;Developer](https://www.reddit.com/message/compose?to=sgskinner&subject=StashThisBot)&nbsp;| ^v0.1.1";
+    private static final String FOOTER = "^[FAQ](https://np.reddit.com/r/StashThis/wiki/index)&nbsp;| ^[Source&nbsp;Code](https://github.com/sgskinner/StashThisBot)&nbsp;| ^[PM&nbsp;Developer](https://www.reddit.com/message/compose?to=sgskinner&subject=StashThisBot)&nbsp;| ^v%s";
     private static final String LINK_LINE_SUCCESS = "1. [Original](%s) --> [Stashed](%s) (%s)";
     private static final String LINK_LINE_FAILURE = "1. [Original](%s) --> [Stash Failed!](%s)";
     private static final String FAILURE_HELP_NOTE = "(Please see the wiki [here](https://www.reddit.com/r/StashThis/wiki/index#wiki_failures) about stash failures, and/or reproduce the failure by clicking the 'Stash Failed!' link.)";
     private static final String LINE = "-----";
 
+    @Resource(name = "stashbotVersion")
+    private String stashbotVersion;
 
-    public static String format(StashResult stashResult) {
+
+    public String format(StashResult stashResult) {
         StringBuilder sb = new StringBuilder();
         sb.append("**Stashed:**");
         sb.append(System.lineSeparator());
@@ -41,9 +49,13 @@ public class StashResultPostFormatter {
 
         sb.append(LINE);
         sb.append(System.lineSeparator());
-        sb.append(FOOTER);
+        sb.append(String.format(FOOTER, getStashbotVersion()));
 
         return sb.toString();
     }
 
+
+    private String getStashbotVersion() {
+        return stashbotVersion;
+    }
 }

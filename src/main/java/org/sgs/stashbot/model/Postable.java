@@ -6,7 +6,7 @@ import net.dean.jraw.models.Thing;
 
 public class Postable {
 
-    private Thing thing;
+    private final Thing thing;
 
 
     public Postable(Thing thing) {

@@ -32,8 +32,6 @@ public class AuthPollingTime implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-
-
     public BigInteger getId() {
         return id;
     }
