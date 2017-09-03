@@ -341,8 +341,8 @@ public class StashThisBot implements HealthCheckableService {
                 LOG.fatal("Main loop has tanked: %s", t.getMessage());
             }
 
+            LOG.fatal("Sleeping for %d seconds...", currentBackoffTime/1000);
             try {
-                LOG.fatal("Sleeping for %d seconds...", currentBackoffTime/1000);
                 Thread.sleep(currentBackoffTime);
             } catch (InterruptedException e) {
                 LOG.fatal("Backoff sleep interupted!: %s", e.getMessage());
@@ -357,8 +357,7 @@ public class StashThisBot implements HealthCheckableService {
             }
 
             stashbot.resetKillSwitch();
-        }
-
+        }//while
     }
 
 }
