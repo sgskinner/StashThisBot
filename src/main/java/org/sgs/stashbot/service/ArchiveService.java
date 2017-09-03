@@ -24,6 +24,6 @@ package org.sgs.stashbot.service;
 import org.sgs.stashbot.model.StashResult;
 
 
-public interface ArchiveService {
+public interface ArchiveService extends HealthCheckableService {
     void archive(StashResult stashResult);
 }

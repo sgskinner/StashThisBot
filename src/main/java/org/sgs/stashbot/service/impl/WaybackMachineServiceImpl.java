@@ -69,4 +69,27 @@ public class WaybackMachineServiceImpl extends ArchiveServiceBase {
 
     }
 
+
+    @Override
+    public boolean isHealthy() {
+        CloseableHttpClient client = HttpClientBuilder.create().build();
+        HttpHead headMethod = new HttpHead(WAYBACK_ROOT_URL);
+        CloseableHttpResponse response = null;
+        try {
+            response = client.execute(headMethod);
+
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                LOG.info("Health check failed, got response code: %d: ", statusCode);
+            }
+        } catch (Throwable t) {
+            LOG.info("Health check failed, caught exception: " + t.getMessage());
+            return false;
+        } finally {
+            closeHttpObjects(response, client);
+        }
+
+        return true;
+    }
+
 }

@@ -35,6 +35,7 @@ import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.service.ArchiveService;
 import org.sgs.stashbot.service.AuthTimeService;
 import org.sgs.stashbot.service.BlacklistedSubredditService;
+import org.sgs.stashbot.service.HealthCheckableService;
 import org.sgs.stashbot.service.RedditService;
 import org.sgs.stashbot.service.RedditTimeService;
 import org.sgs.stashbot.service.StashResultService;
@@ -52,7 +53,7 @@ import net.dean.jraw.models.Submission;
 
 
 @Component
-public class StashThisBot {
+public class StashThisBot implements HealthCheckableService {
     private static final Logger LOG = LogManager.getLogger(StashThisBot.class);
     private static final long AUTH_SLEEP_INTERVAL = 10 * 1000; // 10 seconds in millis
     private static final long SUBMISSION_POLLING_INTERVAL = 10 * 1000; // 10 seconds in millis
@@ -273,6 +274,10 @@ public class StashThisBot {
         return success;
     }
 
+    @Override
+    public boolean isHealthy() {
+        return getRedditService().isHealthy() && getArchiveService().isHealthy();
+    }
 
     protected boolean isAuthenticated() {
         return getRedditService().isAuthenticated();
@@ -324,7 +329,8 @@ public class StashThisBot {
         LOG.info("Intializing bot...");
         StashThisBot stashbot = SpringContext.getBean(StashThisBot.class);
 
-        int backoffTime = 10*1000; // 10 seconds
+        final int baseBackoffTime = 10*1000; // 10 seconds
+        int currentBackoffTime = baseBackoffTime;
         //noinspection InfiniteLoopStatement
         while (true) {
             try {
@@ -336,15 +342,19 @@ public class StashThisBot {
             }
 
             try {
-                LOG.fatal("Sleeping for %d seconds...", backoffTime/1000);
-                Thread.sleep(backoffTime);
+                LOG.fatal("Sleeping for %d seconds...", currentBackoffTime/1000);
+                Thread.sleep(currentBackoffTime);
             } catch (InterruptedException e) {
                 LOG.fatal("Backoff sleep interupted!: %s", e.getMessage());
             }
 
-            // TODO: implement logic to detect when to reset this
-            // Exponential backoff
-            backoffTime *= 2;
+            // Set backoff based on if remote services are healthy (this health check cascades)
+            if (stashbot.isHealthy()) {
+                currentBackoffTime = baseBackoffTime;
+            } else {
+                // Exponential backoff
+                currentBackoffTime *= 2;
+            }
 
             stashbot.resetKillSwitch();
         }

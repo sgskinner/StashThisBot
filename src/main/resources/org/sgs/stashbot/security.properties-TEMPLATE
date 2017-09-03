@@ -1,7 +1,6 @@
 # This file is an example security.properties that org.sgs.stashbot.spring.StashThisConfiguration
 # pulls sensitve properties from. This repo's gitignore file has an entry for security.properties;
 # this is to try and prevent a security leak from happening (e.g., accidentally committing credentials).
-# this is to prevent accidental checking of sensitive info.
 #
 # Directions for use:
 #

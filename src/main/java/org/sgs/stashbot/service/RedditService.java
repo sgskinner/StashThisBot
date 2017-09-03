@@ -30,7 +30,7 @@ import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Message;
 import net.dean.jraw.models.Submission;
 
-public interface RedditService {
+public interface RedditService extends HealthCheckableService {
     boolean performAuth();
 
     boolean isAuthenticated();

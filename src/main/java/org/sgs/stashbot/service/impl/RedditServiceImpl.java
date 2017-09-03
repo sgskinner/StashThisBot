@@ -288,12 +288,40 @@ public class RedditServiceImpl implements RedditService {
     }
 
 
+    @Override
+    public boolean isHealthy() {
+        if (!getAuthService().authenticate(getRedditClient())) {
+            return false;
+        } else if (!isRedditHealthy()) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    private boolean isRedditHealthy() {
+        try {
+            FluentRedditClient client = new FluentRedditClient(redditClient);
+            AuthenticatedUserReference userRef = client.me();
+            InboxReference inbox = userRef.inbox();
+            InboxPaginator inboxPaginator = inbox.read();
+            inboxPaginator.next(true);
+        } catch (Throwable t) {
+            LOG.info("Health check failed: %s", t.getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+
     private RedditClient getRedditClient() {
         return redditClient;
     }
 
 
-    public AuthService getAuthService() {
+    private AuthService getAuthService() {
         return authService;
     }
 

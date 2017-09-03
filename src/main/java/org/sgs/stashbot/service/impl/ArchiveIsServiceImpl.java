@@ -30,6 +30,7 @@ import org.htmlcleaner.DomSerializer;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.sgs.stashbot.model.StashUrl;
+import org.sgs.stashbot.service.HealthCheckableService;
 import org.sgs.stashbot.util.TimeUtils;
 import org.sgs.stashbot.util.UrlMatcher;
 import org.springframework.context.annotation.Primary;
@@ -42,7 +43,7 @@ import org.w3c.dom.Document;
  */
 @Primary
 @Service
-public class ArchiveIsServiceImpl extends ArchiveServiceBase {
+public class ArchiveIsServiceImpl extends ArchiveServiceBase implements HealthCheckableService {
     private static final Logger LOG = LogManager.getLogger(ArchiveIsServiceImpl.class);
     private static final String XPATH_TO_SUBMIT_ID = "//*[@id=\"submiturl\"]/input/@value";
     private static final String HEADER_LOCATION_KEY = "Location";
@@ -168,6 +169,44 @@ public class ArchiveIsServiceImpl extends ArchiveServiceBase {
         }
 
         return archivedLink;
+    }
+
+
+    @Override
+    public boolean isHealthy() {
+        HttpGet getMethod = new HttpGet(GET_REQUEST_URL);
+
+        CloseableHttpResponse response = null;
+        CloseableHttpClient httpClient = null;
+        try {
+            httpClient = HttpClientBuilder.create().build();
+            response = httpClient.execute(getMethod);
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            if (statusCode != HttpStatus.SC_OK) {
+                LOG.info("Health check failed, got response code: %d", statusCode);
+                return false;
+            }
+
+            String htmlContents = EntityUtils.toString(response.getEntity());
+            TagNode tagNode = new HtmlCleaner().clean(htmlContents);
+            Document doc = new DomSerializer(new CleanerProperties()).createDOM(tagNode);
+
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            String submitId = (String) xpath.evaluate(XPATH_TO_SUBMIT_ID, doc, XPathConstants.STRING);
+
+            if (StringUtils.isBlank(submitId)) {
+                LOG.info("Health check failed, submitId token was null or empty.");
+                return false;
+            }
+
+        } catch (Throwable t) {
+            LOG.info("Health check failed, exception thrown: %s", t.getMessage());
+        } finally {
+            closeHttpObjects(response, httpClient);
+        }
+
+        return true;
     }
 
 
