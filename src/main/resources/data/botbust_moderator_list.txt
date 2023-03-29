@@ -1,3 +1,4 @@
+ArchiveThisBotSandbox
 Music
 DIY
 Jokes
@@ -432,3 +433,8 @@ tsrotd
 Zika_fr
 MotivationalComics
 toobox
+exmormon
+botwatch
+botiquette
+borwatch
+botwatch

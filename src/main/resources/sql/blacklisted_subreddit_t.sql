@@ -1,3 +1,4 @@
+insert into blacklisted_subreddit_t (name, date_created, note) values('ArchiveThisBotSandbox', now(), 'SGS: Added for testing.');
 insert into blacklisted_subreddit_t (name, date_created, note) values('Music', now(), '/u/BotBust moderator list');
 insert into blacklisted_subreddit_t (name, date_created, note) values('DIY', now(), '/u/BotBust moderator list');
 insert into blacklisted_subreddit_t (name, date_created, note) values('Jokes', now(), '/u/BotBust moderator list');
@@ -432,3 +433,8 @@ insert into blacklisted_subreddit_t (name, date_created, note) values('tsrotd', 
 insert into blacklisted_subreddit_t (name, date_created, note) values('Zika_fr', now(), '/u/BotBust moderator list');
 insert into blacklisted_subreddit_t (name, date_created, note) values('MotivationalComics', now(), '/u/BotBust moderator list');
 insert into blacklisted_subreddit_t (name, date_created, note) values('toobox', now(), '/u/BotBust moderator list');
+insert into blacklisted_subreddit_t (name, date_created, note) values('exmormon', now(), '/u/BotBust moderator list');
+insert into blacklisted_subreddit_t (name, date_created, note) values('botwatch', now(), '/u/BotBust moderator list');
+insert into blacklisted_subreddit_t (name, date_created, note) values('botiquette', now(), '/u/BotBust moderator list');
+insert into blacklisted_subreddit_t (name, date_created, note) values('borwatch', now(), '/u/BotBust moderator list');
+insert into blacklisted_subreddit_t (name, date_created, note) values('botwatch', now(), '/u/BotBust moderator list');
