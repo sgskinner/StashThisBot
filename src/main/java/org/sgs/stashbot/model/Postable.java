@@ -4,14 +4,7 @@ import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.Thing;
 
-public class Postable {
-
-    private final Thing thing;
-
-
-    public Postable(Thing thing) {
-        this.thing = thing;
-    }
+public record Postable(Thing thing) {
 
 
     public String getId() {
@@ -23,7 +16,7 @@ public class Postable {
         if (isComment()) {
             return ((Comment) thing).getAuthor();
         } else {
-            return ((Submission)thing).getAuthor();
+            return ((Submission) thing).getAuthor();
         }
     }
 
@@ -34,7 +27,7 @@ public class Postable {
         } else {
             // We are a Submission, but we need to figure out if we're a self post,
             // or link submission, and then handle it
-            Submission submission = (Submission)thing;
+            Submission submission = (Submission) thing;
             if (submission.isSelfPost()) {
                 return submission.getSelftext();
             } else {
@@ -48,13 +41,8 @@ public class Postable {
         if (isComment()) {
             return ((Comment) thing).getUrl();
         } else {
-            return ((Submission)thing).getUrl();
+            return ((Submission) thing).getUrl();
         }
-    }
-
-
-    public Thing getThing() {
-        return thing;
     }
 
 

@@ -4,15 +4,10 @@ import java.math.BigInteger;
 import java.util.List;
 
 import org.sgs.stashbot.model.StashUrl;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface StashUrlDao {
-    List<StashUrl> findAll();
 
-    StashUrl findById(BigInteger id);
-
-    void save(StashUrl stashUrl);
-
-    void delete(StashUrl stashUrl);
-
-    void update(StashUrl stashUrl);
+@Repository
+public interface StashUrlDao extends JpaRepository<StashUrl, BigInteger> {
 }

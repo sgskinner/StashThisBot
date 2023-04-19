@@ -15,21 +15,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * StashThisBot - Summon this bot to archive URLs in an archive service.
+ * StashThisService - Summon this bot to stash URLs in an archive service.
  * Copyright (C) 2017  S.G. Skinner
  */
 
-package org.sgs.stashbot.spring;
+package org.sgs.stashbot.service;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
-public final class SpringContext {
-    private static final ApplicationContext context = new AnnotationConfigApplicationContext(StashThisConfiguration.class);
+@SpringBootTest
+public class RedditServiceTest {
 
-    public static <T> T getBean(Class<T> clazz) {
-        return context.getBean(clazz);
+    @Autowired
+    private RedditService redditService;
+
+    @Test
+    public void testOauth() {
+        assertThat(redditService).isNotNull();
+        assertThat(redditService.performAuth()).isTrue();
+        assertThat(redditService.isAuthenticated()).isTrue();
     }
 
 }

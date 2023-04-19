@@ -1,19 +1,15 @@
 package org.sgs.stashbot.dao;
 
+import org.sgs.stashbot.model.StashResult;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.math.BigInteger;
 
-import org.sgs.stashbot.model.StashResult;
 
-public interface StashResultDao {
-
-    StashResult findById(BigInteger id);
-
-    void save(StashResult stashResult);
-
-    void delete(StashResult stashResult);
-
+@Repository
+public interface StashResultDao extends JpaRepository<StashResult, BigInteger> {
+    boolean existsByTargetCommentId(String commentId);
     StashResult findByTargetCommentId(String targetCommentId);
-
-    boolean existsByTargetCommentId(String targetCommentId);
-
+    StashResult find(BigInteger bigInteger);
 }

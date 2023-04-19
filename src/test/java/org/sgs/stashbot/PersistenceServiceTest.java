@@ -1,23 +1,35 @@
 package org.sgs.stashbot;
 
-import java.math.BigInteger;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.sgs.stashbot.dao.AuthTimeDao;
+import org.sgs.stashbot.dao.BlacklistedUserDao;
+import org.sgs.stashbot.dao.RedditTimeServiceDao;
+import org.sgs.stashbot.dao.StashResultDao;
 import org.sgs.stashbot.model.AuthPollingTime;
 import org.sgs.stashbot.model.BlacklistedUser;
 import org.sgs.stashbot.model.RedditPollingTime;
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.StashUrl;
-import org.sgs.stashbot.service.AuthTimeService;
-import org.sgs.stashbot.service.RedditTimeService;
-import org.sgs.stashbot.service.StashResultService;
-import org.sgs.stashbot.service.UserService;
-import org.sgs.stashbot.spring.SpringContext;
 import org.sgs.stashbot.util.StashResultPostFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.math.BigInteger;
+
+import static org.springframework.test.util.AssertionErrors.assertFalse;
+import static org.springframework.test.util.AssertionErrors.assertNotNull;
+import static org.springframework.test.util.AssertionErrors.assertNull;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 
+@SpringBootTest
 public class PersistenceServiceTest extends GeneratorTestBase {
+    private AuthTimeDao authTimeDao;
+    private RedditTimeServiceDao redditTimeServiceDao;
+    private BlacklistedUserDao userDao;
+    private StashResultDao stashResultDao;
 
 
     @Test
@@ -30,142 +42,151 @@ public class PersistenceServiceTest extends GeneratorTestBase {
 
 
     @Test
-    public void testAuthTimeService() {
-        AuthTimeService service = SpringContext.getBean(AuthTimeService.class);
-
+    public void testAuthTimeDao() {
         AuthPollingTime time1 = new AuthPollingTime();
         time1.setDate(getZeroedMilliDate());
         time1.setSuccess(false);
-        service.save(time1);
+        authTimeDao.save(time1);
 
         AuthPollingTime time2 = new AuthPollingTime();
         time2.setDate(getZeroedMilliDate());
         time2.setSuccess(true);
-        service.save(time2);
+        authTimeDao.save(time2);
 
         AuthPollingTime time3 = new AuthPollingTime();
         time3.setDate(getZeroedMilliDate());
         time3.setSuccess(false);
-        service.save(time3);
+        authTimeDao.save(time3);
 
-        AuthPollingTime returnedTime = service.getLastSuccessfulAuth();
-        Assert.assertNotNull("Polling time should not be null!", returnedTime);
-        Assert.assertTrue("Success attribute should be 'true'!", returnedTime.isSuccess());
-        Assert.assertTrue("Returned result is not the last successful auth time!", returnedTime.getId().equals(time2.getId()));
-        Assert.assertTrue("Dates for last successful auth time should match!!!", returnedTime.getDate().compareTo(time2.getDate()) == 0);
+        AuthPollingTime returnedTime = authTimeDao.getLastSuccessfulAuth();
+        assertNotNull("Polling time should not be null!", returnedTime);
+        assertTrue("Success attribute should be 'true'!", returnedTime.isSuccess());
+        assertTrue("Returned result is not the last successful auth time!", returnedTime.getId().equals(time2.getId()));
+        assertTrue("Dates for last successful auth time should match!!!", returnedTime.getDate().compareTo(time2.getDate()) == 0);
 
-        service.delete(time1);
-        service.delete(time2);
-        service.delete(time3);
+        authTimeDao.delete(time1);
+        authTimeDao.delete(time2);
+        authTimeDao.delete(time3);
 
     }
 
 
     @Test
     public void testRedditTimeService() {
-        RedditTimeService service = SpringContext.getBean(RedditTimeService.class);
-
         RedditPollingTime time1 = new RedditPollingTime();
         time1.setDate(getZeroedMilliDate());
-        service.save(time1);
+        redditTimeServiceDao.save(time1);
 
         RedditPollingTime time2 = new RedditPollingTime();
         time2.setDate(getZeroedMilliDate());
-        service.save(time2);
+        redditTimeServiceDao.save(time2);
 
         RedditPollingTime time3 = new RedditPollingTime();
         time3.setDate(getZeroedMilliDate());
-        service.save(time3);
+        redditTimeServiceDao.save(time3);
 
-        RedditPollingTime returnedTime = service.getLastPollingTime();
-        Assert.assertNotNull("Polling time should not be null!", returnedTime);
-        Assert.assertTrue("Returned result is not the latest polling time!", returnedTime.getId().equals(time3.getId()));
-        Assert.assertTrue("Dates for latest polling time should match!!!", returnedTime.getDate().compareTo(time3.getDate()) == 0);
+        RedditPollingTime returnedTime = redditTimeServiceDao.getLastPollingTime();
+        assertNotNull("Polling time should not be null!", returnedTime);
+        assertTrue("Returned result is not the latest polling time!", returnedTime.getId().equals(time3.getId()));
+        assertTrue("Dates for latest polling time should match!!!", returnedTime.getDate().compareTo(time3.getDate()) == 0);
 
-        service.delete(time1);
-        service.delete(time2);
-        service.delete(time3);
+        redditTimeServiceDao.delete(time1);
+        redditTimeServiceDao.delete(time2);
+        redditTimeServiceDao.delete(time3);
 
     }
 
 
     @Test
     public void testBlacklistedUser() {
-        UserService service = SpringContext.getBean(UserService.class);
         BlacklistedUser user = generateBlacklistedUser();
 
-        service.save(user);
+        userDao.save(user);
 
-        BlacklistedUser returnedUser = service.getBlackListedUserbyUsername(user.getUsername());
-        Assert.assertTrue("Should return exactly one user!", returnedUser != null);
+        BlacklistedUser returnedUser = userDao.findBlacklistedUserByUsername(user.getUsername());
+        assertTrue("Should return exactly one user!", returnedUser != null);
 
         String username = returnedUser.getUsername();
-        Assert.assertTrue("Username should match what was saved!", returnedUser.getUsername().equals(username));
+        assertTrue("Username should match what was saved!", returnedUser.getUsername().equals(username));
 
-        service.delete(user);
+        userDao.delete(user);
 
-        returnedUser = service.getBlackListedUserbyUsername(username);
-        Assert.assertNull("Deleted user should not be returned in search!", returnedUser);
+        returnedUser = userDao.findBlacklistedUserByUsername(username);
+        assertNull("Deleted user should not be returned in search!", returnedUser);
     }
 
 
     @Test
     public void testStashResultIsServiced() {
-        StashResultService service = SpringContext.getBean(StashResultService.class);
+        boolean exists = stashResultDao.existsByTargetCommentId("SVdBrk2");// in dummy data
+        assertTrue("StashResult should exist in dummy data!", exists);
 
-        boolean exists = service.existsByTargetCommentId("SVdBrk2");// in dummy data
-        Assert.assertTrue("StashResult should exist in dummy data!", exists);
-
-        exists = service.existsByTargetCommentId("lksdjfl;asdjkf");// made up id, should fail
-        Assert.assertFalse("Made up ID should not pull valid record!", exists);
+        exists = stashResultDao.existsByTargetCommentId("lksdjfl;asdjkf");// made up id, should fail
+        assertFalse("Made up ID should not pull valid record!", exists);
     }
 
 
     @Test
     public void testSaveStashResult() {
         StashResult stashResult = generateDummyStashResult();
-        StashResultService service = SpringContext.getBean(StashResultService.class);
-        service.save(stashResult);
+        stashResultDao.save(stashResult);
 
-        StashResult returnedBo = service.findByTargetCommentId(stashResult.getTargetPostableId());
-        Assert.assertNotNull("Should get back one result that we just inserted!", returnedBo);
+        StashResult stashResult1 = stashResultDao.findByTargetCommentId(stashResult.getTargetCommentId());
+        assertNotNull("Should get back one result that we just inserted!", stashResult1);
 
-        BigInteger id = returnedBo.getId();
-        Assert.assertNotNull(id);
-        for (StashUrl stashUrl : returnedBo.getStashUrls()) {
-            Assert.assertNotNull(stashUrl);
-            Assert.assertTrue(stashUrl.getId() != null); // set by hibernate save
+        BigInteger id = stashResult1.getId();
+        assertNotNull("Assigned id should not be null!", id);
+        for (StashUrl stashUrl : stashResult1.getStashUrls()) {
+            assertNotNull("stashUrl should not be null!", stashUrl);
+            assertNotNull("stashUrl id should not be null!", stashUrl.getId()); // set by hibernate save
         }
 
-        service.delete(returnedBo);
-        Assert.assertTrue(!service.existsByTargetCommentId(stashResult.getTargetPostableId()));
+        stashResultDao.delete(stashResult1);
+        assertFalse("stashResult1 should not exist after deletions!",
+                stashResultDao.existsByTargetCommentId(stashResult.getTargetCommentId()));
     }
 
 
     @Test
     public void testStashResultDao() {
-        StashResultService service = SpringContext.getBean(StashResultService.class);
-        StashResult stashResult = service.findByTargetCommentId("V1X0rS");// in dummy data file
-        Assert.assertTrue(stashResult.getStashUrls().size() == 4);
+        StashResult stashResult = stashResultDao.findByTargetCommentId("V1X0rS");// in dummy data file
+        assertTrue("stashResult should have 4 urls!", stashResult.getStashUrls().size() == 4);
     }
 
 
     @Test
     public void testFetchOfStashResult() {
-        StashResultService stashResultService = SpringContext.getBean(StashResultService.class);
-        StashResult stashResult = stashResultService.findById(new BigInteger("1"));
+        StashResult stashResult = stashResultDao.find(new BigInteger("1"));
 
-        Assert.assertNotNull(stashResult);
-        Assert.assertNotNull(stashResult.getTargetPostableAuthor());
-        Assert.assertNotNull(stashResult.getTargetPostableId());
-        Assert.assertNotNull(stashResult.getTargetPostableUrl());
-        Assert.assertNotNull(stashResult.getSubmissionUrl());
-        Assert.assertNotNull(stashResult.getSummoningCommentAuthor());
-        Assert.assertNotNull(stashResult.getSummoningCommentId());
-        Assert.assertNotNull(stashResult.getSummoningCommentUrl());
-        Assert.assertNotNull(stashResult.getId());
-
+        assertNotNull("stashResult should not be null!", stashResult);
+        assertNotNull("stashResult id should not be null", stashResult.getId());
+        assertNotNull("Comment author should not be null", stashResult.getTargetCommentAuthor());
+        assertNotNull("Comment should not be null", stashResult.getTargetCommentId());
+        assertNotNull("Comment url should not be null", stashResult.getTargetCommentUrl());
+        assertNotNull("Submission url should not be null", stashResult.getSubmissionUrl());
+        assertNotNull("Summoning user should not be null", stashResult.getSummoningCommentAuthor());
+        assertNotNull("Summoning comment id should not be null", stashResult.getSummoningCommentId());
+        assertNotNull("Summoning comment url should not be null", stashResult.getSummoningCommentUrl());
     }
 
+    @Autowired
+    public void setAuthTimeDao(AuthTimeDao authTimeDao) {
+        this.authTimeDao = authTimeDao;
+    }
+
+    @Autowired
+    public void setRedditTimeServiceDao(RedditTimeServiceDao redditTimeServiceDao) {
+        this.redditTimeServiceDao = redditTimeServiceDao;
+    }
+
+    @Autowired
+    public void setUserDao(BlacklistedUserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    @Autowired
+    public void setStashResultDao(StashResultDao stashResultDao) {
+        this.stashResultDao = stashResultDao;
+    }
 
 }

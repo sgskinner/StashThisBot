@@ -21,7 +21,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.LoggerFactory;
 import org.apache.logging.log4j.Logger;
 import org.sgs.stashbot.util.UrlMatcher;
 
@@ -33,7 +33,7 @@ import org.sgs.stashbot.util.UrlMatcher;
  * with real cases.
  */
 public class WebsiteUrlScraper {
-    private static final Logger LOG = LogManager.getLogger(WebsiteUrlScraper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebsiteUrlScraper.class);
     private static final String RANDOM_URL_SITE_FORMAT = "http://belong.io/?when=%s"; // '%s' is yyyy-MM-dd
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final int SLEEP_INTERVAL = 10*1000;// 10 seconds
@@ -68,7 +68,7 @@ public class WebsiteUrlScraper {
             response = client.execute(getMethod);
 
             int statusCode = response.getStatusLine().getStatusCode();
-            LOG.info("Received %d status code.", statusCode);
+            LOG.info("Received {} status code.", statusCode);
             if (statusCode != HttpStatus.SC_OK) {
                 throw new RuntimeException(String.format("Bad HTTP status code returned: %s", statusCode));
             }
@@ -76,7 +76,7 @@ public class WebsiteUrlScraper {
             LOG.info("Pulling html...");
             String html = EntityUtils.toString(response.getEntity());
             List<String> urls = UrlMatcher.extractUrls(html);
-            LOG.info("Extracted %d urls", urls.size());
+            LOG.info("Extracted {} urls", urls.size());
 
             Iterator<String> urlIter = urls.iterator();
             while (urlIter.hasNext()) {
@@ -100,11 +100,11 @@ public class WebsiteUrlScraper {
 
             numFetched += urls.size();
 
-            LOG.info("Wrote %d urls to file.", urls.size());
+            LOG.info("Wrote {} urls to file.", urls.size());
 
-            LOG.info("%d/%d fetched so far", numFetched, howManyToFetch);
+            LOG.info("{}/{} fetched so far", numFetched, howManyToFetch);
 
-            LOG.info("Sleeping for %d seconds.", SLEEP_INTERVAL);
+            LOG.info("Sleeping for {} seconds.", SLEEP_INTERVAL);
             Thread.sleep(SLEEP_INTERVAL);
         }
 
@@ -204,7 +204,7 @@ public class WebsiteUrlScraper {
             urlFetcher.fetchUrls(howMany);
             urlFetcher.generateUrlInsertFile();
         } catch (Exception e) {
-            LOG.fatal("Could not process, caught exception: '%s'", e.getMessage());
+            LOG.error("Could not process, caught exception: '%s'", e.getMessage());
         }
 
         LOG.info("Completed, exiting.");

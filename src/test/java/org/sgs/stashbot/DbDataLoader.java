@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.LoggerFactory;
 import org.apache.logging.log4j.Logger;
 import org.sgs.stashbot.spring.SpringContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DbDataLoader {
-    private static final Logger LOG = LogManager.getLogger(DbDataLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DbDataLoader.class);
     private static final int BATCH_SIZE = 1000;
 
     private final DataSource dataSource;
@@ -146,7 +146,7 @@ public class DbDataLoader {
                     statement.executeBatch();
                     statement.clearBatch();
 
-                    LOG.info("Executed: %d statements (%d/%d)", batchCountRightNow, totalDone, totalToDo);
+                    LOG.info("Executed: {} statements ({}/{})", batchCountRightNow, totalDone, totalToDo);
                     batchCountRightNow = 0;
                 }
             }
@@ -154,7 +154,7 @@ public class DbDataLoader {
             if (batchCountRightNow > 0) {
                 totalDone += batchCountRightNow;
                 statement.executeBatch();
-                LOG.info("Executed: %d statements (%d/%d)", batchCountRightNow, totalDone, totalToDo);
+                LOG.info("Executed: {} statements ({}/{})", batchCountRightNow, totalDone, totalToDo);
             }
 
             statement.close();

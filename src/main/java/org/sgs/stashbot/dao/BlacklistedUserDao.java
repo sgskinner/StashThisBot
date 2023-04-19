@@ -1,19 +1,16 @@
 package org.sgs.stashbot.dao;
 
-import java.math.BigInteger;
-
 import org.sgs.stashbot.model.BlacklistedUser;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface BlacklistedUserDao {
-    BlacklistedUser getBlackListedUserbyUsername(String username);
+import java.math.BigInteger;
+import java.util.List;
 
-    boolean isUserBlacklisted(String username);
 
-    BlacklistedUser findById(BigInteger id);
-
-    void save(BlacklistedUser user);
-
-    void delete(BlacklistedUser user);
-
-    void update(BlacklistedUser user);
+@Repository
+public interface BlacklistedUserDao extends JpaRepository<BlacklistedUser, BigInteger> {
+    //private static final String SELECT_BY_USERNAME = "SELECT u FROM BlacklistedUser u where username = :username";
+    boolean isUserBlacklisted(String subredditName);
+    BlacklistedUser findBlacklistedUserByUsername(String username);
 }

@@ -15,15 +15,50 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * StashThisBot - Summon this bot to archive URLs in an archive service.
+ * StashThisService - Summon this bot to archive URLs in an archive service.
  * Copyright (C) 2017  S.G. Skinner
  */
 
 package org.sgs.stashbot.service;
 
-import net.dean.jraw.RedditClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public interface AuthService {
-    boolean authenticate(RedditClient redditClient);
-    boolean isAuthenticated(RedditClient redditClient);
+import net.dean.jraw.RedditClient;
+import net.dean.jraw.http.oauth.Credentials;
+import net.dean.jraw.http.oauth.OAuthData;
+
+
+@Component
+public class AuthService {
+    private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
+    private Credentials credentials;
+
+
+
+    public boolean authenticate(RedditClient redditClient) {
+        try {
+            OAuthData oAuthData = redditClient.getOAuthHelper().easyAuth(credentials);
+            redditClient.authenticate(oAuthData);
+        } catch (Exception e) {
+            LOG.error("Could not authenticate: {}", e.getMessage());
+            return false;
+        }
+
+        return isAuthenticated(redditClient);
+    }
+
+
+    public boolean isAuthenticated(RedditClient redditClient) {
+        return redditClient.isAuthenticated();
+    }
+
+
+    @Autowired
+    public void setCredentials(Credentials credentials) {
+        this.credentials = credentials;
+    }
+
 }

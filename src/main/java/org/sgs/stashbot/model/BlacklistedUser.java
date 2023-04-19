@@ -1,24 +1,19 @@
 package org.sgs.stashbot.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
-import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "blacklisted_user_t")
-public class BlacklistedUser implements Serializable {
-    private static final long serialVersionUID = -7312855810951382049L;
+public class BlacklistedUser {
 
-    private String id;
+    private BigInteger id;
     private String username;
     private Date dateCreated;
     private String reason;
@@ -30,19 +25,18 @@ public class BlacklistedUser implements Serializable {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    public String getId() {
+    @Column
+    public BigInteger getId() {
         return id;
     }
 
 
-    public void setId(String id) {
+    public void setId(BigInteger id) {
         this.id = id;
     }
 
 
-    @Column(name = "username")
+    @Column
     public String getUsername() {
         return username;
     }
@@ -54,7 +48,7 @@ public class BlacklistedUser implements Serializable {
 
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_created")
+    @Column
     public Date getDateCreated() {
         return dateCreated;
     }
@@ -65,7 +59,7 @@ public class BlacklistedUser implements Serializable {
     }
 
 
-    @Column(name = "reason")
+    @Column
     public String getReason() {
         return reason;
     }

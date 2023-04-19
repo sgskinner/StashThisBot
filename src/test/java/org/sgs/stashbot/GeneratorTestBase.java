@@ -1,5 +1,21 @@
 package org.sgs.stashbot;
 
+import org.apache.commons.text.CharacterPredicate;
+import org.apache.commons.text.CharacterPredicates;
+import org.apache.commons.text.RandomStringGenerator;
+import org.junit.jupiter.api.BeforeAll;
+import org.sgs.stashbot.app.Foo;
+import org.sgs.stashbot.dao.ScrapedUrlDao;
+import org.sgs.stashbot.model.BlacklistedUser;
+import org.sgs.stashbot.model.ScrapedUrl;
+import org.sgs.stashbot.model.StashResult;
+import org.sgs.stashbot.model.StashUrl;
+import org.sgs.stashbot.util.TimeUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -7,26 +23,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.commons.text.CharacterPredicate;
-import org.apache.commons.text.CharacterPredicates;
-import org.apache.commons.text.RandomStringGenerator;
-import org.junit.BeforeClass;
-import org.sgs.stashbot.model.BlacklistedUser;
-import org.sgs.stashbot.model.ScrapedUrl;
-import org.sgs.stashbot.model.StashResult;
-import org.sgs.stashbot.model.StashUrl;
-import org.sgs.stashbot.service.ScrapedUrlService;
-import org.sgs.stashbot.spring.SpringContext;
-import org.sgs.stashbot.util.TimeUtils;
 
+@SpringBootTest
 public class GeneratorTestBase {
     private static final String[] TEST_SUMMONER_USERNAMES = {"test-summoner-0", "test-summoner-1", "test-summoner-2", "test-summoner-3", "test-summoner-4"};
     private static final String[] TEST_TARGET_USERNAMES = {"test-target-0", "test-target-1", "test-target-2", "test-target-3", "test-target-4"};
 
     private static RandomStringGenerator stringGenerator;
 
+    @Autowired
+    private ScrapedUrlDao scrapedUrlDao;
 
-    @BeforeClass
+
+    @BeforeAll
     public static void testInit() {
         SecureRandom rand = new SecureRandom();
         stringGenerator = new RandomStringGenerator
@@ -46,9 +55,9 @@ public class GeneratorTestBase {
 
         StashResult stashResult = new StashResult();
         stashResult.setSubmissionUrl(generateMockUrl());
-        stashResult.setTargetPostableAuthor(getRandomTargetUsername());
-        stashResult.setTargetPostableId(stringGenerator.generate(getRandomInt(5, 9)));
-        stashResult.setTargetPostableUrl(generateMockUrl());
+        stashResult.setTargetCommentAuthor(getRandomTargetUsername());
+        stashResult.setTargetCommentId(stringGenerator.generate(getRandomInt(5, 9)));
+        stashResult.setTargetCommentUrl(generateMockUrl());
         stashResult.setSummoningCommentAuthor(getRandomSummonerUsername());
         stashResult.setSummoningCommentId(stringGenerator.generate(getRandomInt(5, 9)));
         stashResult.setSummoningCommentUrl(generateMockUrl());
@@ -56,9 +65,9 @@ public class GeneratorTestBase {
         stashResult.setServicedDate(getZeroedMilliDate());
 
         if (withValidStashUrls) {
-            stashResult.addStashUrls(generateValidUrlList(getRandomInt(1, 5)));
+            stashResult.setStashUrls(generateValidUrlList(getRandomInt(1, 5)));
         } else {
-            stashResult.addStashUrls(generateMockUrlList(getRandomInt(1, 5)));
+            stashResult.setStashUrls(generateMockUrlList(getRandomInt(1, 5)));
         }
 
 
@@ -97,7 +106,7 @@ public class GeneratorTestBase {
 
 
     protected StashUrl generateValidUrl() {
-        ScrapedUrl scrapedUrl = SpringContext.getBean(ScrapedUrlService.class).getNextUrl();
+        ScrapedUrl scrapedUrl = scrapedUrlDao.getNextScrapedUrl();
         StashUrl stashUrl = new StashUrl();
         stashUrl.setOriginalUrl(scrapedUrl.getUrl());
 
@@ -105,12 +114,10 @@ public class GeneratorTestBase {
     }
 
     protected String generateMockUrl() {
-        StringBuilder sb = new StringBuilder("http://www.");
-        sb.append(generateRandomString(getRandomInt(5, 14)));
-        sb.append(".com/");
-        sb.append(generateRandomString(getRandomInt(6, 10)));
-        sb.append(".html");
-        return sb.toString();
+        return "http://www." + generateRandomString(getRandomInt(5, 14)) +
+                ".com/" +
+                generateRandomString(getRandomInt(6, 10)) +
+                ".html";
     }
 
 

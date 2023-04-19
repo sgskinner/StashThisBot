@@ -1,6 +1,6 @@
 package org.sgs.stashbot.util;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.StashUrl;
