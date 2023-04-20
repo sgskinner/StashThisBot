@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * StashThisService - Summon this bot to archive URLs in an archive service.
+ * StashBotService - Summon this bot to archive URLs in an archive service.
  * Copyright (C) 2017  S.G. Skinner
  */
 package org.sgs.stashbot.app;
@@ -47,20 +47,20 @@ import java.util.List;
 
 
 @Service
-public class StashThisService {
-    private static final Logger LOG = LoggerFactory.getLogger(StashThisService.class);
+public class StashBotService {
+    private static final Logger LOG = LoggerFactory.getLogger(StashBotService.class);
     private static final long AUTH_SLEEP_INTERVAL = 10 * 1000; // 10 seconds in millis
     private static final long SUBMISSION_POLLING_INTERVAL = 10 * 1000; // 10 seconds in millis
     private static final long OAUTH_REFRESH_INTERVAL = 50 * 60 * 1000; // 50 minutes in millis
     private static final int MAX_AUTH_ATTEMPTS = 3;
     private static final String SUMMONING_SUBJECT_TEXT = "username mention";
 
+    private BlacklistedSubredditDao blacklistedSubredditDao;
+    private BlacklistedUserDao blacklistedUserDao;
     private RedditService redditService;
     private ArchiveService archiveIsService;
     private StashResultDao stashResultDao;
     private AuthTimeDao authTimeDao;
-    private BlacklistedSubredditDao blacklistedSubredditDao;
-    private BlacklistedUserDao blacklistedUserDao;
     private Environment env;
     private boolean killSwitchClick;
 
@@ -169,7 +169,7 @@ public class StashThisService {
 
 
     private boolean isUserBlacklisted(String authorUsername) {
-        boolean isBlacklisted = StringUtils.isBlank(authorUsername) || blacklistedUserDao.isUserBlacklisted(authorUsername);
+        boolean isBlacklisted = StringUtils.isBlank(authorUsername) || blacklistedUserDao.existsByUsername(authorUsername);
         if (isBlacklisted) {
             LOG.info("User '{}' is blacklisted.", authorUsername);
         }
@@ -278,16 +278,6 @@ public class StashThisService {
     }
 
     @Autowired
-    public void setAuthTimeDao(AuthTimeDao authTimeDao) {
-        this.authTimeDao = authTimeDao;
-    }
-
-    @Autowired
-    public void setStashResultDao(StashResultDao stashResultDao) {
-        this.stashResultDao = stashResultDao;
-    }
-
-    @Autowired
     public void setBlacklistedUserDao(BlacklistedUserDao blacklistedUserDao) {
         this.blacklistedUserDao = blacklistedUserDao;
     }
@@ -295,6 +285,16 @@ public class StashThisService {
     @Autowired
     public void setBlacklistedSubredditDao(BlacklistedSubredditDao blacklistedSubredditDao) {
         this.blacklistedSubredditDao = blacklistedSubredditDao;
+    }
+
+    @Autowired
+    public void setAuthTimeDao(AuthTimeDao authTimeDao) {
+        this.authTimeDao = authTimeDao;
+    }
+
+    @Autowired
+    public void setStashResultDao(StashResultDao stashResultDao) {
+        this.stashResultDao = stashResultDao;
     }
 
 }

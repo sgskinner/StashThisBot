@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * StashThisService - Summon this bot to archive URLs in an archive service.
+ * StashBotService - Summon this bot to archive URLs in an archive service.
  * Copyright (C) 2017  S.G. Skinner
  */
 
@@ -46,7 +46,7 @@ import net.dean.jraw.paginators.InboxPaginator;
 
 /**
  * A wrapper class around JRAW's RedditClient, with contained methods
- * for the very specific use cases of the StashThisService.
+ * for the very specific use cases of the StashBotService.
  * <p>
  * Note: There is a ton of exception handeling here, and the nature of
  * the app is that a StashResult is saved for every summons. Thus, if

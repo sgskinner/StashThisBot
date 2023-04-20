@@ -11,7 +11,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Submission;
-import net.dean.jraw.models.Thing;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
