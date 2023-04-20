@@ -4,7 +4,6 @@ import org.apache.commons.text.CharacterPredicate;
 import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
 import org.junit.jupiter.api.BeforeAll;
-import org.sgs.stashbot.app.Foo;
 import org.sgs.stashbot.dao.ScrapedUrlDao;
 import org.sgs.stashbot.model.BlacklistedUser;
 import org.sgs.stashbot.model.ScrapedUrl;
@@ -12,9 +11,7 @@ import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.StashUrl;
 import org.sgs.stashbot.util.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -55,9 +52,9 @@ public class GeneratorTestBase {
 
         StashResult stashResult = new StashResult();
         stashResult.setSubmissionUrl(generateMockUrl());
-        stashResult.setTargetCommentAuthor(getRandomTargetUsername());
-        stashResult.setTargetCommentId(stringGenerator.generate(getRandomInt(5, 9)));
-        stashResult.setTargetCommentUrl(generateMockUrl());
+        stashResult.setTargetPostableAuthor(getRandomTargetUsername());
+        stashResult.setTargetPostableId(stringGenerator.generate(getRandomInt(5, 9)));
+        stashResult.setTargetPostableUrl(generateMockUrl());
         stashResult.setSummoningCommentAuthor(getRandomSummonerUsername());
         stashResult.setSummoningCommentId(stringGenerator.generate(getRandomInt(5, 9)));
         stashResult.setSummoningCommentUrl(generateMockUrl());

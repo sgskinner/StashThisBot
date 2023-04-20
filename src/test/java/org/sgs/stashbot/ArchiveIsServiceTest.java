@@ -21,46 +21,52 @@
 
 package org.sgs.stashbot;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
+import org.htmlcleaner.CleanerProperties;
+import org.htmlcleaner.DomSerializer;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.TagNode;
+import org.junit.jupiter.api.Test;
+import org.sgs.stashbot.model.StashResult;
+import org.sgs.stashbot.model.StashUrl;
+import org.sgs.stashbot.service.ArchiveService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.w3c.dom.Document;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
-import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.DomSerializer;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.TagNode;
-import org.junit.Assert;
-import org.junit.Test;
-import org.sgs.stashbot.model.StashResult;
-import org.sgs.stashbot.model.StashUrl;
-import org.sgs.stashbot.service.ArchiveService;
-import org.sgs.stashbot.spring.SpringContext;
-import org.w3c.dom.Document;
+import static org.assertj.core.api.Assertions.assertThat;
 
+
+@SpringBootTest
 public class ArchiveIsServiceTest extends GeneratorTestBase {
+
+    @Autowired
+    private ArchiveService archiveService;
+
 
     @Test
     public void testArchive() {
-        ArchiveService archiveService = SpringContext.getBean(ArchiveService.class);
-        Assert.assertTrue("ArchiveService could not initialize.", archiveService != null);
+        assertThat(archiveService).isNotNull();
 
         StashResult stashResult = generateDummyStashResult(true);
         archiveService.archive(stashResult);
-        Assert.assertTrue("Not marked as serviced!", stashResult.getServicedDate() != null);
+        assertThat(stashResult.getServicedDate()).isNotNull();
 
         List<StashUrl> stashUrlList = stashResult.getStashUrls();
         for (StashUrl stashUrl : stashUrlList) {
             String archivedUrl = stashUrl.getOriginalUrl();
-            Assert.assertTrue("Archive URL should not be null!", archivedUrl != null);
-            Assert.assertTrue("Archive URL not acceptable!", !archivedUrl.contains("archive.is"));
+            assertThat(archivedUrl).isNotNull();
+            assertThat(archivedUrl.contains("archive.is")).isFalse();
         }
     }
 
@@ -77,7 +83,7 @@ public class ArchiveIsServiceTest extends GeneratorTestBase {
         String str = (String) xpath.evaluate("//*[@id=\"submiturl\"]/input/@value", doc, XPathConstants.STRING);
 
         String actualValue = "YHuwL/nTgL370PMDM2G2vkuvMg3kmNqk/y/i7NRSaLyf2JSIU+/now+AYw+X0nX8";
-        Assert.assertTrue("Did not extract expected value!", str.equals(actualValue));
+        assertThat(str).isEqualTo(actualValue);
     }
 
 

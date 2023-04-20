@@ -26,6 +26,7 @@ import org.sgs.stashbot.dao.BlacklistedSubredditDao;
 import org.sgs.stashbot.dao.BlacklistedUserDao;
 import org.sgs.stashbot.dao.StashResultDao;
 import org.sgs.stashbot.model.AuthPollingTime;
+import org.sgs.stashbot.model.Postable;
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.service.ArchiveService;
 import org.sgs.stashbot.service.RedditService;
@@ -252,7 +253,7 @@ public class StashThisService {
 
 
     public boolean isHealthy() {
-        return redditService.isHealthy() && archiveIsService.isHealthy();
+        return redditService.isRedditHealthy() && archiveIsService.isHealthy();
     }
 
 
@@ -287,13 +288,13 @@ public class StashThisService {
     }
 
     @Autowired
-    public void setBlacklistedSubredditDao(BlacklistedSubredditDao blacklistedSubredditDao) {
-        this.blacklistedSubredditDao = blacklistedSubredditDao;
+    public void setBlacklistedUserDao(BlacklistedUserDao blacklistedUserDao) {
+        this.blacklistedUserDao = blacklistedUserDao;
     }
 
     @Autowired
-    public void setBlacklistedUserDao(BlacklistedUserDao blacklistedUserDao) {
-        this.blacklistedUserDao = blacklistedUserDao;
+    public void setBlacklistedSubredditDao(BlacklistedSubredditDao blacklistedSubredditDao) {
+        this.blacklistedSubredditDao = blacklistedSubredditDao;
     }
 
 }

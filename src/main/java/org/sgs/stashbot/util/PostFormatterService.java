@@ -1,22 +1,21 @@
 package org.sgs.stashbot.util;
 
-import jakarta.annotation.Resource;
-
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.StashUrl;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
 
 
-@Component
-public class StashResultPostFormatter {
+@Service
+public class PostFormatterService {
     private static final String FOOTER = "^[FAQ](https://np.reddit.com/r/StashThis/wiki/index)&nbsp;| ^[Source&nbsp;Code](https://github.com/sgskinner/StashThisBot)&nbsp;| ^[PM&nbsp;Developer](https://www.reddit.com/message/compose?to=sgskinner&subject=StashThisBot)&nbsp;| ^v%s";
     private static final String LINK_LINE_SUCCESS = "1. [Original](%s) --> [Stashed](%s) (%s)";
     private static final String LINK_LINE_FAILURE = "1. [Original](%s) --> [Stash Failed!](%s)";
     private static final String FAILURE_HELP_NOTE = "(Please see the wiki [here](https://www.reddit.com/r/StashThis/wiki/index#wiki_failures) about stash failures, and/or reproduce the failure by clicking the 'Stash Failed!' link.)";
     private static final String LINE = "-----";
 
-    @Resource(name = "stashbotVersion")
-    private String stashbotVersion;
+    private Environment env;
 
 
     public String format(StashResult stashResult) {
@@ -49,13 +48,15 @@ public class StashResultPostFormatter {
 
         sb.append(LINE);
         sb.append(System.lineSeparator());
-        sb.append(String.format(FOOTER, getStashbotVersion()));
+        sb.append(String.format(FOOTER, env.getProperty("stashbot.version")));
 
         return sb.toString();
     }
 
 
-    private String getStashbotVersion() {
-        return stashbotVersion;
+    @Autowired
+    public void setEnv(Environment env) {
+        this.env = env;
     }
+
 }

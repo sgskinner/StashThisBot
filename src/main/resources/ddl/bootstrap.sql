@@ -84,3 +84,5 @@ GRANT SELECT, INSERT, UPDATE, DELETE, DROP, ALTER, CREATE TEMPORARY TABLES ON st
 USE mysql;
 UPDATE user SET plugin ='mysql_native_password' WHERE User = 'stashbot';
 
+select * from user where user = 'stashbot';
+

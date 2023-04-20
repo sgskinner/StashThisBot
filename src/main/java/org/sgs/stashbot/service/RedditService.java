@@ -23,16 +23,18 @@ package org.sgs.stashbot.service;
 
 import org.sgs.stashbot.model.Postable;
 import org.sgs.stashbot.model.StashResult;
-import org.sgs.stashbot.util.StashResultPostFormatter;
+import org.sgs.stashbot.util.PostFormatterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.fluent.AuthenticatedUserReference;
 import net.dean.jraw.fluent.FluentRedditClient;
 import net.dean.jraw.fluent.InboxReference;
+import net.dean.jraw.http.UserAgent;
 import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Listing;
@@ -56,12 +58,17 @@ import net.dean.jraw.paginators.InboxPaginator;
 public class RedditService {
     private static final Logger LOG = LoggerFactory.getLogger(RedditService.class);
 
-    private StashResultPostFormatter stashResultPostFormatter;
-    @Autowired
     private AuthService authService;
-    @Autowired
-    private RedditClient redditClient;
+    private PostFormatterService postFormatterService;
+    private final RedditClient redditClient;
 
+
+    @Autowired
+    public RedditService(Environment env) {
+        // Couldn't figure out a way around maintaining state, as this is an object out of our control
+        UserAgent userAgent = UserAgent.of("desktop", "org.sgs.stashbot", env.getProperty("stashbot.version"), "StashThis");
+        this.redditClient =  new RedditClient(userAgent);
+    }
 
 
     public boolean performAuth() {
@@ -70,14 +77,14 @@ public class RedditService {
 
 
     public boolean isAuthenticated() {
-        return authService.isAuthenticated(redditClient);
+        return redditClient.isAuthenticated();
     }
 
 
     public void postStashResult(StashResult stashResult) {
         AccountManager accountManager = new AccountManager(redditClient);
         try {
-            String postText = stashResultPostFormatter.format(stashResult);
+            String postText = postFormatterService.format(stashResult);
             accountManager.reply(stashResult.getSummoningComment(), postText);
         } catch (Exception e) {
             LOG.error("Could not post reply to summons (url: {}): {}",
@@ -238,7 +245,7 @@ public class RedditService {
     public void deliverStashResultByMessage(StashResult stashResult) {
         String to = stashResult.getSummoningCommentAuthor();
         String subject = "StashThis Result";
-        String body = stashResultPostFormatter.format(stashResult);
+        String body = postFormatterService.format(stashResult);
 
         FluentRedditClient client;
         try {
@@ -272,18 +279,7 @@ public class RedditService {
     }
 
 
-    public boolean isHealthy() {
-        if (!authService.authenticate(redditClient)) {
-            return false;
-        } else if (!isRedditHealthy()) {
-            return false;
-        }
-
-        return true;
-    }
-
-
-    private boolean isRedditHealthy() {
+    public boolean isRedditHealthy() {
         try {
             FluentRedditClient client = new FluentRedditClient(redditClient);
             AuthenticatedUserReference userRef = client.me();
@@ -296,6 +292,17 @@ public class RedditService {
         }
 
         return true;
+    }
+
+
+    @Autowired
+    public void setAuthService(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @Autowired
+    public void setPostFormatterService(PostFormatterService postFormatterService) {
+        this.postFormatterService = postFormatterService;
     }
 
 }

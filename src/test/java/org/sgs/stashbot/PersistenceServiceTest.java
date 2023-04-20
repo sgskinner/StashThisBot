@@ -1,7 +1,6 @@
 package org.sgs.stashbot;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.sgs.stashbot.dao.AuthTimeDao;
 import org.sgs.stashbot.dao.BlacklistedUserDao;
 import org.sgs.stashbot.dao.RedditTimeServiceDao;
@@ -11,10 +10,9 @@ import org.sgs.stashbot.model.BlacklistedUser;
 import org.sgs.stashbot.model.RedditPollingTime;
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.StashUrl;
-import org.sgs.stashbot.util.StashResultPostFormatter;
+import org.sgs.stashbot.util.PostFormatterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigInteger;
 
@@ -26,17 +24,21 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 @SpringBootTest
 public class PersistenceServiceTest extends GeneratorTestBase {
+    @Autowired
     private AuthTimeDao authTimeDao;
+    @Autowired
     private RedditTimeServiceDao redditTimeServiceDao;
+    @Autowired
     private BlacklistedUserDao userDao;
+    @Autowired
     private StashResultDao stashResultDao;
 
 
     @Test
     public void testFormatter() {
         StashResult stashResult = generateDummyStashResult();
-        StashResultPostFormatter stashResultPostFormatter = new StashResultPostFormatter();
-        String output = stashResultPostFormatter.format(stashResult);
+        PostFormatterService postFormatterService = new PostFormatterService();
+        String output = postFormatterService.format(stashResult);
         System.out.println(output);
     }
 
@@ -131,7 +133,7 @@ public class PersistenceServiceTest extends GeneratorTestBase {
         StashResult stashResult = generateDummyStashResult();
         stashResultDao.save(stashResult);
 
-        StashResult stashResult1 = stashResultDao.findByTargetCommentId(stashResult.getTargetCommentId());
+        StashResult stashResult1 = stashResultDao.findByTargetCommentId(stashResult.getTargetPostableId());
         assertNotNull("Should get back one result that we just inserted!", stashResult1);
 
         BigInteger id = stashResult1.getId();
@@ -143,7 +145,7 @@ public class PersistenceServiceTest extends GeneratorTestBase {
 
         stashResultDao.delete(stashResult1);
         assertFalse("stashResult1 should not exist after deletions!",
-                stashResultDao.existsByTargetCommentId(stashResult.getTargetCommentId()));
+                stashResultDao.existsByTargetCommentId(stashResult.getTargetPostableId()));
     }
 
 
@@ -160,33 +162,13 @@ public class PersistenceServiceTest extends GeneratorTestBase {
 
         assertNotNull("stashResult should not be null!", stashResult);
         assertNotNull("stashResult id should not be null", stashResult.getId());
-        assertNotNull("Comment author should not be null", stashResult.getTargetCommentAuthor());
-        assertNotNull("Comment should not be null", stashResult.getTargetCommentId());
-        assertNotNull("Comment url should not be null", stashResult.getTargetCommentUrl());
+        assertNotNull("Comment author should not be null", stashResult.getTargetPostableAuthor());
+        assertNotNull("Comment should not be null", stashResult.getTargetPostableId());
+        assertNotNull("Comment url should not be null", stashResult.getTargetPostableUrl());
         assertNotNull("Submission url should not be null", stashResult.getSubmissionUrl());
         assertNotNull("Summoning user should not be null", stashResult.getSummoningCommentAuthor());
         assertNotNull("Summoning comment id should not be null", stashResult.getSummoningCommentId());
         assertNotNull("Summoning comment url should not be null", stashResult.getSummoningCommentUrl());
-    }
-
-    @Autowired
-    public void setAuthTimeDao(AuthTimeDao authTimeDao) {
-        this.authTimeDao = authTimeDao;
-    }
-
-    @Autowired
-    public void setRedditTimeServiceDao(RedditTimeServiceDao redditTimeServiceDao) {
-        this.redditTimeServiceDao = redditTimeServiceDao;
-    }
-
-    @Autowired
-    public void setUserDao(BlacklistedUserDao userDao) {
-        this.userDao = userDao;
-    }
-
-    @Autowired
-    public void setStashResultDao(StashResultDao stashResultDao) {
-        this.stashResultDao = stashResultDao;
     }
 
 }

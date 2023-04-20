@@ -24,41 +24,50 @@ package org.sgs.stashbot.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
 
 import net.dean.jraw.RedditClient;
+import net.dean.jraw.http.AuthenticationMethod;
 import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthData;
 
 
-@Component
+@Service
 public class AuthService {
     private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
-    private Credentials credentials;
-
+    private Environment env;
 
 
     public boolean authenticate(RedditClient redditClient) {
         try {
-            OAuthData oAuthData = redditClient.getOAuthHelper().easyAuth(credentials);
+            OAuthData oAuthData = redditClient
+                    .getOAuthHelper()
+                    .easyAuth(getCredentials());
             redditClient.authenticate(oAuthData);
         } catch (Exception e) {
             LOG.error("Could not authenticate: {}", e.getMessage());
             return false;
         }
 
-        return isAuthenticated(redditClient);
-    }
-
-
-    public boolean isAuthenticated(RedditClient redditClient) {
         return redditClient.isAuthenticated();
     }
 
 
+    private Credentials getCredentials() {
+        return new Credentials(AuthenticationMethod.SCRIPT,
+                env.getRequiredProperty("reddit.username"),
+                env.getRequiredProperty("reddit.password"),
+                env.getRequiredProperty("reddit.clientId"),
+                env.getRequiredProperty("reddit.clientSecret"),
+                null, //deviceId, not used by us
+                env.getRequiredProperty("reddit.redirectUrl"));
+    }
+
+
     @Autowired
-    public void setCredentials(Credentials credentials) {
-        this.credentials = credentials;
+    public void setEnv(Environment env) {
+        this.env = env;
     }
 
 }

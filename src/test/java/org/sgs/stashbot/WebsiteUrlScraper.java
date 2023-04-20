@@ -1,5 +1,17 @@
 package org.sgs.stashbot;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.sgs.stashbot.util.UrlMatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -14,17 +26,6 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
-import org.apache.logging.log4j.LoggerFactory;
-import org.apache.logging.log4j.Logger;
-import org.sgs.stashbot.util.UrlMatcher;
-
 
 /**
  * A class to scrape real-world and recent URL links, and then convert those
@@ -34,9 +35,9 @@ import org.sgs.stashbot.util.UrlMatcher;
  */
 public class WebsiteUrlScraper {
     private static final Logger LOG = LoggerFactory.getLogger(WebsiteUrlScraper.class);
-    private static final String RANDOM_URL_SITE_FORMAT = "http://belong.io/?when=%s"; // '%s' is yyyy-MM-dd
+    private static final String RANDOM_URL_SITE_FORMAT = "http://belong.io/?when=%s"; // '{}' is yyyy-MM-dd
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final int SLEEP_INTERVAL = 10*1000;// 10 seconds
+    private static final int SLEEP_INTERVAL = 10 * 1000;// 10 seconds
     private static final String URL_INSERT_FORMAT = "insert into scraped_url_t (date, url) values (now(), '%s');";
 
     private LocalDate dayToScrape;
@@ -51,10 +52,10 @@ public class WebsiteUrlScraper {
      * by pulling each days worth of links until number of links are gathered.
      *
      * @param howManyToFetch method will continue scraping until this many links are gathered
-     * @throws IOException thrown if input or output files are not accessable
+     * @throws IOException          thrown if input or output files are not accessable
      * @throws InterruptedException thrown if woken up while sleeping between each scrape
      */
-    public void fetchUrls(int howManyToFetch) throws IOException, InterruptedException {
+    public void fetchUrls(int howManyToFetch) throws IOException, InterruptedException, ParseException {
         CloseableHttpClient client = HttpClientBuilder.create().build();
         PrintWriter writer = getWriter("src/main/resources/raw_data/random_urls.txt", true);
 
@@ -67,7 +68,7 @@ public class WebsiteUrlScraper {
             HttpGet getMethod = new HttpGet(getNextUrlToScrape());
             response = client.execute(getMethod);
 
-            int statusCode = response.getStatusLine().getStatusCode();
+            int statusCode = response.getCode();
             LOG.info("Received {} status code.", statusCode);
             if (statusCode != HttpStatus.SC_OK) {
                 throw new RuntimeException(String.format("Bad HTTP status code returned: %s", statusCode));
@@ -151,7 +152,7 @@ public class WebsiteUrlScraper {
     private String getNextDayToScrape() {
         String result = DATE_FORMATTER.format(dayToScrape);
         dayToScrape = dayToScrape.minusDays(1);
-        LOG.info("About to scrape for %s", result);
+        LOG.info("About to scrape for {}", result);
 
         return result;
     }
@@ -204,7 +205,7 @@ public class WebsiteUrlScraper {
             urlFetcher.fetchUrls(howMany);
             urlFetcher.generateUrlInsertFile();
         } catch (Exception e) {
-            LOG.error("Could not process, caught exception: '%s'", e.getMessage());
+            LOG.error("Could not process, caught exception: '{}'", e.getMessage());
         }
 
         LOG.info("Completed, exiting.");
