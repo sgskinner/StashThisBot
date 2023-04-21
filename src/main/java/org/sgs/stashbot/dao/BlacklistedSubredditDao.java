@@ -12,7 +12,7 @@ public interface BlacklistedSubredditDao extends JpaRepository<BlacklistedSubred
 //    private static final String NAME_PARAM = "name";
 //    private static final String SELECT_BY_NAME = "SELECT b FROM BlacklistedSubreddit b where name = :" + NAME_PARAM;
 
-    boolean isBlacklisted(String subredditName);
+    boolean existsBlacklistedSubredditsByName(String subredditName);
 
 //    public BlacklistedSubreddit getBlacklistedSubredditByName(String name) {
 //        List<BlacklistedSubreddit> blacklistedSubreddits = getEntityManager()

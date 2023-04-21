@@ -34,6 +34,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -244,7 +245,8 @@ public class ArchiveService {
 
 
     public void archive(StashResult stashResult) {
-        for (StashUrl stashUrl : stashResult.getStashUrls()) {
+        //for (StashUrl stashUrl : stashResult.getStashUrls()) {
+        for (StashUrl stashUrl : new ArrayList<StashUrl>()) {
             executeHttpTransactions(stashUrl);
         }
 

@@ -10,9 +10,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 
-@SpringBootApplication
-@EnableJpaRepositories(basePackages = {"org.sgs.stashbot.*"})
-@EntityScan(basePackages = {"org.sgs.stashbot.*"})
+@SpringBootApplication(scanBasePackages = {"org.sgs.stashbot"})
+@EnableJpaRepositories(basePackages = {"org.sgs.stashbot"})
+@EntityScan(basePackages = {"org.sgs.stashbot"})
 public class StashBotDriver implements CommandLineRunner {
     private StashBotService stashBotService;
 

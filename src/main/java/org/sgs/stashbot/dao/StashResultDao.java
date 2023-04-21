@@ -9,7 +9,7 @@ import java.math.BigInteger;
 
 @Repository
 public interface StashResultDao extends JpaRepository<StashResult, BigInteger> {
-    boolean existsByTargetCommentId(String commentId);
-    StashResult findByTargetCommentId(String targetCommentId);
-    StashResult find(BigInteger bigInteger);
+    boolean existsByTargetPostableId(String postableId);
+    StashResult findByTargetPostableId(String postableId);
+    StashResult getById(BigInteger id);
 }

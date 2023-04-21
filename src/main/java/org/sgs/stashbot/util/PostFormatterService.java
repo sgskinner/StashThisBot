@@ -25,20 +25,20 @@ public class PostFormatterService {
         sb.append(System.lineSeparator()); // reddit markdown needs 2 newlines to display one
 
         boolean atLeastOneFailed = false;
-        for(StashUrl stashUrl : stashResult.getStashUrls()) {
-
-            if (stashUrl.isStashed()) {
-                sb.append(String.format(LINK_LINE_SUCCESS, stashUrl.getOriginalUrl(), stashUrl.getStashedUrl(), TimeUtils.formatGmt(stashUrl.getLastStashed())));
-            } else {
-                // On failed StashUrl's, the archiveUrl is set to the save-request URL, which
-                // the user can click and see for themselves why the archive failed
-                sb.append(String.format(LINK_LINE_FAILURE, stashUrl.getOriginalUrl(), stashUrl.getStashedUrl()));
-                atLeastOneFailed = true;
-            }
-
-            sb.append(System.lineSeparator());
-            sb.append(System.lineSeparator());
-        }
+//        for(StashUrl stashUrl : stashResult.getStashUrls()) {
+//
+//            if (stashUrl.isStashed()) {
+//                sb.append(String.format(LINK_LINE_SUCCESS, stashUrl.getOriginalUrl(), stashUrl.getStashedUrl(), TimeUtils.formatGmt(stashUrl.getLastStashed())));
+//            } else {
+//                // On failed StashUrl's, the archiveUrl is set to the save-request URL, which
+//                // the user can click and see for themselves why the archive failed
+//                sb.append(String.format(LINK_LINE_FAILURE, stashUrl.getOriginalUrl(), stashUrl.getStashedUrl()));
+//                atLeastOneFailed = true;
+//            }
+//
+//            sb.append(System.lineSeparator());
+//            sb.append(System.lineSeparator());
+//        }
 
         if (atLeastOneFailed) {
             sb.append(FAILURE_HELP_NOTE);

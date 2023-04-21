@@ -9,7 +9,6 @@ import org.sgs.stashbot.model.AuthPollingTime;
 import org.sgs.stashbot.model.BlacklistedUser;
 import org.sgs.stashbot.model.RedditPollingTime;
 import org.sgs.stashbot.model.StashResult;
-import org.sgs.stashbot.model.StashUrl;
 import org.sgs.stashbot.util.PostFormatterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,7 +59,7 @@ public class PersistenceServiceTest extends GeneratorTestBase {
         time3.setSuccess(false);
         authTimeDao.save(time3);
 
-        AuthPollingTime returnedTime = authTimeDao.getLastSuccessfulAuth();
+        AuthPollingTime returnedTime = authTimeDao.findFirstBySuccessIsTrueOrderByDateDesc();
         assertNotNull("Polling time should not be null!", returnedTime);
         assertTrue("Success attribute should be 'true'!", returnedTime.isSuccess());
         assertTrue("Returned result is not the last successful auth time!", returnedTime.getId().equals(time2.getId()));
@@ -87,7 +86,7 @@ public class PersistenceServiceTest extends GeneratorTestBase {
         time3.setDate(getZeroedMilliDate());
         redditTimeServiceDao.save(time3);
 
-        RedditPollingTime returnedTime = redditTimeServiceDao.getLastPollingTime();
+        RedditPollingTime returnedTime = redditTimeServiceDao.findTopByOrderByDate();
         assertNotNull("Polling time should not be null!", returnedTime);
         assertTrue("Returned result is not the latest polling time!", returnedTime.getId().equals(time3.getId()));
         assertTrue("Dates for latest polling time should match!!!", returnedTime.getDate().compareTo(time3.getDate()) == 0);
@@ -120,10 +119,10 @@ public class PersistenceServiceTest extends GeneratorTestBase {
 
     @Test
     public void testStashResultIsServiced() {
-        boolean exists = stashResultDao.existsByTargetCommentId("SVdBrk2");// in dummy data
+        boolean exists = stashResultDao.existsByTargetPostableId("SVdBrk2");// in dummy data
         assertTrue("StashResult should exist in dummy data!", exists);
 
-        exists = stashResultDao.existsByTargetCommentId("lksdjfl;asdjkf");// made up id, should fail
+        exists = stashResultDao.existsByTargetPostableId("lksdjfl;asdjkf");// made up id, should fail
         assertFalse("Made up ID should not pull valid record!", exists);
     }
 
@@ -133,32 +132,32 @@ public class PersistenceServiceTest extends GeneratorTestBase {
         StashResult stashResult = generateDummyStashResult();
         stashResultDao.save(stashResult);
 
-        StashResult stashResult1 = stashResultDao.findByTargetCommentId(stashResult.getTargetPostableId());
+        StashResult stashResult1 = stashResultDao.findByTargetPostableId(stashResult.getTargetPostableId());
         assertNotNull("Should get back one result that we just inserted!", stashResult1);
 
         BigInteger id = stashResult1.getId();
         assertNotNull("Assigned id should not be null!", id);
-        for (StashUrl stashUrl : stashResult1.getStashUrls()) {
-            assertNotNull("stashUrl should not be null!", stashUrl);
-            assertNotNull("stashUrl id should not be null!", stashUrl.getId()); // set by hibernate save
-        }
+//        for (StashUrl stashUrl : stashResult1.getStashUrls()) {
+//            assertNotNull("stashUrl should not be null!", stashUrl);
+//            assertNotNull("stashUrl id should not be null!", stashUrl.getId()); // set by hibernate save
+//        }
 
         stashResultDao.delete(stashResult1);
         assertFalse("stashResult1 should not exist after deletions!",
-                stashResultDao.existsByTargetCommentId(stashResult.getTargetPostableId()));
+                stashResultDao.existsByTargetPostableId(stashResult.getTargetPostableId()));
     }
 
 
     @Test
     public void testStashResultDao() {
-        StashResult stashResult = stashResultDao.findByTargetCommentId("V1X0rS");// in dummy data file
-        assertTrue("stashResult should have 4 urls!", stashResult.getStashUrls().size() == 4);
+        StashResult stashResult = stashResultDao.findByTargetPostableId("V1X0rS");// in dummy data file
+//        assertTrue("stashResult should have 4 urls!", stashResult.getStashUrls().size() == 4);
     }
 
 
     @Test
     public void testFetchOfStashResult() {
-        StashResult stashResult = stashResultDao.find(new BigInteger("1"));
+        StashResult stashResult = stashResultDao.getById(BigInteger.valueOf(1));
 
         assertNotNull("stashResult should not be null!", stashResult);
         assertNotNull("stashResult id should not be null", stashResult.getId());

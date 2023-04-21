@@ -108,7 +108,7 @@ public class StashBotService {
                         continue;
                     }
 
-                    if (!isAlreadyServiced(targetPostable) && !isUserBlacklisted(summoningComment.getAuthor())) {
+                    if (!isAlreadyProcessed(targetPostable) && !isUserBlacklisted(summoningComment.getAuthor())) {
                         processSummons(summoningComment, targetPostable);
                     }
 
@@ -160,7 +160,7 @@ public class StashBotService {
 
 
     private boolean authNeedsRefreshing() {
-        AuthPollingTime lastAuthTime = authTimeDao.getLastSuccessfulAuth();
+        AuthPollingTime lastAuthTime = authTimeDao.findFirstBySuccessIsTrueOrderByDateDesc();
         long now = TimeUtils.getTimeGmt().getTime();
         long lastAuth = lastAuthTime.getDate().getTime();
 
@@ -178,10 +178,10 @@ public class StashBotService {
     }
 
 
-    private boolean isAlreadyServiced(Postable targetPostable) {
-        String targetCommentId = targetPostable.getId();
-        boolean isServiced = stashResultDao.existsByTargetCommentId(targetCommentId);
-        LOG.info("Comment(id: {}) {} previously been serviced.", targetCommentId, (isServiced ? "HAS" : "has NOT"));
+    private boolean isAlreadyProcessed(Postable targetPostable) {
+        String targetPostableId = targetPostable.getId();
+        boolean isServiced = stashResultDao.existsByTargetPostableId(targetPostableId);
+        LOG.info("Comment(id: {}) {} previously been serviced.", targetPostableId, (isServiced ? "HAS" : "has NOT"));
 
         return isServiced;
     }
@@ -220,7 +220,7 @@ public class StashBotService {
 
     private void deliverStashResult(StashResult stashResult, Comment summoningComment) {
         String subredditName = summoningComment.getSubredditName();
-        if (blacklistedSubredditDao.isBlacklisted(subredditName)) {
+        if (blacklistedSubredditDao.existsBlacklistedSubredditsByName(subredditName)) {
             // This sub does not allow bots to post, so send a PM instead
             LOG.info("Making private message for StashResult(id: {})...", stashResult.getId());
             redditService.deliverStashResultByMessage(stashResult);

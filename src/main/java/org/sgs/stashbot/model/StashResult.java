@@ -2,18 +2,15 @@ package org.sgs.stashbot.model;
 
 import org.sgs.stashbot.util.TimeUtils;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Submission;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,9 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "stash_result_t")
 public class StashResult {
-
-    @Id
-    private BigInteger id;
+    private Long id;
     private String submissionUrl;
     private String summoningCommentAuthor;
     private String summoningCommentId;
@@ -33,12 +28,10 @@ public class StashResult {
     private String targetPostableUrl;
     private Date requestDate;
     private Date servicedDate;
+    //private List<StashUrl> stashUrls;
 
     @Transient
     private Comment summoningComment;
-
-    @OneToMany(targetEntity = StashUrl.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "stashResult")
-    private List<StashUrl> stashUrls;
 
 
     public StashResult() {
@@ -56,15 +49,17 @@ public class StashResult {
         this.targetPostableId = targetPostable.getId();
         this.targetPostableUrl = buildRedditCommentUrl(submission, targetPostable.getId());
         this.requestDate = TimeUtils.getTimeGmt();
-        addStashUrls(buildStashUrls(urlsToArchive));
+        //addStashUrls(buildStashUrls(urlsToArchive));
     }
 
 
-    public BigInteger getId() {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long getId() {
         return id;
     }
 
-    public void setId(BigInteger id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -140,13 +135,14 @@ public class StashResult {
         this.servicedDate = servicedDate;
     }
 
-    public List<StashUrl> getStashUrls() {
-        return stashUrls;
-    }
+//    @OneToMany(targetEntity = StashUrl.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "stashResult")
+//    public List<StashUrl> getStashUrls() {
+//        return stashUrls;
+//    }
 
-    public void setStashUrls(List<StashUrl> stashUrls) {
-        this.stashUrls = stashUrls;
-    }
+//    public void setStashUrls(List<StashUrl> stashUrls) {
+//        this.stashUrls = stashUrls;
+//    }
 
 
     public Comment getSummoningComment() {
@@ -161,28 +157,28 @@ public class StashResult {
         return submission.getUrl() + postableId;
     }
 
-    private List<StashUrl> buildStashUrls(List<String> urlsToStash) {
-        List<StashUrl> stashUrls = new ArrayList<>();
-        for (String rawUrl : urlsToStash) {
-            StashUrl stashUrl = new StashUrl();
-            stashUrl.setOriginalUrl(rawUrl);
-            stashUrls.add(stashUrl);
-        }
-
-        return stashUrls;
-    }
-
-    private void addStashUrls(List<StashUrl> stashUrls) {
-        for (StashUrl stashUrl : stashUrls) {
-            addStashUrl(stashUrl);
-        }
-    }
-
-    private void addStashUrl(StashUrl stashUrl) {
-        if (stashUrls == null) {
-            stashUrls = new ArrayList<>();
-        }
-        stashUrl.setStashResult(this);
-        stashUrls.add(stashUrl);
-    }
+//    private List<StashUrl> buildStashUrls(List<String> urlsToStash) {
+//        List<StashUrl> stashUrls = new ArrayList<>();
+//        for (String rawUrl : urlsToStash) {
+//            StashUrl stashUrl = new StashUrl();
+//            stashUrl.setOriginalUrl(rawUrl);
+//            stashUrls.add(stashUrl);
+//        }
+//
+//        return stashUrls;
+//    }
+//
+//    private void addStashUrls(List<StashUrl> stashUrls) {
+//        for (StashUrl stashUrl : stashUrls) {
+//            addStashUrl(stashUrl);
+//        }
+//    }
+//
+//    private void addStashUrl(StashUrl stashUrl) {
+//        if (stashUrls == null) {
+//            stashUrls = new ArrayList<>();
+//        }
+//        stashUrl.setStashResult(this);
+//        stashUrls.add(stashUrl);
+//    }
 }

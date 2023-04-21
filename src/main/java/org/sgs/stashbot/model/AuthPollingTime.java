@@ -16,34 +16,25 @@ import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "auth_polling_time_t")
-public class AuthPollingTime implements Serializable {
-    private static final long serialVersionUID = 898054764851451851L;
+public class AuthPollingTime {
 
-    private BigInteger id;
+    private Long id;
     private Date date;
     private boolean success;
 
 
-    public AuthPollingTime() {
-        // Needed by ORM
-    }
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    public BigInteger getId() {
+    public Long getId() {
         return id;
     }
 
 
-    public void setId(BigInteger id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date")
     public Date getDate() {
         return date;
     }
@@ -54,7 +45,6 @@ public class AuthPollingTime implements Serializable {
     }
 
 
-    @Column(name = "success")
     public boolean isSuccess() {
         return success;
     }

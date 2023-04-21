@@ -2,7 +2,10 @@ package org.sgs.stashbot.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 
@@ -11,32 +14,27 @@ import java.util.Date;
 
 
 @Entity
+@Table(name = "blacklisted_user_t")
 public class BlacklistedUser {
 
-    private BigInteger id;
+    private Long id;
     private String username;
     private Date dateCreated;
     private String reason;
 
 
-    public BlacklistedUser() {
-        // Needed for ORM
-    }
-
-
     @Id
-    @Column
-    public BigInteger getId() {
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long getId() {
         return id;
     }
 
 
-    public void setId(BigInteger id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
 
-    @Column
     public String getUsername() {
         return username;
     }
@@ -47,8 +45,6 @@ public class BlacklistedUser {
     }
 
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column
     public Date getDateCreated() {
         return dateCreated;
     }
@@ -59,7 +55,6 @@ public class BlacklistedUser {
     }
 
 
-    @Column
     public String getReason() {
         return reason;
     }

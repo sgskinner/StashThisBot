@@ -79,6 +79,7 @@ CREATE USER stashbot@localhost
 IDENTIFIED BY 'password';
 
 GRANT SELECT, INSERT, UPDATE, DELETE, DROP, ALTER, CREATE TEMPORARY TABLES ON stashbot.* TO stashbot@localhost;
+grant all privileges on `stashbot`.* to stashbot@localhost;
 
 -- Newer installs of mysql will use unix auth, which we don't want
 USE mysql;

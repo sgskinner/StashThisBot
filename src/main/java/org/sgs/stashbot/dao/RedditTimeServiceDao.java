@@ -11,7 +11,7 @@ import java.math.BigInteger;
 public interface RedditTimeServiceDao extends JpaRepository<RedditPollingTime, BigInteger> {
     //private static final String SELECT_BY_MAX_ID = "SELECT t FROM RedditPollingTime t where id in ( select max(id) from RedditPollingTime)";
 
-    RedditPollingTime getLastPollingTime();
+    RedditPollingTime findTopByOrderByDate();
 
 //    public RedditPollingTime getLastRedditPollingTime() {
 //        List<RedditPollingTime> pollingTimes = getEntityManager()
