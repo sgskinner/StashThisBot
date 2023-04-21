@@ -81,14 +81,14 @@ public class RedditService {
     }
 
 
-    public void postStashResult(StashResult stashResult) {
+    public void postStashResult(Comment summoningComment, StashResult stashResult) {
         AccountManager accountManager = new AccountManager(redditClient);
         try {
             String postText = postFormatterService.format(stashResult);
-            accountManager.reply(stashResult.getSummoningComment(), postText);
+            accountManager.reply(summoningComment, postText);
         } catch (Exception e) {
             LOG.error("Could not post reply to summons (url: {}): {}",
-                    stashResult.getSummoningComment().getUrl(),
+                    summoningComment.getUrl(),
                     e.getMessage());
         }
     }
@@ -243,7 +243,7 @@ public class RedditService {
 
 
     public void deliverStashResultByMessage(StashResult stashResult) {
-        String to = stashResult.getSummoningCommentAuthor();
+        String to = stashResult.getSummoningComment().getAuthor();
         String subject = "StashThis Result";
         String body = postFormatterService.format(stashResult);
 

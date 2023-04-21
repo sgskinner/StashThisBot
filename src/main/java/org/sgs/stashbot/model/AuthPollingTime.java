@@ -1,17 +1,12 @@
 package org.sgs.stashbot.model;
 
-import java.io.Serializable;
-import java.math.BigInteger;
-import java.util.Date;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+
+import java.util.Date;
 
 
 @Entity

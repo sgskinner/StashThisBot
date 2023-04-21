@@ -1,15 +1,14 @@
 package org.sgs.stashbot.model;
 
-import org.sgs.stashbot.util.TimeUtils;
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-import net.dean.jraw.models.Comment;
-import net.dean.jraw.models.Submission;
 
 import java.util.Date;
 import java.util.List;
@@ -20,37 +19,13 @@ import java.util.List;
 public class StashResult {
     private Long id;
     private String submissionUrl;
-    private String summoningCommentAuthor;
-    private String summoningCommentId;
-    private String summoningCommentUrl;
-    private String targetPostableAuthor;
-    private String targetPostableId;
-    private String targetPostableUrl;
+    private String targetAuthor;
+    private String targetId;
+    private String targetUrl;
     private Date requestDate;
-    private Date servicedDate;
-    //private List<StashUrl> stashUrls;
-
-    @Transient
-    private Comment summoningComment;
-
-
-    public StashResult() {
-        //
-    }
-
-
-    public StashResult(Submission submission, Comment summoningComment, Postable targetPostable, List<String> urlsToArchive) {
-        this.submissionUrl = submission.getUrl();
-        this.summoningCommentAuthor = summoningComment.getAuthor();
-        this.summoningCommentId = summoningComment.getId();
-        this.summoningCommentUrl = buildRedditCommentUrl(submission, targetPostable.getId());
-        this.summoningComment = summoningComment;
-        this.targetPostableAuthor = targetPostable.getAuthor();
-        this.targetPostableId = targetPostable.getId();
-        this.targetPostableUrl = buildRedditCommentUrl(submission, targetPostable.getId());
-        this.requestDate = TimeUtils.getTimeGmt();
-        //addStashUrls(buildStashUrls(urlsToArchive));
-    }
+    private Date processedDate;
+    private RedditComment summoningComment;
+    private List<StashUrl> stashUrls;
 
 
     @Id
@@ -71,52 +46,28 @@ public class StashResult {
         this.submissionUrl = submissionUrl;
     }
 
-    public String getSummoningCommentAuthor() {
-        return summoningCommentAuthor;
+    public String getTargetAuthor() {
+        return targetAuthor;
     }
 
-    public void setSummoningCommentAuthor(String summoningCommentAuthor) {
-        this.summoningCommentAuthor = summoningCommentAuthor;
+    public void setTargetAuthor(String targetAuthor) {
+        this.targetAuthor = targetAuthor;
     }
 
-    public String getSummoningCommentId() {
-        return summoningCommentId;
+    public String getTargetId() {
+        return targetId;
     }
 
-    public void setSummoningCommentId(String summoningCommentId) {
-        this.summoningCommentId = summoningCommentId;
+    public void setTargetId(String targetId) {
+        this.targetId = targetId;
     }
 
-    public String getSummoningCommentUrl() {
-        return summoningCommentUrl;
+    public String getTargetUrl() {
+        return targetUrl;
     }
 
-    public void setSummoningCommentUrl(String summoningCommentUrl) {
-        this.summoningCommentUrl = summoningCommentUrl;
-    }
-
-    public String getTargetPostableAuthor() {
-        return targetPostableAuthor;
-    }
-
-    public void setTargetPostableAuthor(String targetCommentAuthor) {
-        this.targetPostableAuthor = targetCommentAuthor;
-    }
-
-    public String getTargetPostableId() {
-        return targetPostableId;
-    }
-
-    public void setTargetPostableId(String targetCommentId) {
-        this.targetPostableId = targetCommentId;
-    }
-
-    public String getTargetPostableUrl() {
-        return targetPostableUrl;
-    }
-
-    public void setTargetPostableUrl(String targetCommentUrl) {
-        this.targetPostableUrl = targetCommentUrl;
+    public void setTargetUrl(String targetUrl) {
+        this.targetUrl = targetUrl;
     }
 
     public Date getRequestDate() {
@@ -127,58 +78,29 @@ public class StashResult {
         this.requestDate = requestDate;
     }
 
-    public Date getServicedDate() {
-        return servicedDate;
+    public Date getProcessedDate() {
+        return processedDate;
     }
 
-    public void setServicedDate(Date servicedDate) {
-        this.servicedDate = servicedDate;
+    public void setProcessedDate(Date processedDate) {
+        this.processedDate = processedDate;
     }
 
-//    @OneToMany(targetEntity = StashUrl.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "stashResult")
-//    public List<StashUrl> getStashUrls() {
-//        return stashUrls;
-//    }
-
-//    public void setStashUrls(List<StashUrl> stashUrls) {
-//        this.stashUrls = stashUrls;
-//    }
-
-
-    public Comment getSummoningComment() {
+    @OneToOne
+    public RedditComment getSummoningComment() {
         return summoningComment;
     }
 
-    private String buildRedditCommentUrl(Submission submission, String postableId) {
-        // |--------------------------------------------- 1 ---------------------------------------------------------||-- 2 --|
-        // https://www.reddit.com/r/ArchiveThisBotSandbox/comments/6qdqub/yatr_yet_another_test_run_here_we_are_again/dkwgsdw/
-        // 1. submission.getUrl()
-        // 2. commentNode.getComment().getId()
-        return submission.getUrl() + postableId;
+    public void setSummoningComment(RedditComment summoningComment) {
+        this.summoningComment = summoningComment;
     }
 
-//    private List<StashUrl> buildStashUrls(List<String> urlsToStash) {
-//        List<StashUrl> stashUrls = new ArrayList<>();
-//        for (String rawUrl : urlsToStash) {
-//            StashUrl stashUrl = new StashUrl();
-//            stashUrl.setOriginalUrl(rawUrl);
-//            stashUrls.add(stashUrl);
-//        }
-//
-//        return stashUrls;
-//    }
-//
-//    private void addStashUrls(List<StashUrl> stashUrls) {
-//        for (StashUrl stashUrl : stashUrls) {
-//            addStashUrl(stashUrl);
-//        }
-//    }
-//
-//    private void addStashUrl(StashUrl stashUrl) {
-//        if (stashUrls == null) {
-//            stashUrls = new ArrayList<>();
-//        }
-//        stashUrl.setStashResult(this);
-//        stashUrls.add(stashUrl);
-//    }
+    @OneToMany(targetEntity = StashUrl.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    public List<StashUrl> getStashUrls() {
+        return stashUrls;
+    }
+
+    public void setStashUrls(List<StashUrl> stashUrls) {
+        this.stashUrls = stashUrls;
+    }
 }

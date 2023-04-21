@@ -245,12 +245,11 @@ public class ArchiveService {
 
 
     public void archive(StashResult stashResult) {
-        //for (StashUrl stashUrl : stashResult.getStashUrls()) {
-        for (StashUrl stashUrl : new ArrayList<StashUrl>()) {
+        for (StashUrl stashUrl : stashResult.getStashUrls()) {
             executeHttpTransactions(stashUrl);
         }
 
-        stashResult.setServicedDate(TimeUtils.getTimeGmt());
+        stashResult.setProcessedDate(TimeUtils.getTimeGmt());
     }
 
 

@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -15,7 +17,6 @@ import java.util.Date;
 public class StashUrl {
 
     private Long id;
-    //private StashResult stashResult;
     private String originalUrl;
     private String stashedUrl;
     private Date lastStashed;
@@ -31,18 +32,6 @@ public class StashUrl {
     public void setId(Long id) {
         this.id = id;
     }
-
-
-//    @ManyToOne(targetEntity = StashResult.class)
-//    @JoinColumn(name = "stash_result_id", nullable = false)
-//    public StashResult getStashResult() {
-//        return stashResult;
-//    }
-
-
-//    public void setStashResult(StashResult stashResult) {
-//        this.stashResult = stashResult;
-//    }
 
 
     public String getStashedUrl() {
@@ -90,4 +79,5 @@ public class StashUrl {
                 String.format("lastStashed: %s", getLastStashed()) +
                 String.format("isStashed: %s]", isStashed());
     }
+
 }

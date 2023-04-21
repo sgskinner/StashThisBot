@@ -87,3 +87,7 @@ UPDATE user SET plugin ='mysql_native_password' WHERE User = 'stashbot';
 
 select * from user where user = 'stashbot';
 
+DROP DATABASE IF EXISTS stashbot;
+
+CREATE DATABASE stashbot;
+grant all privileges on `stashbot`.* to stashbot@localhost;

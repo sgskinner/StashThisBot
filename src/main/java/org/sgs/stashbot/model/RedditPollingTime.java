@@ -14,18 +14,18 @@ import java.util.Date;
 @Table(name = "reddit_polling_time_t")
 public class RedditPollingTime {
 
-    private BigInteger id;
+    private Long id;
     private Date date;
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public BigInteger getId() {
+    public Long getId() {
         return id;
     }
 
 
-    public void setId(BigInteger id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

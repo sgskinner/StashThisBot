@@ -30,6 +30,7 @@ import org.sgs.stashbot.model.Postable;
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.service.ArchiveService;
 import org.sgs.stashbot.service.RedditService;
+import org.sgs.stashbot.service.StashResultService;
 import org.sgs.stashbot.util.TimeUtils;
 import org.sgs.stashbot.util.UrlMatcher;
 import org.slf4j.Logger;
@@ -55,9 +56,10 @@ public class StashBotService {
     private static final int MAX_AUTH_ATTEMPTS = 3;
     private static final String SUMMONING_SUBJECT_TEXT = "username mention";
 
+    private RedditService redditService;
+    private StashResultService stashResultService;
     private BlacklistedSubredditDao blacklistedSubredditDao;
     private BlacklistedUserDao blacklistedUserDao;
-    private RedditService redditService;
     private ArchiveService archiveIsService;
     private StashResultDao stashResultDao;
     private AuthTimeDao authTimeDao;
@@ -180,10 +182,10 @@ public class StashBotService {
 
     private boolean isAlreadyProcessed(Postable targetPostable) {
         String targetPostableId = targetPostable.getId();
-        boolean isServiced = stashResultDao.existsByTargetPostableId(targetPostableId);
-        LOG.info("Comment(id: {}) {} previously been serviced.", targetPostableId, (isServiced ? "HAS" : "has NOT"));
+        boolean isProcessed = stashResultDao.existsByTargetId(targetPostableId);
+        LOG.info("Comment(id: {}) {} previously been serviced.", targetPostableId, (isProcessed ? "HAS" : "has NOT"));
 
-        return isServiced;
+        return isProcessed;
     }
 
 
@@ -202,7 +204,7 @@ public class StashBotService {
             Submission submission = redditService.getSubmissionById(submissionId);
 
             // Attempt actual archiving
-            StashResult stashResult = new StashResult(submission, summoningComment, targetPostable, extractedUrls);
+            StashResult stashResult = stashResultService.buildStashResult(submission, summoningComment, targetPostable, extractedUrls);
             archiveIsService.archive(stashResult);
 
             // Regardless if the URLs were successful of being archived, still want to save record of having tried
@@ -229,7 +231,7 @@ public class StashBotService {
         } else {
             // The sub is not blacklisted, so make a post
             LOG.info("Making reddit post for StashResult(id: {})...", stashResult.getId());
-            redditService.postStashResult(stashResult);
+            redditService.postStashResult(summoningComment, stashResult);
             LOG.info("Completed reddit post for StashResult(id: {}).", stashResult.getId());
         }
     }
@@ -297,4 +299,8 @@ public class StashBotService {
         this.stashResultDao = stashResultDao;
     }
 
+    @Autowired
+    public void setStashResultService(StashResultService stashResultService) {
+        this.stashResultService = stashResultService;
+    }
 }

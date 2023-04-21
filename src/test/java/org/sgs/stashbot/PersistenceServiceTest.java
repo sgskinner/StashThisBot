@@ -9,6 +9,7 @@ import org.sgs.stashbot.model.AuthPollingTime;
 import org.sgs.stashbot.model.BlacklistedUser;
 import org.sgs.stashbot.model.RedditPollingTime;
 import org.sgs.stashbot.model.StashResult;
+import org.sgs.stashbot.model.StashUrl;
 import org.sgs.stashbot.util.PostFormatterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -119,10 +120,10 @@ public class PersistenceServiceTest extends GeneratorTestBase {
 
     @Test
     public void testStashResultIsServiced() {
-        boolean exists = stashResultDao.existsByTargetPostableId("SVdBrk2");// in dummy data
+        boolean exists = stashResultDao.existsByTargetId("SVdBrk2");// in dummy data
         assertTrue("StashResult should exist in dummy data!", exists);
 
-        exists = stashResultDao.existsByTargetPostableId("lksdjfl;asdjkf");// made up id, should fail
+        exists = stashResultDao.existsByTargetId("lksdjfl;asdjkf");// made up id, should fail
         assertFalse("Made up ID should not pull valid record!", exists);
     }
 
@@ -132,26 +133,26 @@ public class PersistenceServiceTest extends GeneratorTestBase {
         StashResult stashResult = generateDummyStashResult();
         stashResultDao.save(stashResult);
 
-        StashResult stashResult1 = stashResultDao.findByTargetPostableId(stashResult.getTargetPostableId());
+        StashResult stashResult1 = stashResultDao.findByTargetId(stashResult.getTargetId());
         assertNotNull("Should get back one result that we just inserted!", stashResult1);
 
-        BigInteger id = stashResult1.getId();
+        Long id = stashResult1.getId();
         assertNotNull("Assigned id should not be null!", id);
-//        for (StashUrl stashUrl : stashResult1.getStashUrls()) {
-//            assertNotNull("stashUrl should not be null!", stashUrl);
-//            assertNotNull("stashUrl id should not be null!", stashUrl.getId()); // set by hibernate save
-//        }
+        for (StashUrl stashUrl : stashResult1.getStashUrls()) {
+            assertNotNull("stashUrl should not be null!", stashUrl);
+            assertNotNull("stashUrl id should not be null!", stashUrl.getId()); // set by hibernate save
+        }
 
         stashResultDao.delete(stashResult1);
         assertFalse("stashResult1 should not exist after deletions!",
-                stashResultDao.existsByTargetPostableId(stashResult.getTargetPostableId()));
+                stashResultDao.existsByTargetId(stashResult.getTargetId()));
     }
 
 
     @Test
     public void testStashResultDao() {
-        StashResult stashResult = stashResultDao.findByTargetPostableId("V1X0rS");// in dummy data file
-//        assertTrue("stashResult should have 4 urls!", stashResult.getStashUrls().size() == 4);
+        StashResult stashResult = stashResultDao.findByTargetId("V1X0rS");// in dummy data file
+        assertTrue("stashResult should have 4 urls!", stashResult.getStashUrls().size() == 4);
     }
 
 
@@ -161,13 +162,13 @@ public class PersistenceServiceTest extends GeneratorTestBase {
 
         assertNotNull("stashResult should not be null!", stashResult);
         assertNotNull("stashResult id should not be null", stashResult.getId());
-        assertNotNull("Comment author should not be null", stashResult.getTargetPostableAuthor());
-        assertNotNull("Comment should not be null", stashResult.getTargetPostableId());
-        assertNotNull("Comment url should not be null", stashResult.getTargetPostableUrl());
+        assertNotNull("Comment author should not be null", stashResult.getTargetAuthor());
+        assertNotNull("Comment should not be null", stashResult.getTargetId());
+        assertNotNull("Comment url should not be null", stashResult.getTargetUrl());
         assertNotNull("Submission url should not be null", stashResult.getSubmissionUrl());
-        assertNotNull("Summoning user should not be null", stashResult.getSummoningCommentAuthor());
-        assertNotNull("Summoning comment id should not be null", stashResult.getSummoningCommentId());
-        assertNotNull("Summoning comment url should not be null", stashResult.getSummoningCommentUrl());
+        assertNotNull("Summoning user should not be null", stashResult.getSummoningComment().getAuthor());
+        assertNotNull("Summoning comment id should not be null", stashResult.getSummoningComment().getRedditId());
+        assertNotNull("Summoning comment url should not be null", stashResult.getSummoningComment().getUrl());
     }
 
 }
