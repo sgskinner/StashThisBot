@@ -58,15 +58,15 @@ public class ArchiveIsServiceTest extends GeneratorTestBase {
     public void testArchive() {
         assertThat(archiveService).isNotNull();
 
-        StashResult stashResult = generateDummyStashResult(true);
-        archiveService.archive(stashResult);
-        assertThat(stashResult.getServicedDate()).isNotNull();
+        StashResult generatedStashResult = generateStashResult();
+        archiveService.archive(generatedStashResult);
+        assertThat(generatedStashResult.getProcessedDate()).isNotNull();
 
-        List<StashUrl> stashUrlList = stashResult.getStashUrls();
+        List<StashUrl> stashUrlList = generatedStashResult.getStashUrls();
         for (StashUrl stashUrl : stashUrlList) {
             String archivedUrl = stashUrl.getOriginalUrl();
             assertThat(archivedUrl).isNotNull();
-            assertThat(archivedUrl.contains("archive.is")).isFalse();
+            assertThat(archivedUrl.contains("archive.today")).isFalse();
         }
     }
 

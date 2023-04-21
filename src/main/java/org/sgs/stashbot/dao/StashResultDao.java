@@ -8,8 +8,7 @@ import java.math.BigInteger;
 
 
 @Repository
-public interface StashResultDao extends JpaRepository<StashResult, BigInteger> {
+public interface StashResultDao extends JpaRepository<StashResult, Long> {
     boolean existsByTargetId(String postableId);
     StashResult findByTargetId(String postableId);
-    StashResult getById(BigInteger id);
 }

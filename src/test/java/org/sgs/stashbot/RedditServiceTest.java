@@ -19,9 +19,10 @@
  * Copyright (C) 2017  S.G. Skinner
  */
 
-package org.sgs.stashbot.service;
+package org.sgs.stashbot;
 
 import org.junit.jupiter.api.Test;
+import org.sgs.stashbot.service.RedditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 

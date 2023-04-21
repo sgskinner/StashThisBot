@@ -86,7 +86,7 @@ public class StashResult {
         this.processedDate = processedDate;
     }
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     public RedditComment getSummoningComment() {
         return summoningComment;
     }

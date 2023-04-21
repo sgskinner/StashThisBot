@@ -4,11 +4,9 @@ import org.sgs.stashbot.model.BlacklistedUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigInteger;
-
 
 @Repository
-public interface BlacklistedUserDao extends JpaRepository<BlacklistedUser, BigInteger> {
+public interface BlacklistedUserDao extends JpaRepository<BlacklistedUser, Long> {
     boolean existsByUsername(String username);
     BlacklistedUser findBlacklistedUserByUsername(String username);
 }

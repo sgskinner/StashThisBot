@@ -48,8 +48,8 @@ public class ArchiveService {
     private static final String XPATH_TO_SUBMIT_ID = "//*[@id=\"submiturl\"]/input/@value";
     private static final String HEADER_LOCATION_KEY = "Location";
     private static final String HEADER_REFRESH_KEY = "Refresh";
-    private static final String GET_REQUEST_URL = "https://archive.is";
-    private static final String POST_REQUEST_URL = "http://archive.is/submit/";
+    private static final String GET_REQUEST_URL = "https://archive.today";
+    private static final String POST_REQUEST_URL = "http://archive.today/submit/";
     private static final String FAIL_LINK_FORMAT = "https://archive.today/?run=1&url={}";
     private static final String URL_FORM_KEY = "url";
     private static final String SUBMIT_ID_FORM_KEY = "submitid";

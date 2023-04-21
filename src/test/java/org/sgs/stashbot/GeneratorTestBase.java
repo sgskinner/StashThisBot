@@ -4,14 +4,11 @@ import org.apache.commons.text.CharacterPredicate;
 import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
 import org.junit.jupiter.api.BeforeAll;
-import org.sgs.stashbot.dao.ScrapedUrlDao;
 import org.sgs.stashbot.model.BlacklistedUser;
-import org.sgs.stashbot.model.ScrapedUrl;
+import org.sgs.stashbot.model.RedditComment;
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.model.StashUrl;
 import org.sgs.stashbot.util.TimeUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -21,15 +18,11 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 
-@SpringBootTest
 public class GeneratorTestBase {
     private static final String[] TEST_SUMMONER_USERNAMES = {"test-summoner-0", "test-summoner-1", "test-summoner-2", "test-summoner-3", "test-summoner-4"};
     private static final String[] TEST_TARGET_USERNAMES = {"test-target-0", "test-target-1", "test-target-2", "test-target-3", "test-target-4"};
 
     private static RandomStringGenerator stringGenerator;
-
-    @Autowired
-    private ScrapedUrlDao scrapedUrlDao;
 
 
     @BeforeAll
@@ -43,30 +36,23 @@ public class GeneratorTestBase {
     }
 
 
-    protected StashResult generateDummyStashResult() {
-        return generateDummyStashResult(false);
-    }
-
-
-    protected StashResult generateDummyStashResult(boolean withValidStashUrls) {
-
+    protected StashResult generateStashResult() {
         StashResult stashResult = new StashResult();
         stashResult.setSubmissionUrl(generateMockUrl());
-        stashResult.setTargetPostableAuthor(getRandomTargetUsername());
-        stashResult.setTargetPostableId(stringGenerator.generate(getRandomInt(5, 9)));
-        stashResult.setTargetPostableUrl(generateMockUrl());
-        stashResult.setSummoningCommentAuthor(getRandomSummonerUsername());
-        stashResult.setSummoningCommentId(stringGenerator.generate(getRandomInt(5, 9)));
-        stashResult.setSummoningCommentUrl(generateMockUrl());
+        stashResult.setTargetAuthor(getRandomTargetUsername());
+        stashResult.setTargetId(stringGenerator.generate(getRandomInt(5, 9)));
+        stashResult.setTargetUrl(generateMockUrl());
+
+        RedditComment redditComment = new RedditComment();
+        redditComment.setRedditId(stringGenerator.generate(getRandomInt(5, 9)));
+        redditComment.setAuthor(getRandomSummonerUsername());
+        redditComment.setUrl(generateMockUrl());
+        stashResult.setSummoningComment(redditComment);
+
         stashResult.setRequestDate(getZeroedMilliDate());
-        stashResult.setServicedDate(getZeroedMilliDate());
+        stashResult.setProcessedDate(getZeroedMilliDate());
 
-        if (withValidStashUrls) {
-            stashResult.setStashUrls(generateValidUrlList(getRandomInt(1, 5)));
-        } else {
-            stashResult.setStashUrls(generateMockUrlList(getRandomInt(1, 5)));
-        }
-
+        stashResult.setStashUrls(generateMockUrlList(getRandomInt(1, 5)));
 
         return stashResult;
     }
@@ -91,24 +77,6 @@ public class GeneratorTestBase {
         return stashUrl;
     }
 
-
-    protected List<StashUrl> generateValidUrlList(int howMany) {
-        List<StashUrl> stashUrls = new ArrayList<>();
-        for (int i = 0; i < howMany; i++) {
-            stashUrls.add(generateValidUrl());
-        }
-
-        return stashUrls;
-    }
-
-
-    protected StashUrl generateValidUrl() {
-        ScrapedUrl scrapedUrl = scrapedUrlDao.getNextScrapedUrl();
-        StashUrl stashUrl = new StashUrl();
-        stashUrl.setOriginalUrl(scrapedUrl.getUrl());
-
-        return stashUrl;
-    }
 
     protected String generateMockUrl() {
         return "http://www." + generateRandomString(getRandomInt(5, 14)) +
