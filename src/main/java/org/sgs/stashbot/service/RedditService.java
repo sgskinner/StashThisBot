@@ -34,7 +34,10 @@ import net.dean.jraw.RedditClient;
 import net.dean.jraw.fluent.AuthenticatedUserReference;
 import net.dean.jraw.fluent.FluentRedditClient;
 import net.dean.jraw.fluent.InboxReference;
+import net.dean.jraw.http.AuthenticationMethod;
 import net.dean.jraw.http.UserAgent;
+import net.dean.jraw.http.oauth.Credentials;
+import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.Listing;
@@ -57,27 +60,53 @@ import net.dean.jraw.paginators.InboxPaginator;
 @Service
 public class RedditService {
     private static final Logger LOG = LoggerFactory.getLogger(RedditService.class);
-
-    private AuthService authService;
     private PostFormatterService postFormatterService;
     private final RedditClient redditClient;
+    private Environment env;
 
 
     @Autowired
     public RedditService(Environment env) {
-        // Couldn't figure out a way around maintaining state, as this is an object out of our control
-        UserAgent userAgent = UserAgent.of("desktop", "org.sgs.stashbot", env.getProperty("stashbot.version"), "StashThis");
-        this.redditClient =  new RedditClient(userAgent);
+        this.env = env;
+        this.redditClient =  new RedditClient(buildUserAgent());
     }
 
 
-    public boolean performAuth() {
-        return authService.authenticate(redditClient);
-    }
+    public boolean authenticate() {
+        if (redditClient.isAuthenticated()) {
+            return true;
+        }
 
+        try {
+            OAuthData oAuthData = redditClient
+                    .getOAuthHelper()
+                    .easyAuth(getCredentials());
+            redditClient.authenticate(oAuthData);
+        } catch (Exception e) {
+            LOG.error("Could not authenticate: {}", e.getMessage());
+            return false;
+        }
 
-    public boolean isAuthenticated() {
         return redditClient.isAuthenticated();
+    }
+
+
+    private Credentials getCredentials() {
+        return new Credentials(AuthenticationMethod.SCRIPT,
+                env.getProperty("reddit.bot.username"),
+                env.getProperty("reddit.bot.password"),
+                env.getProperty("reddit.bot.client.id"),
+                env.getProperty("reddit.bot.client.secret"),
+                null,
+                env.getProperty("reddit.bot.redirect.url"));
+    }
+
+
+    private UserAgent buildUserAgent() {
+        return UserAgent.of("desktop",
+                "org.sgs.stashbot",
+                env.getProperty("reddit.bot.version"),
+                env.getProperty("bots.reddit.username"));
     }
 
 
@@ -296,13 +325,13 @@ public class RedditService {
 
 
     @Autowired
-    public void setAuthService(AuthService authService) {
-        this.authService = authService;
+    public void setPostFormatterService(PostFormatterService postFormatterService) {
+        this.postFormatterService = postFormatterService;
     }
 
     @Autowired
-    public void setPostFormatterService(PostFormatterService postFormatterService) {
-        this.postFormatterService = postFormatterService;
+    public void setEnv(Environment env) {
+        this.env = env;
     }
 
 }

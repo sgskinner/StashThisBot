@@ -48,7 +48,7 @@ public class PostFormatterService {
 
         sb.append(LINE);
         sb.append(System.lineSeparator());
-        sb.append(String.format(FOOTER, env.getProperty("stashbot.version")));
+        sb.append(String.format(FOOTER, env.getProperty("reddit.bot.version")));
 
         return sb.toString();
     }

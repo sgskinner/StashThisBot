@@ -38,7 +38,7 @@ public class RedditServiceTest {
     @Test
     public void testOauth() {
         assertThat(redditService).isNotNull();
-        assertThat(redditService.performAuth()).isTrue();
+        assertThat(redditService.authenticate()).isTrue();
         assertThat(redditService.isAuthenticated()).isTrue();
     }
 

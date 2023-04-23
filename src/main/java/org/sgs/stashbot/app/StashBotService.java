@@ -21,17 +21,14 @@
 package org.sgs.stashbot.app;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sgs.stashbot.dao.AuthTimeDao;
 import org.sgs.stashbot.dao.BlacklistedSubredditDao;
 import org.sgs.stashbot.dao.BlacklistedUserDao;
 import org.sgs.stashbot.dao.StashResultDao;
-import org.sgs.stashbot.model.AuthPollingTime;
 import org.sgs.stashbot.model.Postable;
 import org.sgs.stashbot.model.StashResult;
 import org.sgs.stashbot.service.ArchiveService;
 import org.sgs.stashbot.service.RedditService;
 import org.sgs.stashbot.service.StashResultService;
-import org.sgs.stashbot.util.TimeUtils;
 import org.sgs.stashbot.util.UrlMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,31 +47,23 @@ import java.util.List;
 @Service
 public class StashBotService {
     private static final Logger LOG = LoggerFactory.getLogger(StashBotService.class);
-    private static final long AUTH_SLEEP_INTERVAL = 10 * 1000; // 10 seconds in millis
     private static final long SUBMISSION_POLLING_INTERVAL = 10 * 1000; // 10 seconds in millis
-    private static final long OAUTH_REFRESH_INTERVAL = 50 * 60 * 1000; // 50 minutes in millis
-    private static final int MAX_AUTH_ATTEMPTS = 3;
     private static final String SUMMONING_SUBJECT_TEXT = "username mention";
 
     private RedditService redditService;
     private StashResultService stashResultService;
     private BlacklistedSubredditDao blacklistedSubredditDao;
     private BlacklistedUserDao blacklistedUserDao;
-    private ArchiveService archiveIsService;
+    private ArchiveService archiveService;
     private StashResultDao stashResultDao;
-    private AuthTimeDao authTimeDao;
     private Environment env;
-    private boolean killSwitchClick;
 
 
     public void run() {
 
-        if (!performAuth()) {
-            LOG.error("Failed initial authentication, exiting!");
-            System.exit(1);
-        }
+        while (true) {
 
-        while (!killSwitchClick) {
+            redditService.authenticate();
 
             LOG.info("--------------------------------------------------------------------------------");
             LOG.info("Polling for new messages...");
@@ -110,8 +99,8 @@ public class StashBotService {
                         continue;
                     }
 
-                    if (!isAlreadyProcessed(targetPostable) && !isUserBlacklisted(summoningComment.getAuthor())) {
-                        processSummons(summoningComment, targetPostable);
+                    if (!isProcessed(targetPostable) && !isUserBlacklisted(summoningComment.getAuthor())) {
+                        processMention(summoningComment, targetPostable);
                     }
 
                     LOG.info("Completed processing messages.");
@@ -119,11 +108,6 @@ public class StashBotService {
                 }//for
 
             }//else
-
-            // OAuth token needs refreshing every 60 minutes
-            if (authNeedsRefreshing()) {
-                retryAuthTillSuccess();
-            }
 
             try {
                 LOG.info("Sleeping...");
@@ -136,40 +120,6 @@ public class StashBotService {
         }
     }
 
-
-    private void retryAuthTillSuccess() {
-        int attempts = 0;
-
-        boolean success = performAuth();
-        attempts++;
-
-        while (!success) {
-            if (attempts >= MAX_AUTH_ATTEMPTS) {
-                LOG.error("Could not authenticate before exhausting {} attempts, exiting.", MAX_AUTH_ATTEMPTS);
-                killSwitchClick = true;
-                return;
-            }
-
-            try {
-                Thread.sleep(AUTH_SLEEP_INTERVAL);
-                success = performAuth();
-                attempts++;
-            } catch (InterruptedException e) {
-                LOG.warn("Woken up from sleep unexpectedly!");
-            }
-        }
-    }
-
-
-    private boolean authNeedsRefreshing() {
-        AuthPollingTime lastAuthTime = authTimeDao.findFirstBySuccessIsTrueOrderByDateDesc();
-        long now = TimeUtils.getTimeGmt().getTime();
-        long lastAuth = lastAuthTime.getDate().getTime();
-
-        return (now - lastAuth) >= OAUTH_REFRESH_INTERVAL;
-    }
-
-
     private boolean isUserBlacklisted(String authorUsername) {
         boolean isBlacklisted = StringUtils.isBlank(authorUsername) || blacklistedUserDao.existsByUsername(authorUsername);
         if (isBlacklisted) {
@@ -180,16 +130,16 @@ public class StashBotService {
     }
 
 
-    private boolean isAlreadyProcessed(Postable targetPostable) {
+    private boolean isProcessed(Postable targetPostable) {
         String targetPostableId = targetPostable.getId();
         boolean isProcessed = stashResultDao.existsByTargetId(targetPostableId);
-        LOG.info("Comment(id: {}) {} previously been serviced.", targetPostableId, (isProcessed ? "HAS" : "has NOT"));
+        LOG.info("Comment(id: {}) {} previously been processed.", targetPostableId, (isProcessed ? "HAS" : "has NOT"));
 
         return isProcessed;
     }
 
 
-    private void processSummons(Comment summoningComment, Postable targetPostable) {
+    private void processMention(Comment summoningComment, Postable targetPostable) {
         LOG.info("Processing summons: " + summoningComment.getId());
 
         String body = targetPostable.getBody();
@@ -205,7 +155,7 @@ public class StashBotService {
 
             // Attempt actual archiving
             StashResult stashResult = stashResultService.buildStashResult(submission, summoningComment, targetPostable, extractedUrls);
-            archiveIsService.archive(stashResult);
+            archiveService.archive(stashResult);
 
             // Regardless if the URLs were successful of being archived, still want to save record of having tried
             stashResultDao.save(stashResult);
@@ -237,30 +187,8 @@ public class StashBotService {
     }
 
 
-    protected boolean performAuth() {
-        LOG.info("********************************************************************************");
-        LOG.info("Attempting reddit authentication...");
-        AuthPollingTime time = new AuthPollingTime();
-        time.setDate(TimeUtils.getTimeGmt());
-
-        boolean success = redditService.performAuth();
-        success &= isAuthenticated();
-
-        time.setSuccess(success);
-        authTimeDao.save(time);
-
-        LOG.info("Authentication attempt was successful: {}", success);
-        return success;
-    }
-
-
     public boolean isHealthy() {
-        return redditService.isRedditHealthy() && archiveIsService.isHealthy();
-    }
-
-
-    private boolean isAuthenticated() {
-        return redditService.isAuthenticated();
+        return redditService.isRedditHealthy() && archiveService.isHealthy();
     }
 
 
@@ -270,8 +198,8 @@ public class StashBotService {
     }
 
     @Autowired
-    public void setArchiveIsService(ArchiveService archiveIsService) {
-        this.archiveIsService = archiveIsService;
+    public void setArchiveService(ArchiveService archiveService) {
+        this.archiveService = archiveService;
     }
 
     @Autowired
@@ -290,11 +218,6 @@ public class StashBotService {
     }
 
     @Autowired
-    public void setAuthTimeDao(AuthTimeDao authTimeDao) {
-        this.authTimeDao = authTimeDao;
-    }
-
-    @Autowired
     public void setStashResultDao(StashResultDao stashResultDao) {
         this.stashResultDao = stashResultDao;
     }
@@ -303,4 +226,5 @@ public class StashBotService {
     public void setStashResultService(StashResultService stashResultService) {
         this.stashResultService = stashResultService;
     }
+
 }

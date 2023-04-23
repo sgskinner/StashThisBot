@@ -39,7 +39,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jraw.version>0.9.0</jraw.version>
+        <jraw.version>0.9.1</jraw.version>
         <commons-lang.version>3.6</commons-lang.version>
         <http-client.version>5.2.1</http-client.version>
         <mysql.version>8.0.32</mysql.version>
@@ -101,8 +101,6 @@
             <artifactId>htmlcleaner</artifactId>
             <version>${htmlcleaner.version}</version>
         </dependency>
-
-        <!--suppress VulnerableLibrariesLocal -->
         <dependency>
             <!-- This lib needs replacing, look into Reddit4J -->
             <groupId>net.dean.jraw</groupId>
